@@ -1,0 +1,76 @@
+# Strategia e catalogo dei test
+
+[Indice](README.md) · [English](../en/testing-strategy.md)
+
+**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+
+## Livelli e modello di riferimento
+
+Unit test della macchina a stati: tabella completa di pre/postcondizioni e quote. Unit test core: fake clock, PRNG con seed, rete e storage a eventi. Integration: tre processi reali e directory temporanee isolate. Concurrency: handler, shutdown e apply con race detector. Property-based: `testing/quick` e fuzzing standard limitato per parser, frame e sequenze di comandi; nessuna libreria Raft o servizio esterno.
+
+Modello sequenziale indipendente, piccolo e deliberatamente diverso dalla struttura implementativa, per evitare test che ripetano lo stesso errore. Stato canonico confrontato solo allo stesso indice applicato. Invarianti INV-01–06 controllate dopo ogni transizione simulata, non soltanto a fine esecuzione.
+
+## Catalogo test pianificati
+
+| Test | Requisito | Procedura | Evidenza |
+|---|---|---|---|
+| T-001 | FR-001 | Avviare tre config distinte e tentare seconda apertura di n1. | Manifest e exit code. |
+| T-002 | FR-002 | Variare membri, cluster ID e hash in config e RPC. | Fixture valide/invalide e stato prima/dopo. |
+| T-003 | FR-003 | Iniettare JSON invalido, envelope errato e corpo oltre cap. | Risposte e hash stato invariato. |
+| T-004 | FR-004 | Simulare split vote e crash subito dopo voto Sync; rieseguire per 20 seed. | Traccia voti/termini/leader e seed. |
+| T-005 | FR-005 | Avanzare clock virtuale per 100 heartbeat senza guasti. | Conteggio elezioni e timer. |
+| T-006 | FR-006 | Costruire log divergenti, inviare heartbeat e risposte obsolete, poi heal. | Prefissi, matchIndex e transizioni. |
+| T-007 | FR-007 | Riprodurre caso entry vecchia su maggioranza, poi noop corrente. | Commit invariato prima e avanzato dopo. |
+| T-008 | FR-008 | Applicare stessa sequenza su tre modelli, ritardando un applier. | Digest canonico e risultati per indice. |
+| T-009 | FR-009 | Enumerare chiave assente, valore vuoto, input invalido e DELETE ripetuto. | Tabella fixture API e modello. |
+| T-010 | FR-010 | Lanciare due CAS da sessioni diverse sullo stesso valore, new diversi. | Storia con un solo cambiamento riuscito. |
+| T-011 | FR-011 | Duplicare ultima sequenza, variare payload, usare sequenza vecchia e gap. | Risultati e tabella sessioni dopo replay. |
+| T-012 | FR-012 | Scartare risposta dopo apply, cambiare leader, ritentare identico. | Una sola mutazione e risultato originale. |
+| T-013 | FR-013 | Tagliare frame a ogni confine; simulare short write/Sync error e CRC errato. | Immagini disco e decisione recovery. |
+| T-014 | FR-014 | Riavviare tutti con suffisso non committed e checkpoint commit inferiore. | Stato ricostruito prima e dopo nuovo noop. |
+| T-015 | FR-015 | Installare snapshot a follower molto arretrato con retry chunk e cambio termine. | Hash immagine, sessioni e indici finali. |
+| T-016 | FR-016 | Arrestare a ogni cutpoint di pubblicazione/cleanup generazione. | CURRENT e generazione recuperata per caso. |
+| T-017 | FR-017 | Eseguire elezione e timeout, ispezionare status e log senza valori utente. | Campione log redatto e snapshot metriche. |
+| T-018 | FR-018 | Inviare shutdown durante RPC e persistenza; controllare worker e lock. | Durata, goroutine e recovery successivo. |
+| T-019 | FR-019 | Stabilire isolamento completo e scartare messaggi pendenti; poi scrivere sulla maggioranza e invocare nuova GET sul vecchio leader. | Storia che esclude lettura stale di successo. |
+| T-020 | FR-020 | Riprodurre due volte scenario con stesso seed e clock virtuale. | Tracce eventi identiche byte per byte. |
+| T-021 | NFR-001 | Enumerare piccoli schedule con 3 nodi, 3 proposte e fino a 2 guasti. | Report invarianti e bound esplorato. |
+| T-022 | NFR-002 | Verificare 20 storie fino a 12 operazioni con CAS, retry e failover. | Ordine testimone o controesempio ridotto. |
+| T-023 | NFR-003 | Confermare dati, crash di processo su uno e poi tutti, recuperare directory intatte. | Lista successi confrontata con GET successivi. |
+| T-024 | NFR-004 | Fermare follower, riavviarlo e attendere catch-up; poi fermare leader lasciando due nodi sani. | Timeline elezione e ripresa entro target locale. |
+| T-025 | NFR-005 | Eseguire benchmark limitato secondo profilo risorse. | Campioni grezzi e metodologia. |
+| T-026 | NFR-006 | Raggiungere quota dataset, code e disco simulato senza carico massivo. | Errori, RSS, CPU e spazio massimo. |
+| T-027 | NFR-007 | Confrontare alberi linguistici, ID, blocchi tecnici e link; revisione semantica. | Rapporto revisione con limiti dichiarati. |
+| T-028 | NFR-008 | Iniettare fake clock, PRNG, transport e storage nello stesso core. | Replay regressione senza rete reale. |
+| T-029 | NFR-009 | Registrare go version/GOARCH e compilare sul Mac ARM64. | Output build e suite locale. |
+| T-030 | NFR-010 | Provare bind 0.0.0.0, input gigante e permessi larghi. | Rifiuti e permessi effettivi. |
+| T-031 | NFR-011 | Disabilitare Internet mantenendo loopback ed eseguire integrazione offline autonoma; demo presentata a M16. | Manifest dipendenze e traccia offline. |
+| T-032 | NFR-012 | Revisionare dipendenze e procedura su macchina già posseduta. | Inventario licenze, costi e prerequisiti. |
+
+## Storie e checker di linearizzabilità
+
+Un coordinatore registra con clock monotono unico: history_version, event_id, client_id, sequence, attempt_id, operation, key, input sintetico, invoke_time, return_time, code, outcome, result, server_term/index e scenario seed. Input/output di valore solo nelle fixture sintetiche, mai log operativi. Lo storico mantiene ogni tentativo; il checker raggruppa retry della stessa mutazione in una sola operazione logica, con intervallo dalla prima invocazione alla **prima** risposta definitiva osservata; retry successivi non estendono tale intervallo. Retry GET rimane operazione distinta.
+
+Il checker costruisce precedenze reali (`return(A) < invoke(B)`), esplora ordinamenti topologici e applica il modello per verificare risultati. Operazioni con risposta unknown o senza risposta possono essere escluse o inserite con effetto compatibile, mai automaticamente considerate fallite. Controlla separatamente che retry restituiscano risultato originale e non cambino stato due volte. Un witness viene salvato; un controesempio conserva la storia ridotta. Timeout del checker è **inconclusive**, non successo.
+
+Limiti iniziali: 20 storie, massimo 12 operazioni logiche per storia, due client e due chiavi, budget checker 5 s/storia. Non partizionare ingenuamente per chiave se quote e sessioni condividono stato globale. Eseguire prima casi di validazione del checker: storia nota legale, storia impossibile, timeout e pendenti.
+
+## Riproducibilità, limiti e gate
+
+Manifest: revisione Git futura, versione Go/macOS, architettura, configurazione e hash, PRNG e sua versione, seed iniziale (1..20 per suite ordinaria), eventi ordinati, fault plan, history e cutpoint. Clock virtuale e ordine degli eventi determinano la simulazione. Nei processi reali seed uguale non determina scheduling OS: salvare tracce e ridurre il caso in simulazione.
+
+Unit test deadline 10 s/caso, integration 30 s/caso, suite ordinaria massimo 120 s; concurrency massima 8 client, 1 000 operazioni. Fuzzing opzionale 10 s per target, due worker, non nella suite ordinaria. Fermare su superamento risorse; no soak test notturni. Directory uniche per run; rimuovere soltanto artefatti del run riuscito, conservare fallimenti entro quota evidenze 10 MiB fuori directory dati attive.
+
+Comandi futuri, eseguibili solo dopo implementazione e creazione modulo: `go test ./...`, `go test -race ./...`, `go vet ./...`. Race detector trova data race nelle esecuzioni osservate; non dimostra quorum, linearizzabilità o assenza di deadlock in ogni schedule. Nessuno di questi comandi è stato eseguito come test del database in questa fase.
+
+Il gate M14 richiede tutti i test obbligatori e AC associati, risultati riproducibili e zero violazioni note. I test di power loss fisico restano esclusi: non colmare la lacuna con risultati di kill del processo.
+
+## Controesempi obbligatori e oracle indipendente
+
+T-022/checker: storia sintetica PUT(x,1) completata, poi GET(x)=0, poi retry identico della PUT già completata. Il checker deve rifiutarla: il retry non può spostare la prima PUT dopo la GET. Se il primo tentativo ha solo timeout e nessuna risposta definitiva, l'intervallo resta pendente fino al primo completed o alla fine della storia; non assumere l'assenza dell'effetto.
+
+Raggruppare soltanto tentativi con stessa identità **e stesso comando canonico**. REQUEST_CONFLICT, STALE_SEQUENCE e SEQUENCE_GAP sono osservazioni del protocollo di sessione, non duplicati riusciti; il modello completo include sessioni, esito originale, sequenza consumata e quote. Confrontare tutte le risposte definitive duplicate con il risultato originale, senza introdurre nuovi effetti. Per i risultati completed senza modifica (CAS fallita, quota), modellare anche l'avanzamento di sequenza ove previsto.
+
+T-008/apply-backlog: commit 5 con lastApplied 0; prima di qualunque completamento, commit 7. La sequenza schedulata deve essere esattamente 1..7, una volta; saturare inoltre la coda e verificarne ripresa. T-015/snapshot-epoch e T-016/hard-state-handoff controllano le barriere specificate nello storage. T-021 conserva un registro ghost globale delle entry diventate committed e confronta tutti i leader futuri con quel prefisso, anche dopo compaction; verificare soltanto l'uguaglianza dei log correnti non prova Leader Completeness.
+
+Ogni criterio mantiene il test primario nella matrice; questi sottocasi sono obbligatori nello stesso identificatore. Tutti restano **Not run**. I limiti di 20 storie e 120 s sono budget massimi: se il budget globale termina, casi mancanti sono inconclusive, mai pass implicito.

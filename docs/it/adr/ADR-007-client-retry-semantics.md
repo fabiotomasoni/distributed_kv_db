@@ -1,0 +1,53 @@
+# Sequenze client e deduplicazione limitata
+
+[Indice](../README.md) · [English](../../en/adr/ADR-007-client-retry-semantics.md)
+
+**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+
+## Identificatore e stato
+
+**ADR-007 — Sequenze client e deduplicazione limitata**. Stato **Proposed**, 18 novembre 2026. Decisione di progetto da confermare ai gate indicati, non evidenza implementativa.
+
+## Contesto
+
+Risposta persa non rivela se una mutazione sia stata eseguita.
+
+## Problema
+
+Evitare doppio effetto senza tabella dedup illimitata o TTL basato su clock.
+
+## Alternative valutate
+
+Nessuna dedup; UUID con TTL; sessioni sequenziali con ultimo risultato.
+
+## Decisione
+
+Client ID persistente, una pendente, sequence monotona; 1 024 sessioni senza eviction.
+
+## Motivazione
+
+Stato limitato e deterministico; high-water mark impedisce riapplicazioni storiche.
+
+## Conseguenze
+
+Risultati sessione replicati e negli snapshot; quota e CAS fallito consumano sequenza.
+
+## Svantaggi e limiti
+
+Solo ultimo risultato recuperabile; cap sessioni può bloccare nuovi client; no exactly-once delivery.
+
+## Requisiti collegati
+
+FR-011, FR-012. Vedere [matrice](../traceability.md).
+
+## Validazione e questioni aperte
+
+M11/M13: crash client/server, conflitti identità e retry dopo snapshot. Se i gate falliscono, aggiornare o sostituire questo ADR in entrambe le lingue; conservare ID e storia della decisione.
+
+## Riferimenti
+
+[Specifica correlata](../data-model.md); [fonti REF-01/05](../references.md); [roadmap](../implementation-roadmap.md).
+
+## Rivalutazione audit 0.2
+
+Confermate sessioni sequenziali senza TTL e risultato ultimo persistente. Il checker chiude l'intervallo logico alla prima risposta definitiva e non lo allunga per retry successivi; conflitti identità sono osservazioni di protocollo distinte. Nessun retry giustifica più di un effetto logico. Validare T-011/T-012/T-022 anche dopo snapshot.

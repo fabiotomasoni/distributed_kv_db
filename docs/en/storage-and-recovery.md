@@ -1,0 +1,92 @@
+# Persistence, snapshots and crash recovery
+
+[Index](README.md) · [Italiano](../it/storage-and-recovery.md)
+
+**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+
+## Contract and assumptions
+
+Minimal custom engine: in-memory map, append-only WAL and filesystem snapshots; no external database. Primary target: process crashes, with completed write/Sync/rename operations honored by the operating system. Do not equate `kill -9` with power loss. Hardware guarantees against sudden power failure depend on APFS, macOS, controller and SSD caches and remain **Proposed**, without destructive testing on the personal computer.
+
+[Go File.Sync](https://pkg.go.dev/os#File.Sync) exposes synchronization but is not end-to-end proof of physical-fault resilience. Filesystem operation ordering matters: see [Pillai et al., OSDI 2014](https://www.usenix.org/conference/osdi14/technical-sessions/presentation/pillai). Verify directory synchronization support and behavior on darwin/arm64 in M03; never ignore errors. Any need for additional Darwin primitives requires ADR-005 review and a dependency inventory.
+
+## Directory, identity and proposed WAL format
+
+Private 0700 directory, 0600 files, one active owner through an exclusive process lock (future macOS adapter; crash tests verify lock release). Immutable identity manifest contains version, cluster_id, node_id and config_hash. Never copy an n1 directory to start n2. Future files: `IDENTITY`, `CURRENT`, and `gen-N/` generations containing snapshot and WAL; none are created in this phase.
+
+WAL v1 frame: 24-byte big-endian header: magic `QWAL` (4), version uint16 (2), kind uint16 (2), payload length uint32 (4), frame sequence uint64 (8), CRC32C (4). Checksum covers the first 20 header bytes and payload; it is not authentication. Kind 1 = transaction; canonical UTF-8 JSON payload, maximum 384 KiB, decimal-string indices/terms. Physical sequence is contiguous from 1 per generation.
+
+Transaction has optional `hard_state:{current_term,voted_for}`, `replace_suffix:{from_index,entries}`, `commit_index`. Fully validate a frame before installing all its effects during recovery, never half a transaction. Replacement is valid only beyond current commit, with contiguous entries; it may replace a suffix with nothing. The physical WAL retains logically invalidated old records: no in-place truncation for Raft conflicts. Compaction recreates a WAL containing only the live suffix.
+
+Unknown version, inconsistent index, regressing hard state, bad checksum or commit beyond log are fatal errors. Structural incompleteness **only in the final frame** may be truncated to the last valid boundary and synchronized, within the process-crash model excluding arbitrary corruption. A complete frame with bad CRC is not “repaired” by discarding it. A corrupt header might resemble an incomplete write: thus automatic bit-rot recovery is not guaranteed and suspected corruption requires fail-closed behavior. Never skip records searching for the next magic.
+
+## Mandatory persistence ordering
+
+| Event | Before responding or publishing |
+|---|---|
+| Term increment / vote | Hard state written and successful Sync. |
+| AppendEntries success | Relevant term/vote and log changes in synchronized WAL. |
+| Leader counts local replica | Frame containing local entry already synchronized. |
+| Commit/apply | commitIndex checkpoint synchronized after required entries; only legally learned commit. |
+| Completed client response | Entry on durable majority, legal commit and completed apply; dedup reconstructible. |
+| Snapshot installed | Verified image and durably published generation; never acknowledge from staging. |
+
+Persisted `commitIndex` is a conservative monotonic checkpoint, not a way to infer commit from log.length. Hard state and log may share a frame. The checkpoint is not replicated as a command and does not replace Raft rules. Never succeed on short writes, ENOSPC, failed Sync or relevant close failure. Fatal storage: stop voting, proposing and acknowledging; diagnose and explicitly restart after resolution.
+
+## Recovery
+
+1. Acquire lock and validate identity/configuration; no client listener before verification.
+2. Read CURRENT and validate generation, snapshot and WAL. Missing CURRENT in a non-empty directory is an error, not permission for a new cluster. No automatic fallback to an old snapshot if the current generation is corrupt.
+3. Load snapshot: map, quota counters, session table with result and digest, lastIncludedIndex/Term, cluster/config and version. Verify SHA-256, counts and limits.
+4. Replay valid frames to reconstruct hard state and log suffix, retaining the maximum legally checkpointed commit. Initialize lastApplied to the snapshot index and apply through persisted commit. Never apply the remainder.
+5. Start as follower with a fresh timer; the leader will communicate further commit. A restarted cluster may recommit a durable prefix using a current noop. Answer GET only after a new barrier, never from replay alone.
+
+Permanent loss of a durable majority removes any preservation or automatic recovery guarantee. Quarantine a corrupt single directory; manual restoration from a verified healthy-peer snapshot requires preserving evidence and correct identity first. Never change membership or independently form a quorum from empty nodes.
+
+## Snapshots and atomic publication
+
+Capture at S=lastApplied, necessarily committed. Under an applier barrier capture map+sessions+S+term[S]+config, then use an immutable copy. Image v1: header `QSN1`, big-endian uint64 length, canonical JSON payload (sorted keys, Base64 values), 32-byte SHA-256 trailer over header+payload. Maximum file 8 MiB. Noop and read leave no user data in the snapshot.
+
+Generation procedure: (a) reserve space; (b) create gen-N.tmp, write snapshot and WAL containing suffix S+1..last, hard state and commit checkpoint; (c) synchronize files and temporary directory; (d) rename to gen-N and sync parent directory; (e) write CURRENT.tmp with format `{format_version:1,generation:"gen-N",snapshot_sha256,base_index,base_term}` and a SHA-256 checksum of the canonical encoding of the preceding fields, Sync, rename over CURRENT and sync parent; (f) only then delete the previous generation and sync parent. Published generation files are immutable except WAL append; during final brief rotation the storage worker serializes append and suffix copying, preserving entries arriving during snapshot serialization. Failure before publication leaves old CURRENT; unreferenced temporaries can be removed after validation.
+
+InstallSnapshot uses the same mechanism. If `(S,termS)` matches the local log, retain the later suffix; otherwise discard it only if local commit is not destroyed. Reject obsolete snapshots `S <= lastApplied`; never regress commit. If S exceeds local commit, a valid leader snapshot establishes a committed prefix and commit at least S. Coordinate applier and core before replacing state; no parallel apply of the old suffix. Term/vote persistence must survive generation changes.
+
+## Compaction and space
+
+Trigger at 6 MiB physical WAL or 2,000 entries since the last snapshot, only if lastApplied advances; one active compaction, minimum 30 s interval. Hard WAL cap 8 MiB including a 512 KiB metadata/consensus reserve; when data space is exhausted reject new proposals and continue replication/commit within the reserve. If no prefix can be compacted and the reserve runs out, fail storage closed: never delete entries to create space.
+
+Aggregate per-node directory cap 32 MiB **including** staging and old generations; reserve peak space before starting. Snapshot installation and compaction never run concurrently. Replicated logical caps differ from local physical caps: a full dataset produces deterministic RESOURCE_LIMIT; a full disk makes one node unavailable. Complete limits and the roughly 100 MB cluster target are in [resources](performance-and-resources.md).
+
+## Required cutpoints
+
+Crash before/after header write, payload, Sync, commit checkpoint, generation rename, CURRENT rename, directory sync and cleanup; include crash after client success and retry after recovery. Snapshot tests also cover incomplete transfer, bad checksum, duplicate chunks and changed leadership. Tests must inspect recovered files and acknowledged history; absence of panic is insufficient.
+
+## Bootstrap and format validation
+
+On a truly empty directory with explicit bootstrap: create durable IDENTITY, an initial generation with an empty `(0,0)` snapshot, hard state `(term=0,votedFor=empty)`, commit 0 and initial WAL sequence; publish CURRENT using the same procedure as later generations. A mid-bootstrap crash leaves an incomplete directory: ordinary startup rejects it, and a future explicit resume command may complete it only after validating files, never silently delete it.
+
+CURRENT is limited to 4 KiB and has no self-referential checksum: digest the data fields only, then add the checksum field. base_index/base_term match the image; snapshot_sha256 digests the entire image file. Index/term numbers remain strings. M03 must fix byte-for-byte fixtures for headers, canonical JSON, digests and recovery: serialization details cannot rely on unordered map output.
+
+## Generation-switch and installation barrier
+
+Snapshot-copy serialization at S may run while the core progresses; the **final rotation** is a serialized transition. Before copying the final suffix: suspend proposals, persistent transitions and concurrent compaction; drain persistence already submitted to the old generation and capture updated `(currentTerm,votedFor,commitIndex,lastLogIndex)` from the core. Never copy hard state captured at snapshot start.
+
+While holding this barrier, write the live suffix S+1..lastLogIndex, current hard state and commit checkpoint into the new generation, then synchronize and publish CURRENT as specified. No vote or append is acknowledged during the switch. Release the barrier only after publication and writer switching. Every storage request/completion uses `(generation_id,write_sequence)`; sequence alone, which restarts at 1, does not globally identify an effect. An old completion appearing after the switch cannot authorize messages or mutations; it signals a coordination bug.
+
+For InstallSnapshot: revalidate term, epoch and index when **both** storage and applier barriers are quiescent, after draining or invalidating old work; if S is now <=lastApplied, do not install. Synchronize the applier as in [architecture](architecture.md), preserve current local hard state, retain a suffix only with a matching `(S,termS)` boundary and never discard commit. If lastApplied<S<=commitIndex and the boundary mismatches, fail closed. Publish persistent state first, then replace the map/epoch in RAM under the barrier, then acknowledge installed_index and reopen scheduling. A crash between publication and RAM replacement recovers the new generation: never answer using the old map.
+
+T-016 must introduce a vote or term advancement between capture at S and the final barrier, then crash after switching: the updated vote must survive. T-015 must advance apply during transfer and delay an old applyEpoch completion.
+
+## Durability levels and write reduction
+
+| Failure | Design contract | Evidence still required |
+|---|---|---|
+| Process crash, OS alive | v1 target: preserve successes with a recoverable majority and coherent completed I/O; non-Sync writes may survive. | T-013/T-016 and controlled process kills T-023, not yet executed. |
+| OS crash/reboot | No already-validated guarantee; the Sync/rename protocol targets this level subject to the macOS contract. | Platform sources and simulation are not tests of actual system crashes. |
+| Power loss / SSD failure | Outside the v1 guarantee; depends on caches, controller and the device shared by all replicas. | No destructive tests required or performed. |
+
+Retain necessary Sync for votes, hard state, replication and snapshot publication. Never sync identical heartbeats without persistent changes; never rewrite already-identical entries; checkpoint commit only when it advances. Combining hard state, append and learned commit in one frame is allowed when causal order permits; never acknowledge early while awaiting a batch. Synchronous commit checkpointing is an initial conservative choice, not a universal Raft requirement: retain it until an ADR and recovery tests justify an alternative.
+
+Logged GET adds entries and normally checkpoints on each replica learning commit, so even a read-only workload has nonzero I/O. Measure bytes written and Sync count per logical operation at M15; first prefer safe batching within deadlines, sampled diagnostic logs and small workloads. ReadIndex is the future read-specific optimization under ADR-006; never remove required synchronization to improve a measurement.
+
+Final image validation compares cluster/config, included index/term, length and digest against the RPC envelope; disagreement means rejection, never partial installation. The leader advances matchIndex through S and nextIndex to at least S+1 only for a correlated final `installed_index=S` acknowledgment, with term/generation still valid and durable publication completed; chunk acknowledgments alone do not establish replication. A lost acknowledgment can be resolved through the obsolete-snapshot path followed by verified AppendEntries.

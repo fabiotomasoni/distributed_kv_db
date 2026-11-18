@@ -1,0 +1,53 @@
+# Client sequences and bounded deduplication
+
+[Index](../README.md) · [Italiano](../../it/adr/ADR-007-client-retry-semantics.md)
+
+**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+
+## Identifier and status
+
+**ADR-007 — Client sequences and bounded deduplication**. Status **Proposed**, 18 November 2026. Design decision to confirm at the stated gates, not implementation evidence.
+
+## Context
+
+A lost response does not reveal whether a mutation executed.
+
+## Problem
+
+Avoid duplicate effects without an unbounded table or clock-based TTL.
+
+## Alternatives considered
+
+No dedup; UUIDs with TTL; sequential sessions retaining the latest result.
+
+## Decision
+
+Persistent client ID, one pending request, monotonic sequence; 1,024 sessions without eviction.
+
+## Rationale
+
+Bounded deterministic state; high-water mark prevents historical reapplication.
+
+## Consequences
+
+Session results replicated and snapshotted; quota and failed CAS consume sequence.
+
+## Drawbacks and limitations
+
+Only latest result recoverable; session cap may block new clients; no exactly-once delivery.
+
+## Linked requirements
+
+FR-011, FR-012. See the [matrix](../traceability.md).
+
+## Validation and open questions
+
+M11/M13: client/server crashes, identity conflicts and retries after snapshot. If gates fail, update or supersede this ADR in both languages; retain the ID and decision history.
+
+## References
+
+[Related specification](../data-model.md); [sources REF-01/05](../references.md); [roadmap](../implementation-roadmap.md).
+
+## Audit 0.2 reassessment
+
+Confirmed sequential sessions without TTL and persistent latest result. The checker closes the logical interval at the earliest definitive response and never extends it for later retries; identity conflicts are separate protocol observations. No retry justifies more than one logical effect. Validate T-011/T-012/T-022 including after snapshots.
