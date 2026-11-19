@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/traceability.md)
 
-**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
+**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
 
 ## Normative matrix
 
@@ -49,4 +49,8 @@ The matrix milestone is the final requirement gate; NFR-007 is checked at every 
 
 ## M01 subset progress
 
-T-008/M01 and T-009/M01 are Passed for the local sequential core; see [tests, files and evidence](milestone-m01.md). FR-008/FR-009/FR-010 and NFR-006 have local-component evidence only: the matrix retains original final gates for consensus, API, concurrency and complete resources. M02 remains Not started.
+T-008/M01 and T-009/M01 are Passed for the local sequential core; see [tests, files and evidence](milestone-m01.md). FR-008/FR-009/FR-010 and NFR-006 have local-component evidence only: the matrix retains original final gates for consensus, API, concurrency and complete resources. M02 local evidence follows.
+
+## M02 subset progress
+
+M02 COMPLETED: T-008/M02 (ordered single ownership, no duplicate scheduling, bounded queue/backpressure) and T-018/M02 (worker shutdown/cancellation) Passed; T-028 fake foundations present. [Evidence and limitations](milestone-m02.md). FR-008/FR-018 and NFR-008 have local subset evidence only. The primary matrix still points to full AC-008 at M07, AC-018 at M09 and AC-028 at M12; none is closed early.

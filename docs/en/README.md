@@ -2,17 +2,18 @@
 
 [Index](README.md) · [Italiano](../it/README.md)
 
-**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
+**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
 
 ## How to read the design
 
-M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 and later milestones remain unimplemented. Distributed specifications and cluster startup commands are still proposals; reports dated 18 November document the previous phase.
+M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 and later milestones remain unimplemented. Distributed specifications and cluster startup commands are still proposals; reports dated 18 November document the previous phase.
 
-Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01 is completed; M02 will be addressed only under an explicit new assignment.
+Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02 are completed; M03 remains subject to review and storage gates.
 
 ## Complete specifications
 
 - [M01 completed: interfaces, tests and evidence](milestone-m01.md)
+- [M02 completed: ordered applier, queues and shutdown](milestone-m02.md)
 - [Architecture audit: APPROVED WITH CONDITIONS](architecture-review.md)
 - [QuorumKV overview](overview.md)
 - [Scope, assumptions and limitations](scope.md)

@@ -51,3 +51,7 @@ M05–M07/M14: review e test safety obbligatori. Se i gate falliscono, aggiornar
 ## Rivalutazione audit 0.2
 
 Confermata la regola di commit del termine corrente e il voto persistente. Corretto lo scheduling apply: scheduledApplyIndex distinto da lastApplied, code limitate e applyEpoch per installazione snapshot. Il core asincrono non può usare un cursore di completamento come cursore di accodamento. Validazione richiesta: T-008/apply-backlog e T-021 con registro ghost committed. Stato Proposed invariato.
+
+## Evidenze implementative M02
+
+19 novembre 2026: [M02](../milestone-m02.md) implementa soltanto il confine owner/applier locale: indici contigui forniti dal chiamante, Scheduled/LastApplied distinti, ammissione limitata ed esecuzione a worker singolo. T-008/M02 Passed, incluso backlog apply. Raft, prova del commit, applyEpoch/sostituzione snapshot e T-021 restano gate futuri; questa appendice non rende Raft Accepted né cancella l’audit.

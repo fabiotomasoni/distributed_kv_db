@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/architecture.md)
 
-**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
+**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
 
 ## Component boundaries
 
@@ -51,6 +51,8 @@ The core retains `scheduledApplyIndex`, initialized to lastApplied after recover
 
 InstallSnapshot requires a barrier: stop new scheduling, drain or coordinately invalidate old work, wait until the applier is no longer mutating the old map, then replace state and set `lastApplied=scheduledApplyIndex=S`, incrementing applyEpoch. Old-epoch completions never change indices, waiters or sessions. Leadership change alone does not reset these indices: the committed prefix remains valid. INV-05 for lastApplied holds during normal operation; recovery reconstructs from the checkpoint before the node becomes ready.
 
-## Actual M01 boundary
+## Actual M01/M02 boundary
 
-The only implemented package is internal/statemachine, exposing New() and Apply(Command) Result: [report](milestone-m01.md). The future applier Apply(index,command) contract will wrap this core; index, commit, sessions, epochs and scheduling were not implemented early. The core receives calls already ordered by its owner, without thread safety. All other components/arrows remain design work.
+The implemented packages are internal/statemachine (unchanged sequential M01 core) and internal/applier (M02 scheduler). The latter accepts Entry{Index,Command}, returns a Future with Outcome{Index,Result}, and owns the only Apply caller. Concurrent producers supply contiguous indices; no reorder buffer. Scheduled advances on admission, LastApplied on completion; the caller must establish commit. The queue holds 64 pending entries by default, configurable 1..1024, plus one active call. Submit waits for space; TrySubmit returns ErrFull without advancing the cursor.
+
+Shutdown closes admission and drains; cancellation only ends a caller’s wait after acceptance. Futures publish without requiring a receiver. Panics fail closed with explicit uncertain/current and aborted/pending outcomes. Full ownership, memory bounds and lifecycle contracts: [M02 report](milestone-m02.md). Snapshot epochs, sessions, commit decisions and all other components remain design work. The future 64-completion adapter is not implemented as a channel here; futures avoid blocking the worker on recipient availability.

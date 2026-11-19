@@ -51,3 +51,7 @@ M12/M14: replay identico in simulazione e casi reali complementari. Se i gate fa
 ## Rivalutazione audit 0.2
 
 Separati ProcessCrash e SystemCrashModel: write non sincronizzate possono sopravvivere, e un kill non elimina la cache del kernel. Cutpoint devono coprire frame interi/parziali e rename visibili. Fondamenta fake a M02–M05, completamento framework a M12. Nessun simulatore è prova di power loss reale.
+
+## Evidenze implementative M02
+
+19 novembre 2026: [M02](../milestone-m02.md) aggiunge piccoli clock manuale e fake transport/storage solo nei test e una dipendenza Machine bloccabile. Ritardo controllato, rifiuto, consegna duplicata e cleanup worker verificati senza I/O del sistema o sleep casuali. Nessun replay seed/trace completo, cutpoint storage o modello crash implementato; AC-028 resta aperto a M12 e questo ADR resta Proposed.

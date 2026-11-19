@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
+**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
 
 ## Free prerequisites
 
@@ -35,9 +35,9 @@ These names and paths are design examples, not existing files or commands. Omit 
 
 ## Future workflow
 
-Follow the [roadmap](implementation-roadmap.md), keep main simple and packages aligned with [architecture](architecture.md). Properties and model first, then adapters and measurements. Every semantic change updates both languages, requirement, ADR, fixture and criterion. No code starts automatically after this delivery: separate approval of the design phase is required.
+Follow the [roadmap](implementation-roadmap.md), keep main simple and packages aligned with [architecture](architecture.md). Properties and model first, then adapters and measurements. Every semantic change updates both languages, requirement, ADR, fixture and criterion. The original design delivery authorized no automatic implementation; later explicit assignments authorized M01/M02. Further milestones require their own scope and applicable gates.
 
-For the existing M01 module: `gofmt`, `go vet ./...` and `go test ./...` are checks performed on the local package. Race/integration tests remain proposed for their respective milestones within established limits. Pre-acquire toolchain/module caches; verify offline operation by disabling external networking without blocking loopback. No container is needed.
+For the existing M01/M02 module: `gofmt`, `go vet ./...` and `go test ./...` are checks performed on both local packages. Targeted applier race tests have passed for M02; integration tests remain proposed for later milestones within established limits. Pre-acquire toolchain/module caches; verify offline operation by disabling external networking without blocking loopback. No container is needed.
 
 ## Data, cleanup and troubleshooting
 
@@ -53,6 +53,6 @@ Keep `.local/` out of future version control; use synthetic data only. Manual ba
 | Storage cap | Inspect compaction and inactive temporaries; never remove active WAL. |
 | Mac under pressure | Stop run-owned tests/processes; reduce dataset/concurrency and retain measurements. |
 
-## Checks now available for M01
+## Checks now available for M01/M02
 
-go.mod and internal/statemachine now exist; Go 1.27.4 darwin/arm64 was actually used. With that toolchain installed, go test -timeout=30s ./... and go vet ./... run from the root without services or external dependencies. This session used a temporary /tmp copy with a verified official checksum, not a global installation: [details and reproduction](milestone-m01.md). Node CLI/configuration examples remain proposals. M02 has not started.
+go.mod, internal/statemachine and internal/applier now exist; Go 1.27.4 darwin/arm64 was actually used. With that toolchain installed, go test -timeout=30s ./... and go vet ./... run from the root without services or external dependencies. This session used a temporary /tmp copy with a verified official checksum, not a global installation: [details and reproduction](milestone-m01.md). Node CLI/configuration examples remain proposals. M02 is completed; run go test -race -p 1 -count=1 -timeout=30s ./internal/applier with CGO_ENABLED=1 and the existing C compiler. See [M02 commands and results](milestone-m02.md).

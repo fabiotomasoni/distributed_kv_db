@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/development-guide.md)
 
-**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Prerequisiti gratuiti
 
@@ -37,7 +37,7 @@ Questi nomi e percorsi sono esempi progettuali, non file o comandi già disponib
 
 Seguire [roadmap](implementation-roadmap.md), mantenere main semplice e pacchetti secondo [architettura](architecture.md). Prima proprietà e modello, poi adattatori e misure. Ogni cambiamento semantico aggiorna entrambe le lingue, requisito, ADR, fixture e criterio. Nessun codice inizia automaticamente al termine di questa consegna: occorre approvazione separata della fase progettuale.
 
-Per il modulo M01 ora esistente: formattazione `gofmt`, `go vet ./...` e `go test ./...` sono verifiche eseguite sul package locale. Test race e integration restano proposti per le rispettive milestone, entro i limiti stabiliti. Cache toolchain e moduli pre-acquisite; verificare offline disattivando rete esterna senza bloccare loopback. Nessun container necessario.
+Per il modulo M01/M02 ora esistente: formattazione `gofmt`, `go vet ./...` e `go test ./...` sono verifiche eseguite su entrambi i package locali. Test race mirati dell’applier superati per M02; test integration restano proposti per le milestone successive, entro i limiti stabiliti. Cache toolchain e moduli pre-acquisite; verificare offline disattivando rete esterna senza bloccare loopback. Nessun container necessario.
 
 ## Dati, cleanup e troubleshooting
 
@@ -53,6 +53,6 @@ Tenere `.local/` fuori dal futuro controllo versione; usare solo dati sintetici.
 | Cap storage | Esaminare compaction e temporanei non attivi; non rimuovere WAL attivo. |
 | Mac sotto pressione | Fermare test e processi del run; ridurre dataset/concorrenza, conservare misure. |
 
-## Verifiche ora disponibili per M01
+## Verifiche ora disponibili per M01/M02
 
-Esistono go.mod e internal/statemachine; Go 1.27.4 darwin/arm64 è stato effettivamente usato. Con questa toolchain installata, dalla radice sono eseguibili go test -timeout=30s ./... e go vet ./..., senza servizi o dipendenze esterne. In questa sessione è stata usata una copia temporanea in /tmp, con checksum ufficiale verificato, non un’installazione globale: [dettagli e riproduzione](milestone-m01.md). Restano proposti gli esempi CLI/configurazione dei nodi. M02 non iniziata.
+Esistono go.mod, internal/statemachine e internal/applier; Go 1.27.4 darwin/arm64 è stato effettivamente usato. Con questa toolchain installata, dalla radice sono eseguibili go test -timeout=30s ./... e go vet ./..., senza servizi o dipendenze esterne. In questa sessione è stata usata una copia temporanea in /tmp, con checksum ufficiale verificato, non un’installazione globale: [dettagli e riproduzione](milestone-m01.md). Restano proposti gli esempi CLI/configurazione dei nodi. M02 è completata; eseguire go test -race -p 1 -count=1 -timeout=30s ./internal/applier con CGO_ENABLED=1 e compilatore C già presente. Vedere [comandi e risultati M02](milestone-m02.md).

@@ -1,10 +1,10 @@
 # QuorumKV
 
-A distributed key-value database project in Go. Its deterministic local state machine is implemented; Raft, networking and persistence remain planned.
+A distributed key-value database project in Go. Its deterministic local state machine and ordered applier are implemented; Raft, networking and persistence remain planned.
 
-Un progetto di database key-value distribuito in Go. La macchina a stati locale deterministica è implementata; Raft, rete e persistenza restano previsti.
+Un progetto di database key-value distribuito in Go. La macchina a stati locale deterministica e l’applier ordinato sono implementati; Raft, rete e persistenza restano previsti.
 
-**Status / Stato — 19 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 not started / non iniziata.** Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
+**Status / Stato — 19 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
 
 Planned distributed architecture / Architettura distribuita prevista:
 
@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [M02: applier, test e risultati](docs/it/milestone-m02.md) | [M02: applier, tests and results](docs/en/milestone-m02.md) |
 | [M01: implementazione e risultati](docs/it/milestone-m01.md) | [M01: implementation and results](docs/en/milestone-m01.md) |
 | [Documentazione completa](docs/it/README.md) | [Complete documentation](docs/en/README.md) |
 | [Requisiti e tracciabilità](docs/it/traceability.md) | [Requirements and traceability](docs/en/traceability.md) |
@@ -56,4 +57,5 @@ Go 1.27.4; no running cluster is required / non serve un cluster avviato.
 ```sh
 go test -timeout=30s ./...
 go vet ./...
+go test -race -timeout=30s ./internal/applier
 ```

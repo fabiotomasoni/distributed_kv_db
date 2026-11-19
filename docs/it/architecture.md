@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/architecture.md)
 
-**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Confini dei componenti
 
@@ -51,6 +51,8 @@ Il core conserva `scheduledApplyIndex`, inizializzato a lastApplied dopo recover
 
 InstallSnapshot richiede una barriera: fermare nuovo scheduling, drenare o invalidare in modo coordinato i vecchi lavori, attendere che l'applier non stia mutando la vecchia mappa, poi sostituire stato e impostare `lastApplied=scheduledApplyIndex=S`, incrementando applyEpoch. Completamenti della vecchia epoch non modificano indici, waiter o sessioni. Leadership change da sola non resetta questi indici: il prefisso committed resta valido. INV-05 per lastApplied vale nel normale ciclo operativo; recovery ricostruisce dal checkpoint prima di rendere il nodo pronto.
 
-## Confine effettivo di M01
+## Confine effettivo di M01/M02
 
-Il solo package implementato è internal/statemachine, con New() e Apply(Command) Result: [relazione](milestone-m01.md). Il futuro contratto Apply(index,command) dell’applier incapsulerà questo core; indice, commit, sessioni, epoch e scheduling non sono stati anticipati. Il core riceve chiamate già ordinate dal proprietario, senza thread safety. Il resto dei componenti e delle frecce resta progettuale.
+I package implementati sono internal/statemachine (core sequenziale M01 invariato) e internal/applier (scheduler M02). Il secondo accetta Entry{Index,Command}, restituisce una Future con Outcome{Index,Result} e possiede l’unico chiamante Apply. Produttori concorrenti forniscono indici contigui; nessun buffer di riordino. Scheduled avanza all’ammissione, LastApplied al completamento; il chiamante deve stabilire il commit. La coda contiene per default 64 entry pendenti, configurabili 1..1024, più una chiamata attiva. Submit attende spazio; TrySubmit restituisce ErrFull senza avanzare il cursore.
+
+Shutdown chiude l’ammissione e drena; la cancellazione termina soltanto l’attesa del chiamante dopo l’accettazione. Le Future pubblicano senza richiedere un ricevente. I panic chiudono il worker con esiti espliciti incerto/corrente e abortito/pendenti. Contratti completi di ownership, limiti memoria e lifecycle: [relazione M02](milestone-m02.md). Epoch snapshot, sessioni, decisioni di commit e altri componenti restano progettuali. Il futuro adattatore di 64 completamenti non è implementato qui come canale; le Future evitano di bloccare il worker sulla disponibilità del destinatario.

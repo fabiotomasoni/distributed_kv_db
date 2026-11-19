@@ -61,3 +61,7 @@ Future B path, only after M14/M15 and an ADR-006 update: (1) commit a current-te
 Timeout or higher term invalidates the context; late responses cannot complete newer rounds. The extension needs explicit RPC schema evolution for context, not silently accepting unknown v1 fields. Start with a new round per GET before adding batching. Test old leaders, delayed acknowledgments, uncommitted noop and lagging apply; require the same independent checker and error outcomes as the baseline. Then compare bytes written, Sync and latency under identical conditions without enabling an undocumented hybrid strategy.
 
 Theoretical reference: [Raft, section 8](https://raft.github.io/raft.pdf). The operational sequence and gates above are the QuorumKV proposal, not a claim of existing implementation.
+
+## Implemented M02 boundary
+
+The [local applier](milestone-m02.md) serializes caller-indexed commands and returns results at their exact application slot. Concurrent creation/arrival does not define order: only the next contiguous index is admitted. This supplies an ordered local component, not proof of commit, quorum or distributed linearizability. Rejected admission consumes no index; canceled waits after admission cannot revoke an operation.

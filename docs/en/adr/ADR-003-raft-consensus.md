@@ -51,3 +51,7 @@ M05–M07/M14: mandatory review and safety tests. If gates fail, update or super
 ## Audit 0.2 reassessment
 
 Confirmed current-term commit and persistent voting. Corrected apply scheduling: scheduledApplyIndex distinct from lastApplied, bounded queues and applyEpoch for snapshot installation. An asynchronous core cannot use a completion cursor as its enqueue cursor. Required validation: T-008/apply-backlog and T-021 with a committed ghost register. Proposed status unchanged.
+
+## M02 implementation evidence
+
+19 November 2026: [M02](../milestone-m02.md) implements only the local owner/applier boundary: contiguous caller-supplied indices, distinct Scheduled/LastApplied, bounded admission and single-worker execution. T-008/M02 Passed, including apply backlog. Raft, commit proof, applyEpoch/snapshot replacement and T-021 remain future gates; this addendum does not mark Raft Accepted or erase the audit.

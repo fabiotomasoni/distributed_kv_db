@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/testing-strategy.md)
 
-**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
+**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
 
 ## Layers and reference model
 
@@ -61,7 +61,7 @@ Manifest: future Git revision, Go/macOS version, architecture, configuration and
 
 Unit-test deadline 10 s/case, integration 30 s/case, ordinary suite maximum 120 s; maximum concurrency 8 clients, 1,000 operations. Optional fuzzing 10 s per target, two workers, outside the ordinary suite. Stop on resource-limit violations; no overnight soak tests. Unique run directories; delete only successful-run artifacts, retaining failures under a 10 MiB evidence quota outside active data directories.
 
-Local M01 commands now available: `go test ./...` and `go vet ./...`; `go test -race ./...` remains planned for concurrency milestones. The race detector finds data races in observed executions; it proves neither quorum nor linearizability nor absence of deadlock in every schedule. Tests and vet for the M01 package have now run as recorded in local evidence; distributed and race-check commands remain future work.
+Local M01/M02 commands now available: `go test ./...` and `go vet ./...`; `go test -race -timeout=30s ./internal/applier` has passed for M02. The race detector finds data races in observed executions; it proves neither quorum nor linearizability nor absence of deadlock in every schedule. Tests and vet for both local packages and targeted M02 race checks ran as recorded in local evidence; distributed checks remain future work.
 
 The M14 gate requires all mandatory tests and associated ACs, reproducible results and zero known violations. Physical power-loss tests remain excluded: process-kill results do not close that gap.
 
@@ -77,4 +77,8 @@ Each criterion retains its primary matrix test; these subcases are mandatory wit
 
 ## Local M01 evidence
 
-T-008/M01 and T-009/M01 ran and passed within the roadmap subset: 12 top-level tests, 44 subcases, three additional repetitions and 100% statement coverage of the local package. Independent list/string oracle rather than the production map, fixed seed 19 and per-step comparison. See [commands and limits](milestone-m01.md). Distributed tests, apply backlog, linearizability checker, race detection and fault injection remain Not run.
+T-008/M01 and T-009/M01 ran and passed within the roadmap subset: 12 top-level tests, 44 subcases, three additional repetitions and 100% statement coverage of the local package. Independent list/string oracle rather than the production map, fixed seed 19 and per-step comparison. See [commands and limits](milestone-m01.md). At M01 delivery, distributed tests, apply backlog, linearizability checker, race detection and fault injection were Not run. M02 evidence follows.
+
+## Local M02 evidence
+
+T-008/M02 and T-018/M02 Passed: 20 new tests; full suite repeated three times, targeted race detector passed once with no reported race. Coverage: applier 99.3%, statemachine 100%. TestT008ApplyBacklogExactlyOnce exercises scheduled/completed cursor separation; TestT008QueueFullAndBlockingBackpressure exercises saturation and resumption. TestT018ShutdownDuringApplyAndConcurrentWaiters and TestT018ShutdownWakesBlockedProducers exercise lifecycle. TestT028FakeBoundariesAndControlledDelay supplies test-only clock/transport/storage foundations. See [all scenarios, commands and limits](milestone-m02.md). Full AC-008, AC-018 and AC-028 remain open at their final gates; no distributed or full-replay result is claimed.

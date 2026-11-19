@@ -51,3 +51,7 @@ M12/M14: identical simulation replay and complementary real cases. If gates fail
 ## Audit 0.2 reassessment
 
 Separated ProcessCrash and SystemCrashModel: unsynchronized writes may survive, and process kill does not clear the kernel cache. Cutpoints cover complete/partial frames and visible renames. Fake foundations at M02–M05, full framework at M12. No simulator proves real power-loss behavior.
+
+## M02 implementation evidence
+
+19 November 2026: [M02](../milestone-m02.md) adds tiny test-only manual clock, transport/storage fakes and a gated Machine dependency. Controlled delay, refusal, duplicate delivery and worker cleanup are tested without OS I/O or random sleeps. No full seed/trace replay, storage cutpoints or crash model is implemented; AC-028 remains open at M12 and this ADR remains Proposed.

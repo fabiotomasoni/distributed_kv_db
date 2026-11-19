@@ -2,17 +2,18 @@
 
 [Indice](README.md) · [English](../en/README.md)
 
-**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Come leggere il progetto
 
-M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
+M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
 
-Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01 è completata; M02 sarà affrontata soltanto con un nuovo incarico esplicito.
+Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02 sono completate; M03 resta subordinata a revisione e gate storage.
 
 ## Specifiche complete
 
 - [M01 completata: interfacce, test ed evidenze](milestone-m01.md)
+- [M02 completata: applier ordinato, code e shutdown](milestone-m02.md)
 - [Audit architetturale: APPROVED WITH CONDITIONS](architecture-review.md)
 - [Panoramica di QuorumKV](overview.md)
 - [Ambito, assunzioni e limiti](scope.md)

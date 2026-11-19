@@ -61,3 +61,7 @@ Percorso futuro B, soltanto dopo M14/M15 e aggiornamento ADR-006: (1) commit di 
 Timeout o termine maggiore invalidano il contesto; una risposta tardiva non completa round nuovi. L'estensione richiede evoluzione esplicita dello schema RPC per il contesto, non campi sconosciuti accettati silenziosamente in v1. Usare un round nuovo per ogni GET inizialmente, prima di qualsiasi batching. Testare vecchio leader, ack ritardati, noop non committed e apply arretrato; richiedere lo stesso checker indipendente e stessi esiti di errore della baseline. Si confrontano poi bytes scritti, Sync e latenza nelle stesse condizioni, senza attivare una strategia ibrida non documentata.
 
 Riferimento teorico: [Raft, sezione 8](https://raft.github.io/raft.pdf). La sequenza operativa e i gate qui sopra sono la proposta QuorumKV, non un'affermazione di implementazione già esistente.
+
+## Confine implementato M02
+
+L’[applier locale](milestone-m02.md) serializza comandi indicizzati dal chiamante e restituisce risultati nel loro esatto slot di applicazione. Creazione/arrivo concorrente non definisce l’ordine: è ammesso soltanto il prossimo indice contiguo. Fornisce un componente locale ordinato, non prova di commit, quorum o linearizzabilità distribuita. L’ammissione rifiutata non consuma indici; attese cancellate dopo l’ammissione non revocano l’operazione.

@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/traceability.md)
 
-**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Matrice normativa
 
@@ -49,4 +49,8 @@ La milestone della matrice è il gate finale del requisito; NFR-007 si controlla
 
 ## Avanzamento del sottoinsieme M01
 
-T-008/M01 e T-009/M01 sono Passed per il core sequenziale locale; vedere [test, file ed evidenze](milestone-m01.md). FR-008/FR-009/FR-010 e NFR-006 hanno soltanto evidenza del componente locale: la matrice mantiene i gate finali originali per consenso, API, concorrenza e risorse complete. M02 resta Not started.
+T-008/M01 e T-009/M01 sono Passed per il core sequenziale locale; vedere [test, file ed evidenze](milestone-m01.md). FR-008/FR-009/FR-010 e NFR-006 hanno soltanto evidenza del componente locale: la matrice mantiene i gate finali originali per consenso, API, concorrenza e risorse complete. Seguono le evidenze locali M02.
+
+## Avanzamento del sottoinsieme M02
+
+M02 COMPLETED: T-008/M02 (ownership singola ordinata, scheduling senza duplicati, coda limitata/backpressure) e T-018/M02 (shutdown/cancellazioni worker) Passed; presenti le fondamenta fake T-028. [Evidenze e limiti](milestone-m02.md). FR-008/FR-018 e NFR-008 hanno soltanto evidenza del sottoinsieme locale. La matrice primaria mantiene AC-008 completo a M07, AC-018 a M09 e AC-028 a M12; nessuno è chiuso anticipatamente.
