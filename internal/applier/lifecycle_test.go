@@ -23,6 +23,48 @@ func TestT018CancellationBeforeAdmission(t *testing.T) {
 	completed(t, submit(t, a, 1, put("k", "accepted")), sm.OK)
 }
 
+// cancelAtRecheck uses a real cancellable context, expiring it precisely when
+// Submit rechecks cancellation after copying inputs. Only Submit calls Err here.
+type cancelAtRecheck struct {
+	context.Context
+	cancel context.CancelFunc
+	checks int
+}
+
+func (c *cancelAtRecheck) Err() error {
+	c.checks++
+	if c.checks == 2 {
+		c.cancel()
+	}
+	return c.Context.Err()
+}
+
+func TestT018CancellationAtAdmissionRecheck(t *testing.T) {
+	var calls []sm.Command
+	m := sm.New()
+	a := newTestApplier(t, applyFunc(func(c sm.Command) sm.Result {
+		calls = append(calls, c)
+		return m.Apply(c)
+	}), Config{Capacity: 1})
+	base, cancel := context.WithCancel(testContext(t))
+	defer cancel()
+	ctx := &cancelAtRecheck{Context: base, cancel: cancel}
+	f, err := a.Submit(ctx, Entry{1, put("k", "cancelled after copying")})
+	if f != nil || !errors.Is(err, context.Canceled) || ctx.checks != 2 {
+		t.Fatalf("admission recheck: future %v, error %v, checks %d", f, err, ctx.checks)
+	}
+	if p := a.Progress(); p.Scheduled != 0 || p.LastApplied != 0 || p.Queued != 0 || p.Active {
+		t.Fatalf("cancelled copy was admitted: %+v", p)
+	}
+	completed(t, submit(t, a, 1, put("k", "accepted")), sm.OK)
+	if err := a.Shutdown(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	if len(calls) != 1 || string(calls[0].Value) != "accepted" {
+		t.Fatalf("cancelled request reached Apply: %+v", calls)
+	}
+}
+
 func TestT018CancellationWhileWaitingForSpace(t *testing.T) {
 	g := newGate(t)
 	a := newTestApplier(t, g, Config{Capacity: 1})

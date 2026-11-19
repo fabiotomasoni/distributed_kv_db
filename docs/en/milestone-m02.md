@@ -81,3 +81,7 @@ Created four production files: [applier.go](../../internal/applier/applier.go), 
 Updated this report and its translation, shared/language indexes, architecture, roadmap, testing strategy, traceability, consistency, development guide and applicable ADR addenda in both languages. The old blocked status is resolved here; historical audits remain intact.
 
 T-008/M02 and T-018/M02 are Passed, with T-028 fake foundations available. Full AC-008 remains at M07, server AC-018 at M09 and replay AC-028 at M12. All M02 completion criteria are met within that approved subset. M03 is not started: it may be addressed after review and closure of the applicable C-01/C-02 gates (canonical formats/fixtures and macOS storage contract). No Raft, networking, WAL, snapshots, disk database, server, deployment or automatic Git commit. No external service, paid API, dependency installation, additional hardware or spending; €0, small synthetic datasets and bounded runs only.
+
+## Subsequent review
+
+The [pre-M03 review](pre-m03-review.md) reran M01/M02 and added one significant cancellation-boundary test: current applier count 21, coverage 100.0%, targeted race passed. The original 20-test/99.3% figures above remain historical delivery evidence. Production code unchanged; C-01 design resolved and C-02 validation still conditional/open as recorded in the review.
