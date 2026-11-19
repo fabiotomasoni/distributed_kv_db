@@ -1,10 +1,12 @@
 # QuorumKV
 
-A distributed key-value database to be built from scratch in Go, using Raft to study consensus, concurrency, persistence and recovery.
+A distributed key-value database project in Go. Its deterministic local state machine is implemented; Raft, networking and persistence remain planned.
 
-Un database key-value distribuito da costruire da zero in Go, basato su Raft per studiare consenso, concorrenza, persistenza e recupero.
+Un progetto di database key-value distribuito in Go. La macchina a stati locale deterministica è implementata; Raft, rete e persistenza restano previsti.
 
-**Status / Stato:** pre-implementation design / progettazione pre-implementativa. No application code, running server, passed database tests or benchmark results / nessun codice applicativo, server utilizzabile, test del database superato o risultato benchmark.
+**Status / Stato — 19 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 not started / non iniziata.** Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
+
+Planned distributed architecture / Architettura distribuita prevista:
 
 ```mermaid
 flowchart LR
@@ -31,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [M01: implementazione e risultati](docs/it/milestone-m01.md) | [M01: implementation and results](docs/en/milestone-m01.md) |
 | [Documentazione completa](docs/it/README.md) | [Complete documentation](docs/en/README.md) |
 | [Requisiti e tracciabilità](docs/it/traceability.md) | [Requirements and traceability](docs/en/traceability.md) |
 | [Audit: approvato con condizioni](docs/it/architecture-review.md) | [Audit: approved with conditions](docs/en/architecture-review.md) |
@@ -40,8 +43,17 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 | [Revisione e questioni aperte](docs/it/design-review.md) | [Review and open questions](docs/en/design-review.md) |
 | [Consegna e inventario file](docs/it/delivery-report.md) | [Delivery and file inventory](docs/en/delivery-report.md) |
 
-The first implementation milestone will be the deterministic KV state machine after design approval. This repository is an educational portfolio project, not production-ready software.
+M01 provides a sequential, in-memory package with no external dependency. Its 12 tests and 44 subcases pass, including three repeated runs; the implemented package has 100% statement coverage. This is not evidence of distributed correctness. This repository is an educational portfolio project, not production-ready software.
 
-La prima milestone implementativa sarà la macchina a stati KV deterministica dopo approvazione del progetto. Questo è un progetto didattico e di portfolio, non software pronto per produzione.
+M01 offre un package sequenziale in memoria senza dipendenze esterne. Passano 12 test e 44 sottocasi, anche in tre ripetizioni; il package implementato ha copertura delle istruzioni del 100%. Non è una verifica della correttezza distribuita. Questo è un progetto didattico e di portfolio, non software pronto per produzione.
 
 **License / Licenza:** not selected; the owner must choose terms before public release / non selezionata; il proprietario dovrà scegliere le condizioni prima della pubblicazione.
+
+## Local checks / Verifiche locali
+
+Go 1.27.4; no running cluster is required / non serve un cluster avviato.
+
+```sh
+go test -timeout=30s ./...
+go vet ./...
+```

@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/traceability.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Normative matrix
 
@@ -46,3 +46,7 @@ Each row has one primary criterion and test. Cross-cutting tests in [testing](te
 ## Incremental coverage and audit
 
 The matrix milestone is the final requirement gate; NFR-007 is checked at every change and closes with the M16 package. Mandatory [acceptance](acceptance-criteria.md) subcases belong to existing primary tests without artificially increasing the requirement count. The [audit](architecture-review.md) links findings, fixes and gates; an unexecuted test remains open.
+
+## M01 subset progress
+
+T-008/M01 and T-009/M01 are Passed for the local sequential core; see [tests, files and evidence](milestone-m01.md). FR-008/FR-009/FR-010 and NFR-006 have local-component evidence only: the matrix retains original final gates for consensus, API, concurrency and complete resources. M02 remains Not started.

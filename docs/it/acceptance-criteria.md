@@ -2,11 +2,11 @@
 
 [Indice](README.md) · [English](../en/acceptance-criteria.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
 
 ## Regola di accettazione
 
-Tutti i criteri sono **Not run**. Per chiudere una riga servono procedura ripetibile, evidenza associata a revisione/configurazione e condizione rispettata. “Nessun panic” o un log senza errori non è sufficiente. Verifica il [catalogo test](testing-strategy.md) per dettagli di scheduling e fixture.
+I criteri completi rimangono aperti; soltanto i sottoinsiemi locali M01 di T-008/T-009 sono **Passed**, come documentato sotto. Per chiudere una riga servono procedura ripetibile, evidenza associata a revisione/configurazione e condizione rispettata. “Nessun panic” o un log senza errori non è sufficiente. Verifica il [catalogo test](testing-strategy.md) per dettagli di scheduling e fixture.
 
 | Criterio | Requisito / procedura | Evidenza obbligatoria | Condizione di superamento |
 |---|---|---|---|
@@ -52,3 +52,7 @@ M09 chiude soltanto il sottoinsieme MVP della roadmap; M14 tutte le condizioni d
 Gli AC restano Not run. AC-003/AC-009 richiedono parsing rigoroso e CAS massimo entro corpo 48 KiB; AC-008 include backlog di commit e coda piena senza doppio apply; AC-013/AC-016 includono write non Sync sopravvissute e hard state aggiornato nel passaggio generazione; AC-015 include applyEpoch e snapshot divenuto obsoleto durante il trasferimento; AC-019 distingue nuova GET dopo isolamento da risposta di read già committed; AC-022 richiede il controesempio con retry dopo completamento; AC-026 include prenotazione dei file di controllo.
 
 I sottoinsiemi iniziali della [roadmap](implementation-roadmap.md) non chiudono questi criteri interi. AC-031 si verifica con integration offline autonoma a M14; la presentazione della demo a M16 non è un prerequisito circolare. Tutti i sottocasi devono comparire nelle evidenze del test primario, non sono nuovi requisiti non tracciati.
+
+## Chiusura limitata di M01
+
+M01 è COMPLETED nel solo sottoinsieme ufficiale: semantica locale, CAS sequenziale, validazione, quote, ownership dei byte e determinismo verificati con test reali. [Relazione M01](milestone-m01.md). Non si chiudono AC-008 distribuito, AC-009 HTTP/GET Raft, AC-010 concorrente, AC-011 dedup né AC-026 risorse cluster. Nessun criterio relativo a M02 o successive è dichiarato superato.

@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/traceability.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
 
 ## Matrice normativa
 
@@ -46,3 +46,7 @@ Ogni riga ha un criterio e un test primario. I test trasversali in [testing](tes
 ## Copertura incrementale e audit
 
 La milestone della matrice è il gate finale del requisito; NFR-007 si controlla a ogni cambiamento e si chiude al pacchetto M16. I sottocasi obbligatori dell'[accettazione](acceptance-criteria.md) appartengono ai test primari esistenti, senza aumentare artificialmente il numero dei requisiti. [Audit](architecture-review.md) collega problemi, correzioni e gate; un test non eseguito resta aperto.
+
+## Avanzamento del sottoinsieme M01
+
+T-008/M01 e T-009/M01 sono Passed per il core sequenziale locale; vedere [test, file ed evidenze](milestone-m01.md). FR-008/FR-009/FR-010 e NFR-006 hanno soltanto evidenza del componente locale: la matrice mantiene i gate finali originali per consenso, API, concorrenza e risorse complete. M02 resta Not started.

@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/data-model.md)
 
-**Stato: progetto pre-implementativo, revisione 0.1 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
 
 ## Dominio e codifica
 
@@ -38,3 +38,7 @@ Il digest SHA-256 comprende opcode e campi tipizzati con prefisso di lunghezza b
 ## Esempi d'uso
 
 Configurazione `config/theme` → byte `dark`; inventario `stock/pen` → byte `12`; contatore `count/jobs` → GET e CAS da `12` a `13`; metadata `resource/7` → intero documento. Questi sono esempi progettuali, non dati di un server esistente. CAS su valori non protegge dall'ABA: una sequenza A→B→A può non essere rilevata. Un CAS su versione è una futura estensione, non parte dell'API iniziale.
+
+## Proiezione implementata in M01
+
+M01 implementa soltanto mappa e contatore byte con operazioni sequenziali e quote: [interfaccia locale](milestone-m01.md). Sessioni e lastApplied del modello completo restano futuri. I comandi Go hanno byte raw; nil su un valore ammesso significa sequenza vuota, mentre Expected.Exists distingue presenza e assenza. JSON null resta invalido nel futuro adattatore HTTP. Non esiste serializzazione, snapshot o formato canonico M01.

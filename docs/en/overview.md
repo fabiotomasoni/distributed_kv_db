@@ -2,11 +2,11 @@
 
 [Index](README.md) · [Italiano](../it/overview.md)
 
-**Status: pre-implementation design, revision 0.1 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Purpose and motivation
 
-QuorumKV will be a distributed key-value database written from scratch in Go: a map from keys to byte sequences, replicated by three independent processes. It is an educational and portfolio project for one developer, intended to make consensus, concurrency, durability and recovery observable. This repository contains design only: servers, a CLI, executable tests and benchmarks do not yet exist.
+QuorumKV will be a distributed key-value database written from scratch in Go: a map from keys to byte sequences, replicated by three independent processes. It is an educational and portfolio project for one developer, intended to make consensus, concurrency, durability and recovery observable. M01 now provides the local state machine and executable tests: [results](milestone-m01.md). Servers, CLI, consensus and persistence are not implemented; no benchmarks have run.
 
 A key-value database retrieves an entire value by key; it does not interpret internal properties, tables or joins. Distributing it means keeping copies on nodes communicating through messages, without assuming shared memory, identical state or an always-available network. The central problem is agreeing on an update order despite crashes and delays.
 

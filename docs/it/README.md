@@ -2,16 +2,17 @@
 
 [Indice](README.md) · [English](../en/README.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
 
 ## Come leggere il progetto
 
-QuorumKV è nella fase di progettazione. Tutti i server, comandi, test e risultati descritti sono futuri salvo i controlli documentali esplicitamente registrati. Non eseguire gli esempi di avvio come se il software fosse disponibile.
+M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
 
-Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. La prima implementazione consigliata è M01; richiede approvazione separata della documentazione.
+Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01 è completata; M02 sarà affrontata soltanto con un nuovo incarico esplicito.
 
 ## Specifiche complete
 
+- [M01 completata: interfacce, test ed evidenze](milestone-m01.md)
 - [Audit architetturale: APPROVED WITH CONDITIONS](architecture-review.md)
 - [Panoramica di QuorumKV](overview.md)
 - [Ambito, assunzioni e limiti](scope.md)

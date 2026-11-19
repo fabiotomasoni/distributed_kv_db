@@ -2,11 +2,11 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Status: pre-implementation design, revision 0.1 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Free prerequisites
 
-MacBook Pro M5/macOS ARM64, terminal, Git, an existing editor and Go darwin/arm64. Proposed baseline **Go 1.27.4**, listed in the [official release history](https://go.dev/doc/devel/release) accessed on 18 November 2026. M01 must verify actual installation and pin the exact patch in the future go.mod/toolchain manifest. No beta versions or automatic downloads during offline tests; `GOTOOLCHAIN=local` prevents implicit fetching. Apply security patches after review and the suite; plan minor upgrades rather than changing mid-experiment.
+MacBook Pro M5/macOS ARM64, terminal, Git, an existing editor and Go darwin/arm64. M01 verified baseline: **Go 1.27.4 darwin/arm64**; go.mod requires at least Go 1.27.4 and the [M01 report](milestone-m01.md) records the exact tested toolchain. The [official release history](https://go.dev/doc/devel/release) remains the upgrade reference. No beta versions or automatic downloads during offline tests; `GOTOOLCHAIN=local` prevents implicit fetching. Apply security patches after review and the suite; plan minor upgrades rather than changing mid-experiment.
 
 Go and the standard library suffice for runtime; the toolchain has a [BSD license](https://go.dev/LICENSE). Git is a development tool, not a runtime dependency. No third-party Go packages are initially proposed: no generators, CGO, external DBs, packaged Raft or telemetry services. GitHub Free is optional. A Mermaid renderer is optional for viewing diagrams; source remains available offline. QuorumKV's license must be chosen by its owner before publication.
 
@@ -37,7 +37,7 @@ These names and paths are design examples, not existing files or commands. Omit 
 
 Follow the [roadmap](implementation-roadmap.md), keep main simple and packages aligned with [architecture](architecture.md). Properties and model first, then adapters and measurements. Every semantic change updates both languages, requirement, ADR, fixture and criterion. No code starts automatically after this delivery: separate approval of the design phase is required.
 
-Once the module exists: `gofmt`, `go vet ./...`, `go test ./...`, targeted race/integration testing within limits. These are proposed commands, not completed validations. Pre-acquire toolchain/module caches; verify offline operation by disabling external networking without blocking loopback. No container is needed.
+For the existing M01 module: `gofmt`, `go vet ./...` and `go test ./...` are checks performed on the local package. Race/integration tests remain proposed for their respective milestones within established limits. Pre-acquire toolchain/module caches; verify offline operation by disabling external networking without blocking loopback. No container is needed.
 
 ## Data, cleanup and troubleshooting
 
@@ -52,3 +52,7 @@ Keep `.local/` out of future version control; use synthetic data only. Manual ba
 | Invalid CRC/manifest | Quarantine and diagnose; no automatic reset. |
 | Storage cap | Inspect compaction and inactive temporaries; never remove active WAL. |
 | Mac under pressure | Stop run-owned tests/processes; reduce dataset/concurrency and retain measurements. |
+
+## Checks now available for M01
+
+go.mod and internal/statemachine now exist; Go 1.27.4 darwin/arm64 was actually used. With that toolchain installed, go test -timeout=30s ./... and go vet ./... run from the root without services or external dependencies. This session used a temporary /tmp copy with a verified official checksum, not a global installation: [details and reproduction](milestone-m01.md). Node CLI/configuration examples remain proposals. M02 has not started.

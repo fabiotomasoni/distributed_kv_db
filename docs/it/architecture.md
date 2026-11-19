@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/architecture.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**Aggiornamento: 19 novembre 2026 — M01 locale implementata e verificata; le specifiche distribuite restano progettuali.**
 
 ## Confini dei componenti
 
@@ -50,3 +50,7 @@ L'[indice diagrammi](diagrams/README.md) contiene nove viste: sistema, nodo, scr
 Il core conserva `scheduledApplyIndex`, inizializzato a lastApplied dopo recovery, con `lastApplied <= scheduledApplyIndex <= commitIndex`. Accodare soltanto il tratto non ancora schedulato, anche se commit avanza mentre l'applier è lento; una coda piena lascia l'indice invariato. Un solo produttore, range contigui e completamenti con `(applyEpoch,index)` impediscono doppio apply. Il core continua a drenare completamenti e storage senza bloccare tentando di riempire la coda apply.
 
 InstallSnapshot richiede una barriera: fermare nuovo scheduling, drenare o invalidare in modo coordinato i vecchi lavori, attendere che l'applier non stia mutando la vecchia mappa, poi sostituire stato e impostare `lastApplied=scheduledApplyIndex=S`, incrementando applyEpoch. Completamenti della vecchia epoch non modificano indici, waiter o sessioni. Leadership change da sola non resetta questi indici: il prefisso committed resta valido. INV-05 per lastApplied vale nel normale ciclo operativo; recovery ricostruisce dal checkpoint prima di rendere il nodo pronto.
+
+## Confine effettivo di M01
+
+Il solo package implementato è internal/statemachine, con New() e Apply(Command) Result: [relazione](milestone-m01.md). Il futuro contratto Apply(index,command) dell’applier incapsulerà questo core; indice, commit, sessioni, epoch e scheduling non sono stati anticipati. Il core riceve chiamate già ordinate dal proprietario, senza thread safety. Il resto dei componenti e delle frecce resta progettuale.

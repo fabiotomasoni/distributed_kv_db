@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/testing-strategy.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Layers and reference model
 
@@ -61,7 +61,7 @@ Manifest: future Git revision, Go/macOS version, architecture, configuration and
 
 Unit-test deadline 10 s/case, integration 30 s/case, ordinary suite maximum 120 s; maximum concurrency 8 clients, 1,000 operations. Optional fuzzing 10 s per target, two workers, outside the ordinary suite. Stop on resource-limit violations; no overnight soak tests. Unique run directories; delete only successful-run artifacts, retaining failures under a 10 MiB evidence quota outside active data directories.
 
-Future commands, usable only after implementation and module creation: `go test ./...`, `go test -race ./...`, `go vet ./...`. The race detector finds data races in observed executions; it proves neither quorum nor linearizability nor absence of deadlock in every schedule. None of these commands has been run as a database test in this phase.
+Local M01 commands now available: `go test ./...` and `go vet ./...`; `go test -race ./...` remains planned for concurrency milestones. The race detector finds data races in observed executions; it proves neither quorum nor linearizability nor absence of deadlock in every schedule. Tests and vet for the M01 package have now run as recorded in local evidence; distributed and race-check commands remain future work.
 
 The M14 gate requires all mandatory tests and associated ACs, reproducible results and zero known violations. Physical power-loss tests remain excluded: process-kill results do not close that gap.
 
@@ -74,3 +74,7 @@ Group only attempts with the same identity **and the same canonical command**. R
 T-008/apply-backlog: commit 5 with lastApplied 0; before any completion, commit 7. The scheduled sequence must be exactly 1..7, once; also saturate the queue and verify resumption. T-015/snapshot-epoch and T-016/hard-state-handoff check the storage barriers. T-021 retains a global ghost register of entries that became committed and checks every future leader against that prefix, including after compaction; checking only equality of current logs does not establish Leader Completeness.
 
 Each criterion retains its primary matrix test; these subcases are mandatory within that identifier. All remain **Not run**. The 20-history and 120 s bounds are maximum budgets: if the global budget expires, missing cases are inconclusive, never implicitly passed.
+
+## Local M01 evidence
+
+T-008/M01 and T-009/M01 ran and passed within the roadmap subset: 12 top-level tests, 44 subcases, three additional repetitions and 100% statement coverage of the local package. Independent list/string oracle rather than the production map, fixed seed 19 and per-step comparison. See [commands and limits](milestone-m01.md). Distributed tests, apply backlog, linearizability checker, race detection and fault injection remain Not run.

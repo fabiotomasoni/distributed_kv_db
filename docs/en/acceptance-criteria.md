@@ -2,11 +2,11 @@
 
 [Index](README.md) · [Italiano](../it/acceptance-criteria.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Acceptance rule
 
-All criteria are **Not run**. Closing a row requires a repeatable procedure, evidence tied to a revision/configuration and a satisfied condition. “No panic” or an error-free log is insufficient. See the [test catalog](testing-strategy.md) for scheduling and fixture details.
+Full criteria remain open; only the local M01 subsets of T-008/T-009 are **Passed**, as documented below. Closing a row requires a repeatable procedure, evidence tied to a revision/configuration and a satisfied condition. “No panic” or an error-free log is insufficient. See the [test catalog](testing-strategy.md) for scheduling and fixture details.
 
 | Criterion | Requirement / procedure | Required evidence | Passing condition |
 |---|---|---|---|
@@ -52,3 +52,7 @@ M09 closes only the roadmap MVP subset; M14 closes all correctness conditions; M
 ACs remain Not run. AC-003/AC-009 require strict parsing and maximum CAS within a 48 KiB body; AC-008 includes commit backlog and full queues without duplicate apply; AC-013/AC-016 include surviving non-Sync writes and updated hard state at generation switch; AC-015 includes applyEpoch and a snapshot becoming obsolete during transfer; AC-019 distinguishes a new GET after isolation from a response for an already-committed read; AC-022 requires the retry-after-completion counterexample; AC-026 includes control-file reservation.
 
 Early [roadmap](implementation-roadmap.md) subsets do not close these whole criteria. AC-031 uses independent offline integration at M14; demo presentation at M16 is not a circular prerequisite. Every subcase must appear in its primary test evidence; these are not new untraced requirements.
+
+## Limited M01 closure
+
+M01 is COMPLETED only within its official subset: local semantics, sequential CAS, validation, quotas, byte ownership and determinism verified by actual tests. [M01 report](milestone-m01.md). Distributed AC-008, HTTP/Raft-GET AC-009, concurrent AC-010, dedup AC-011 and cluster-resource AC-026 are not closed. No M02-or-later criterion is claimed passed.

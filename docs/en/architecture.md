@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/architecture.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Component boundaries
 
@@ -50,3 +50,7 @@ The [diagram index](diagrams/README.md) contains nine views: system, node, write
 The core retains `scheduledApplyIndex`, initialized to lastApplied after recovery, with `lastApplied <= scheduledApplyIndex <= commitIndex`. Enqueue only the unscheduled interval even when commit advances while the applier is slow; a full queue leaves the index unchanged. One producer, contiguous ranges and `(applyEpoch,index)` completions prevent duplicate apply. The core keeps draining completions/storage without blocking while trying to fill the apply queue.
 
 InstallSnapshot requires a barrier: stop new scheduling, drain or coordinately invalidate old work, wait until the applier is no longer mutating the old map, then replace state and set `lastApplied=scheduledApplyIndex=S`, incrementing applyEpoch. Old-epoch completions never change indices, waiters or sessions. Leadership change alone does not reset these indices: the committed prefix remains valid. INV-05 for lastApplied holds during normal operation; recovery reconstructs from the checkpoint before the node becomes ready.
+
+## Actual M01 boundary
+
+The only implemented package is internal/statemachine, exposing New() and Apply(Command) Result: [report](milestone-m01.md). The future applier Apply(index,command) contract will wrap this core; index, commit, sessions, epochs and scheduling were not implemented early. The core receives calls already ordered by its owner, without thread safety. All other components/arrows remain design work.

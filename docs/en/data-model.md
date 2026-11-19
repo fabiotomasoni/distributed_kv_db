@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/data-model.md)
 
-**Status: pre-implementation design, revision 0.1 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Domain and encoding
 
@@ -38,3 +38,7 @@ The SHA-256 digest includes the opcode and typed fields with big-endian length p
 ## Use examples
 
 Configuration `config/theme` → bytes `dark`; inventory `stock/pen` → bytes `12`; counter `count/jobs` → GET then CAS from `12` to `13`; metadata `resource/7` → an entire document. These are design examples, not data from an existing server. Value-based CAS does not protect against ABA: A→B→A may go undetected. Version-based CAS is a future extension, not part of the initial API.
+
+## Projection implemented in M01
+
+M01 implements only map and byte counter with sequential operations and quotas: [local interface](milestone-m01.md). Sessions and lastApplied in the full model remain future work. Go commands carry raw bytes; nil in an admitted value means an empty sequence, while Expected.Exists distinguishes presence/absence. JSON null remains invalid in the future HTTP adapter. M01 has no serialization, snapshots or canonical format.

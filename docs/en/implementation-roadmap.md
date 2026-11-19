@@ -2,17 +2,17 @@
 
 [Index](README.md) · [Italiano](../it/implementation-roadmap.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**Updated: 19 November 2026 — local M01 implemented and checked; distributed specifications remain design work.**
 
 ## Capacity and dependencies
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 starts only after documentation approval. All milestones are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
-| M01 — KV state machine | — | 1–2 | Map, semantics and fixtures; operation/quota table. | T-008/T-009 within the phase subset defined below; evidence saved. | ambiguous semantics | Low |
+| M01 — KV state machine (**COMPLETED**) | — | 1–2 | Map, semantics and fixtures; operation/quota table. | T-008/T-009 within the phase subset defined below; evidence saved. | ambiguous semantics | Low |
 | M02 — Ownership and concurrency | M01 | 3 | Events, applier and backpressure; ownership contract. | T-008/T-018 within the phase subset defined below; evidence saved. | data races | Medium |
 | M03 — Local persistence | M01 | 4–5 | Frames, hard state and lock; binary specification and cutpoints. | T-013 within the phase subset defined below; evidence saved. | macOS Sync | High |
 | M04 — RPC and configuration | M02,M03 | 6 | Envelope and validation; canonical configuration fixtures. | T-001/T-002/T-003/T-029 within the phase subset defined below; evidence saved. | parsing and identity | Medium |
