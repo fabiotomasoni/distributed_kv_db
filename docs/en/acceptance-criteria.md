@@ -60,3 +60,7 @@ M01 is COMPLETED only within its official subset: local semantics, sequential CA
 ## M02 review and pre-M03 gate evidence
 
 M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and targeted race checks; full server/distributed ACs remain open. [Pre-M03 report](pre-m03-review.md): C-01 design resolved, C-02 implementation validation open, CONDITIONALLY READY only for initial conformance/adapter tests. AC-013 requires the future codec to consume positive/negative [static fixtures](canonical-formats.md), plus partial-write/Sync/error/cutpoint tests. AC-016 requires publication/handoff tests at its phase; AC-023 still requires actual process-restart evidence. None is closed by this documentation.
+
+## Subsequent preliminary M03 evidence
+
+[Phase report](milestone-m03-preliminary.md): GATE C-02 VERIFIED for local primitives, M03 PARTIALLY COMPLETED. 7 storageformat tests/18 subcases and 13 storagefs test functions/16 subcases pass; targeted race and unchanged M01/M02 regressions pass. Codec scope is stateless frames/entries/digests/manifests; no WAL/replay engine or complete AC-013/AC-014/AC-023 closure. Full snapshot and later gates remain open. Earlier figures/statuses describe their historical phase.

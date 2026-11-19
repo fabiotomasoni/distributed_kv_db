@@ -2,11 +2,11 @@
 
 [Indice](README.md) · [English](../en/macos-storage-contract.md)
 
-**19 novembre 2026 — contratto candidato documentato; test adattatore piattaforma NOT RUN.**
+**19 novembre 2026 — contratto primitive locali VERIFIED nella fase preliminare M03; progetto storico e accettazione residua sotto.**
 
 ## Gate originale e limiti delle fonti
 
-C-02 blocca la scelta del contratto adattatore M03 senza revisione della documentazione piattaforma e la chiusura della durabilità M03/M09 senza validazione leggera dell'implementazione. Colloca esplicitamente la validazione dell'adattatore durante l'implementazione futura. Questo documento completa la revisione di fonti/scelte; la parte sperimentale resta OPEN. [Decisione e futuro lavoro consentito](pre-m03-review.md). Nessun adattatore storage, esperimento crash di processo o probe APFS implementato/eseguito qui.
+C-02 blocca la scelta del contratto adattatore M03 senza revisione della documentazione piattaforma e la chiusura della durabilità M03/M09 senza validazione leggera dell'implementazione. Colloca esplicitamente la validazione dell'adattatore durante l'implementazione futura. La revisione pre-M03 originale completava fonti/scelte con esperimenti OPEN; le evidenze correnti sono registrate nella sezione finale. [Decisione e futuro lavoro consentito](pre-m03-review.md). Nessun adattatore/probe esisteva a quella revisione storica; la fase preliminare successiva implementa solo il sottoinsieme isolato di primitive.
 
 Fonti primarie consultate il 19 novembre 2026: [Apple fsync](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html), [fcntl](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fcntl.2.html), [rename](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/rename.2.html), [flock](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/flock.2.html) e [About APFS](https://developer.apple.com/documentation/foundation/about-apple-file-system). I manuali sono d'archivio; il vecchio elenco filesystem di fcntl precede APFS e non stabilisce il supporto APFS attuale. Descrizioni API e sorgente Go ispezionato guidano le scelte, senza certificare sistema installato, filesystem o SSD.
 
@@ -60,3 +60,9 @@ Conservare tutte le sincronizzazioni necessarie. Evitare riscritture persistenti
 Budget iniziale probe reali M03: <=16 KiB di contenuto sintetico per caso, <=16 cutpoint, <=2 processi del run, <=1 MiB di scritture deliberatamente sottomesse complessive, <=30 s/caso e <=120 s suite. Contare byte tentati incluse ripetizioni; fermarsi al budget, non è un'asserzione sulle scritture interne SSD. Directory run dedicata, cleanup dei soli file del run, niente privilegi/flush cache/reboot/strumenti device. Test modello con piccole copie in memoria. Questi limiti sono requisiti di test futuri; nessun test storage eseguito in questa revisione.
 
 C-02 è **CONDITIONALLY RESOLVED per la scelta documentata, OPEN per validazione implementativa**. Soltanto conformità formati e test isolati adattatore/capacità sono proponibili come prime attività M03. Prima di integrare writer/percorso pubblicazione, richiedere le evidenze primitive/lock/errori/visibilità sopra, oppure rivedere ADR e bloccare il percorso interessato. Accettazione durabilità M03/M09, claim OS/power loss, deploy di produzione e installazione snapshot M13 restano bloccati ai rispettivi gate. È la validazione per fasi già richiesta dall'audit originale, non una deroga. Questo incarico non inizia M03.
+
+## Verifica C-02 corrente
+
+[Relazione M03 preliminare](milestone-m03-preliminary.md): GATE C-02 VERIFIED per macOS 27.2.1/26B131, Go 1.27.4 darwin/arm64 su APFS locale /System/Volumes/Data. Riusciti File.Sync, probe capacità F_FULLFSYNC separato e fsync directory; superati lock interprocesso/rilascio close/kill, cutpoint pre/post-rename con riferimenti fixture verificati ed errori I/O/close iniettati. Il contratto candidato di primitive sopra è adottato per questo profilo; barriere non supportate continuano a bloccare.
+
+Non è implementazione generazionale completa o accettazione recovery/durabilità. Conformità byte senza stato copre il sottoinsieme iniziale reader; replay/riparazione fra frame resta M03 T-013, durabilità successi processo M09 T-023, handoff/installazione snapshot M13 T-015/T-016. Claim OS/power loss esclusi. M03 PARTIALLY COMPLETED; nessun lavoro residuo parte automaticamente. I precedenti OPEN/NOT RUN nel documento descrivono il progetto pre-M03, non le evidenze primitive correnti.

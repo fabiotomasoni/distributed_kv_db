@@ -96,3 +96,7 @@ Final image validation compares cluster/config, included index/term, length and 
 The [canonical v1 specification and checked fixtures](canonical-formats.md) now fix the storage schema: recursive ASCII field ordering, kind/nullability, typed command digest, entry/result/session objects, snapshot arrays/counters and checksummed IDENTITY/CURRENT. That document supplies exact framing and bootstrap/recovery expectations; this page retains the ordering and generation protocol. No storage codec exists.
 
 The [macOS contract](macos-storage-contract.md) records File.Sync’s actual Go 1.27.4 Darwin path, stable advisory locking and a directory-fsync requirement awaiting separate tests. If CURRENT rename succeeds but its directory barrier fails, publication is uncertain/fatal: preserve both generations, do not roll back or acknowledge. C-01 is resolved at design level; C-02 remains conditional pending actual adapter evidence. [Current review](pre-m03-review.md). All storage tests and durability acceptance remain future work.
+
+## Preliminary implementation boundary
+
+[Phase evidence](milestone-m03-preliminary.md) verifies the C-02 local primitive contract and stateless QWAL/control-file codecs. No full append/replay/generation engine is available. PublishCurrent synchronizes one validated control file; its caller must already have synchronized/validated the referenced generation. A frame checksum or successful fsync is neither proof of legal commit nor full recovery correctness. M03 remains PARTIALLY COMPLETED; retain all later storage/snapshot/durability gates.

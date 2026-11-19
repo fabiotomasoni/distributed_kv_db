@@ -1,8 +1,8 @@
 # QuorumKV
 
-A distributed key-value database project in Go. Its deterministic local state machine and ordered applier are implemented; Raft, networking and persistence remain planned.
+A distributed key-value database project in Go. Its deterministic local state machine and ordered applier are implemented; Raft, networking and the persistent database engine remain planned.
 
-Un progetto di database key-value distribuito in Go. La macchina a stati locale deterministica e l’applier ordinato sono implementati; Raft, rete e persistenza restano previsti.
+Un progetto di database key-value distribuito in Go. La macchina a stati locale deterministica e l’applier ordinato sono implementati; Raft, rete e il motore persistente restano previsti.
 
 **Status / Stato — 19 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
 
@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [M03 preliminare: gate C-02 verificato](docs/it/milestone-m03-preliminary.md) | [Preliminary M03: C-02 verified](docs/en/milestone-m03-preliminary.md) |
 | [Revisione pre-M03: readiness condizionata](docs/it/pre-m03-review.md) | [Pre-M03 review: conditional readiness](docs/en/pre-m03-review.md) |
 | [M02: applier, test e risultati](docs/it/milestone-m02.md) | [M02: applier, tests and results](docs/en/milestone-m02.md) |
 | [M01: implementazione e risultati](docs/it/milestone-m01.md) | [M01: implementation and results](docs/en/milestone-m01.md) |
@@ -60,3 +61,5 @@ go test -timeout=30s ./...
 go vet ./...
 go test -race -timeout=30s ./internal/applier
 ```
+
+M03: preliminary codecs and local filesystem primitives verified; milestone partially completed / codec preliminari e primitive filesystem locali verificati; milestone parzialmente completata.

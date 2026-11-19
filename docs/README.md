@@ -15,3 +15,5 @@ Two equivalent paths with specifications, requirements, ADRs, diagrams, planned 
 [M02: relazione italiana](it/milestone-m02.md) · [M02: English report](en/milestone-m02.md)
 
 [Revisione pre-M03: CONDITIONALLY READY](it/pre-m03-review.md) · [Pre-M03 review: CONDITIONALLY READY](en/pre-m03-review.md)
+
+[M03 preliminare: C-02 VERIFIED, milestone parziale](it/milestone-m03-preliminary.md) · [Preliminary M03: C-02 VERIFIED, milestone partial](en/milestone-m03-preliminary.md)

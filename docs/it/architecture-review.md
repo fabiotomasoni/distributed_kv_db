@@ -260,3 +260,7 @@ Prima delle fasi successive chiudere i gate pertinenti C-01/C-02 e completare le
 ## H. Seguito del 19 novembre 2026
 
 L’audit sopra è registro storico. La [revisione pre-M03](pre-m03-review.md) riesamina direttamente il codice M02 effettivo e registra lo stato attuale dei gate: specifica storage C-01 RESOLVED con fixture statiche verificate; scelta documentata C-02 CONDITIONALLY RESOLVED, validazione adattatore reale OPEN. Esito CONDITIONALLY READY soltanto per conformità formati iniziale e test isolati adattatore in un futuro incarico. Prima dell’integrazione writer/pubblicazione richiedere evidenze primitive/lock/errori/visibilità; prima dell’accettazione M03/M09 conservare T-013/T-023. C-03 resta ai gate originali. Nessuna implementazione M03 iniziata o promessa di durabilità validata.
+
+## I. Evidenze piattaforma M03 preliminare
+
+La [fase M03 limitata](milestone-m03-preliminary.md) registra GATE C-02 VERIFIED per le primitive adattatore locali provate e conserva l’ambito originale audit: niente claim durabilità completa da sola Sync. Schemi/fixture C-01 invariati; ora eseguita conformità byte senza stato contro di essi. T-013 completo e accettazione successiva processo/snapshot aperti; M03 PARTIALLY COMPLETED, nessuna milestone successiva iniziata. Stati audit/seguiti precedenti restano storici.

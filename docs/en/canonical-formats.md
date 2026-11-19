@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/canonical-formats.md)
 
-**19 November 2026 — normative design baseline; no persistent codec or storage implemented.**
+**19 November 2026 — normative v1 baseline; preliminary stateless codecs implemented, full WAL/recovery not implemented.**
 
 ## Boundary and compatibility
 
@@ -100,3 +100,7 @@ At rotation write first transaction with current hard state and commit=S, append
 A corrupt length can mimic a torn tail: automatic arbitrary-corruption repair is excluded. Suspected corruption or failure after an acknowledged boundary is fatal; retain evidence. Missing CURRENT with other files, incomplete bootstrap or a corrupt published generation is fatal. Unpublished staging never supersedes CURRENT; clean only after validating the selected generation. A surviving published generation is authoritative even if the previous one remains.
 
 C-01 storage design is RESOLVED when: all byte/type/union/version rules above are fixed; bootstrap/publication/recovery decisions are unambiguous; the static vectors' canonical bytes, lengths and checksums are independently checked; future M03/M13 reader tests are required to consume both positive and negative cases. The checker validates fixture arithmetic, not recovery code. Actual codec/recovery conformance remains T-013/T-015/T-016 at their milestones; full config/protocol/OpenAPI fixtures retain the original later gates.
+
+## Implemented preliminary subset
+
+[Phase report](milestone-m03-preliminary.md): internal/storageformat now implements exact QWAL frame encode/decode, entry validation/typed digests and canonical CURRENT/IDENTITY sealing/validation. Approved fixture bytes are unchanged. DecodeFrame is stateless: it does not authorize truncation, validate cross-frame commit/votes or select a generation. Snapshot/result/session codecs and complete recovery conformance remain future work. C-01 design is resolved; full M03 T-013 is not closed.

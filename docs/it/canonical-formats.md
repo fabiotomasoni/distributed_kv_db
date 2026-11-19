@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/canonical-formats.md)
 
-**19 novembre 2026 — baseline progettuale normativa; nessun codec persistente o storage implementato.**
+**19 novembre 2026 — baseline v1 normativa; codec preliminari senza stato implementati, WAL/recovery completi non implementati.**
 
 ## Confine e compatibilità
 
@@ -100,3 +100,7 @@ Il [file fixture](../fixtures/canonical-v1.json) fissa sei vettori entry/digest,
 Una lunghezza corrotta può sembrare coda incompleta: riparazione automatica di corruzione arbitraria esclusa. Sospetta corruzione o errore dopo un confine acknowledged è fatale; conservare evidenze. CURRENT mancante con altri file, bootstrap incompleto o generazione pubblicata corrotta sono fatali. Staging non pubblicato non supera mai CURRENT; cleanup soltanto dopo validazione della generazione selezionata. Una generazione pubblicata sopravvissuta è autorevole anche se resta quella precedente.
 
 Il progetto storage C-01 è RESOLVED quando: tutte le regole byte/tipi/union/versioni sopra sono fissate; decisioni bootstrap/pubblicazione/recovery sono univoche; byte canonici, lunghezze e checksum dei vettori statici sono verificati indipendentemente; i futuri test reader M03/M13 devono consumare casi positivi e negativi. Il verificatore valida aritmetica delle fixture, non codice di recovery. Conformità effettiva codec/recovery resta T-013/T-015/T-016 alle milestone pertinenti; fixture complete config/protocollo/OpenAPI mantengono i gate successivi originali.
+
+## Sottoinsieme preliminare implementato
+
+[Relazione di fase](milestone-m03-preliminary.md): internal/storageformat implementa ora encode/decode esatto frame QWAL, validazione entry/digest tipizzato e seal/validazione canonici CURRENT/IDENTITY. Byte fixture approvati invariati. DecodeFrame è senza stato: non autorizza troncamento, non valida commit/voti fra frame né seleziona generazioni. Codec snapshot/risultati/sessioni e conformità recovery completa restano futuri. Progetto C-01 risolto; T-013 M03 completo non chiuso.

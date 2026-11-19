@@ -47,3 +47,7 @@ The initial structural check did not exclude semantic problems: the [architectur
 ## Current pre-M03 decisions
 
 19 November 2026: [review and exact readiness boundary](pre-m03-review.md). OQ-05/C-01 storage schemas and byte fixtures resolved; M04 configuration/protocol and M08 OpenAPI still pending. OQ-01/C-02 platform sources and provisional adapter choices documented; actual directory/lock/rename/error validation remains open, first in isolated M03 tests. Only that limited conformance/capability work is conditionally eligible; storage integration waits for evidence, M03/M09 durability gates remain. No change to OQ-02/03/04/06/07 or authorization to implement M03 here.
+
+## Current preliminary M03 status
+
+[Phase report](milestone-m03-preliminary.md): OQ-01/C-02 platform choices have actual local primitive evidence, gate VERIFIED for that profile. OQ-05 storage schemas unchanged and preliminary codec subset tested; full stateful T-013 recovery plus M04/M08 configuration/protocol/API deliverables remain open. M03 is PARTIALLY COMPLETED; no new guarantee of crash-OS/power-loss survival or later-milestone authorization.

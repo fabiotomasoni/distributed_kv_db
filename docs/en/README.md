@@ -12,6 +12,8 @@ Quick path: overview → requirements → architecture → API. Safety review: R
 
 ## Complete specifications
 
+- [Preliminary M03: C-02 VERIFIED, milestone partial](milestone-m03-preliminary.md)
+
 - [Pre-M03 review: CONDITIONALLY READY](pre-m03-review.md)
 - [Canonical storage formats v1 and fixtures](canonical-formats.md)
 - [macOS storage contract and pending C-02 tests](macos-storage-contract.md)

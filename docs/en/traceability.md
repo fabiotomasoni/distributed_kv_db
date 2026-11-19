@@ -58,3 +58,7 @@ M02 COMPLETED: T-008/M02 (ordered single ownership, no duplicate scheduling, bou
 ## Storage gate evidence before M03
 
 C-01/OQ-05: [fixed schemas and static vectors](canonical-formats.md), design prerequisite resolved; future T-013/T-015/T-016 conformance still required. C-02/OQ-01: [documented candidate and missing evidence](macos-storage-contract.md), conditional choice, implementation validation open. [Review](pre-m03-review.md) links FR-013–FR-016 and NFR-003/NFR-006 to these decisions; original final matrix gates and all full ACs are retained.
+
+## Subsequent preliminary M03 evidence
+
+[Phase report](milestone-m03-preliminary.md): GATE C-02 VERIFIED for local primitives, M03 PARTIALLY COMPLETED. 7 storageformat tests/18 subcases and 13 storagefs test functions/16 subcases pass; targeted race and unchanged M01/M02 regressions pass. Codec scope is stateless frames/entries/digests/manifests; no WAL/replay engine or complete AC-013/AC-014/AC-023 closure. Full snapshot and later gates remain open. Earlier figures/statuses describe their historical phase.

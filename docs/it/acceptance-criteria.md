@@ -60,3 +60,7 @@ M01 è COMPLETED nel solo sottoinsieme ufficiale: semantica locale, CAS sequenzi
 ## Evidenze revisione M02 e gate pre-M03
 
 Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test e race mirato; AC completi server/distribuiti aperti. [Relazione pre-M03](pre-m03-review.md): progetto C-01 risolto, validazione implementativa C-02 aperta, CONDITIONALLY READY soltanto per test iniziali conformità/adattatore. AC-013 richiede che il futuro codec consumi [fixture statiche](canonical-formats.md) positive/negative, oltre a test write parziali/Sync/errori/cutpoint. AC-016 richiede test pubblicazione/handoff alla propria fase; AC-023 ancora evidenze reali processo/riavvio. Nessuno è chiuso da questa documentazione.
+
+## Evidenze successive M03 preliminare
+
+[Relazione di fase](milestone-m03-preliminary.md): GATE C-02 VERIFIED per primitive locali, M03 PARTIALLY COMPLETED. Passano 7 test storageformat/18 sottocasi e 13 funzioni test storagefs/16 sottocasi; superati race mirato e regressioni M01/M02 invariate. Ambito codec: frame/entry/digest/manifest senza stato; nessun motore WAL/replay o chiusura completa AC-013/AC-014/AC-023. Gate snapshot e successivi aperti. Cifre/stati precedenti descrivono la fase storica pertinente.

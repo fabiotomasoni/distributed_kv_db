@@ -86,3 +86,7 @@ T-008/M02 e T-018/M02 Passed: 20 nuovi test; suite completa ripetuta tre volte, 
 ## Evidenze revisione pre-M03
 
 19 novembre 2026: [riesame M02](pre-m03-review.md) riprodotto l’unico return scoperto di cancellazione dopo copia e aggiunto test deterministico. Ora 21 test applier passano con 100,0% statement coverage; M01 resta 12 test/44 sottocasi, 100,0%. Un run race mirato superato. Vettori statici formato superano aritmetica/checksum, non esecuzione recovery. Il [piano finito C-02](macos-storage-contract.md) definisce futuri test isolati piattaforma; nessun test M03 o esperimento OS/power loss eseguito.
+
+## Evidenze successive M03 preliminare
+
+[Relazione di fase](milestone-m03-preliminary.md): GATE C-02 VERIFIED per primitive locali, M03 PARTIALLY COMPLETED. Passano 7 test storageformat/18 sottocasi e 13 funzioni test storagefs/16 sottocasi; superati race mirato e regressioni M01/M02 invariate. Ambito codec: frame/entry/digest/manifest senza stato; nessun motore WAL/replay o chiusura completa AC-013/AC-014/AC-023. Gate snapshot e successivi aperti. Cifre/stati precedenti descrivono la fase storica pertinente.

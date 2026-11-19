@@ -12,6 +12,8 @@ Percorso rapido: panoramica → requisiti → architettura → API. Revisione sa
 
 ## Specifiche complete
 
+- [M03 preliminare: C-02 VERIFIED, milestone parziale](milestone-m03-preliminary.md)
+
 - [Revisione pre-M03: CONDITIONALLY READY](pre-m03-review.md)
 - [Formati storage canonici v1 e fixture](canonical-formats.md)
 - [Contratto storage macOS e test C-02 pendenti](macos-storage-contract.md)

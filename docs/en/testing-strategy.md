@@ -86,3 +86,7 @@ T-008/M02 and T-018/M02 Passed: 20 new tests; full suite repeated three times, t
 ## Pre-M03 review evidence
 
 19 November 2026: [M02 re-review](pre-m03-review.md) reproduced the sole uncovered cancellation-after-copy return and added a deterministic test. 21 applier tests now pass with 100.0% statement coverage; M01 remains 12 tests/44 subcases, 100.0%. One targeted race run passed. Static format vectors pass arithmetic/checksum checks, not recovery execution. [C-02 finite plan](macos-storage-contract.md) defines future isolated platform tests; no M03 test or OS/power-loss experiment ran.
+
+## Subsequent preliminary M03 evidence
+
+[Phase report](milestone-m03-preliminary.md): GATE C-02 VERIFIED for local primitives, M03 PARTIALLY COMPLETED. 7 storageformat tests/18 subcases and 13 storagefs test functions/16 subcases pass; targeted race and unchanged M01/M02 regressions pass. Codec scope is stateless frames/entries/digests/manifests; no WAL/replay engine or complete AC-013/AC-014/AC-023 closure. Full snapshot and later gates remain open. Earlier figures/statuses describe their historical phase.

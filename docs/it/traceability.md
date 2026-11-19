@@ -58,3 +58,7 @@ M02 COMPLETED: T-008/M02 (ownership singola ordinata, scheduling senza duplicati
 ## Evidenze gate storage prima di M03
 
 C-01/OQ-05: [schemi fissati e vettori statici](canonical-formats.md), prerequisito progettuale risolto; conformità futura T-013/T-015/T-016 ancora richiesta. C-02/OQ-01: [candidato documentato ed evidenze mancanti](macos-storage-contract.md), scelta condizionata, validazione implementativa aperta. La [revisione](pre-m03-review.md) collega FR-013–FR-016 e NFR-003/NFR-006 alle decisioni; conservati gate finali originali della matrice e tutti gli AC completi.
+
+## Evidenze successive M03 preliminare
+
+[Relazione di fase](milestone-m03-preliminary.md): GATE C-02 VERIFIED per primitive locali, M03 PARTIALLY COMPLETED. Passano 7 test storageformat/18 sottocasi e 13 funzioni test storagefs/16 sottocasi; superati race mirato e regressioni M01/M02 invariate. Ambito codec: frame/entry/digest/manifest senza stato; nessun motore WAL/replay o chiusura completa AC-013/AC-014/AC-023. Gate snapshot e successivi aperti. Cifre/stati precedenti descrivono la fase storica pertinente.

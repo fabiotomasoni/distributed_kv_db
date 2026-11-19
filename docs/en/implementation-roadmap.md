@@ -8,13 +8,13 @@
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **PARTIALLY COMPLETED**, limited to preliminary codecs/platform validation: [phase report](milestone-m03-preliminary.md). M04–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
 | M01 — KV state machine (**COMPLETED**) | — | 1–2 | Map, semantics and fixtures; operation/quota table. | T-008/T-009 within the phase subset defined below; evidence saved. | ambiguous semantics | Low |
 | M02 — Ownership and concurrency (**COMPLETED**) | M01 | 3 | Events, applier and backpressure; ownership contract. | T-008/T-018 within the phase subset defined below; evidence saved. | data races | Medium |
-| M03 — Local persistence | M01 | 4–5 | Frames, hard state and lock; binary specification and cutpoints. | T-013 within the phase subset defined below; evidence saved. | macOS Sync | High |
+| M03 — Local persistence (**PARTIALLY COMPLETED**) | M01 | 4–5 | Frames, hard state and lock; binary specification and cutpoints. | T-013 within the phase subset defined below; evidence saved. | macOS Sync | High |
 | M04 — RPC and configuration | M02,M03 | 6 | Envelope and validation; canonical configuration fixtures. | T-001/T-002/T-003/T-029 within the phase subset defined below; evidence saved. | parsing and identity | Medium |
 | M05 — Leader election | M03,M04 | 7–8 | Timers and persistent votes; election simulator. | T-004/T-005 within the phase subset defined below; evidence saved. | incorrect timer resets | High |
 | M06 — Log replication | M05 | 9 | AppendEntries and conflicts; divergent-log traces. | T-006 within the phase subset defined below; evidence saved. | incorrect truncation | High |
@@ -54,4 +54,8 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 
 ## Pre-M03 readiness after M02 review
 
-[Review dated 19 November 2026](pre-m03-review.md): CONDITIONALLY READY. C-01 storage schema/fixtures resolved; C-02 platform-source review complete, implementation validation still open. A future M03 assignment may start only format conformance and isolated local adapter tests under the [finite resource plan](macos-storage-contract.md). Require primitive/lock/error/visibility evidence before integrating a storage writer/publication path. Failed or unsupported barriers block that path and require ADR revision; no silent downgrade. T-013 remains the M03 acceptance gate; T-023 M09 durability and M13 snapshot tests remain open. M03 is Not started; no benchmark, cluster or durable-success claim is authorized by this design review.
+[Review dated 19 November 2026](pre-m03-review.md): CONDITIONALLY READY. C-01 storage schema/fixtures resolved; C-02 platform-source review complete, implementation validation still open. A future M03 assignment may start only format conformance and isolated local adapter tests under the [finite resource plan](macos-storage-contract.md). Require primitive/lock/error/visibility evidence before integrating a storage writer/publication path. Failed or unsupported barriers block that path and require ADR revision; no silent downgrade. T-013 remains the M03 acceptance gate; T-023 M09 durability and M13 snapshot tests remain open. At that pre-M03 review M03 was Not started; no benchmark, cluster or durable-success claim is authorized by this design review.
+
+## Preliminary M03 outcome
+
+[Local evidence](milestone-m03-preliminary.md): GATE C-02 VERIFIED for the tested Darwin/APFS primitives; M03 PARTIALLY COMPLETED. Stateless frame/manifest/entry-digest conformance and isolated locking/barrier/publication tests pass. No full WAL writer/recovery engine implemented. A new assignment may authorize the remaining bounded WAL/hard-state/bootstrap and T-013 work; later milestones and full durability acceptance remain blocked. Stop at this phase.

@@ -260,3 +260,7 @@ Before later phases close applicable C-01/C-02 gates and complete C-03 evidence 
 ## H. Follow-up on 19 November 2026
 
 The audit above is a historical record. The [pre-M03 review](pre-m03-review.md) independently re-examines actual M02 code and records current gate status: C-01 storage specification RESOLVED with checked static fixtures; C-02 documented choice CONDITIONALLY RESOLVED, actual adapter validation OPEN. Outcome CONDITIONALLY READY only for initial format conformance and isolated adapter tests in a future assignment. Before storage writer/publication integration require primitive/lock/error/visibility evidence; before M03/M09 acceptance retain T-013/T-023. C-03 remains at its original gates. No M03 implementation started and no durability claim validated.
+
+## I. Preliminary M03 platform evidence
+
+The [limited M03 phase](milestone-m03-preliminary.md) records GATE C-02 VERIFIED for the tested local adapter primitives and preserves the original audit scope: no full durability claim from Sync alone. C-01 schemas/fixtures remain unchanged; stateless byte conformance now runs against them. Full T-013 and later process/snapshot acceptance remain open; M03 PARTIALLY COMPLETED, no later milestone started. Earlier audit/follow-up statuses remain historical.

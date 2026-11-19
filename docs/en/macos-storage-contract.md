@@ -2,11 +2,11 @@
 
 [Index](README.md) · [Italiano](../it/macos-storage-contract.md)
 
-**19 November 2026 — documented candidate contract; platform adapter tests NOT RUN.**
+**19 November 2026 — local primitive contract VERIFIED in the preliminary M03 phase; historical design and residual acceptance below.**
 
 ## Original gate and source limits
 
-C-02 blocks selecting the M03 adapter contract without platform-documentation review, and closing M03/M09 durability without lightweight implementation validation. It explicitly places adapter validation during future implementation. This document completes the source/choice review; the experimental portion stays OPEN. [Decision and permitted future work](pre-m03-review.md). No storage adapter, process-crash experiment or APFS probe is implemented/executed here.
+C-02 blocks selecting the M03 adapter contract without platform-documentation review, and closing M03/M09 durability without lightweight implementation validation. It explicitly places adapter validation during future implementation. The original pre-M03 review completed the source/choice stage with experiments OPEN; current evidence is recorded in the final section. [Decision and permitted future work](pre-m03-review.md). No adapter/probe existed at that historical review; the subsequent preliminary phase implements only the isolated primitive subset.
 
 Primary sources accessed 19 November 2026: [Apple fsync](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html), [fcntl](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fcntl.2.html), [rename](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/rename.2.html), [flock](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/flock.2.html) and [About APFS](https://developer.apple.com/documentation/foundation/about-apple-file-system). The manual pages are archival; the old fcntl filesystem list predates APFS and does not establish current APFS support. Their API descriptions plus inspected Go source inform choices, not a certification of the installed OS, filesystem or SSD.
 
@@ -60,3 +60,9 @@ Retain all required synchronizations. Avoid identical persistent rewrites, allow
 Initial M03 real-file probe budget: <=16 KiB synthetic contents per case, <=16 cutpoints, <=2 owned processes, <=1 MiB deliberately submitted writes total, <=30 s/case and <=120 s suite. Count attempted bytes including repeats; stop at the budget, not an assertion about SSD-internal writes. Dedicated run directory, cleanup only run-owned files, no privileges/cache flushing/reboots/device tools. Model tests can use tiny in-memory copies. These limits are future test requirements; none of those storage tests ran in this review.
 
 C-02 is **CONDITIONALLY RESOLVED for the documented choice, OPEN for implementation validation**. Only format conformance and isolated adapter/capability tests may be proposed as the first M03 activities. Before integrating a storage writer/publication path, require the primitive/lock/error/visibility evidence above or revise the ADR and block the affected path. M03/M09 durability acceptance, OS/power-loss claims, production deployment and M13 snapshot installation remain blocked at their respective gates. This is the staged validation already required by the original audit, not a waiver. This assignment starts none of M03.
+
+## Current C-02 verification
+
+[Preliminary M03 report](milestone-m03-preliminary.md): GATE C-02 VERIFIED for macOS 27.2.1/26B131, Go 1.27.4 darwin/arm64 on local APFS /System/Volumes/Data. File.Sync, a separate F_FULLFSYNC capability probe and directory fsync succeeded; interprocess lock/close/kill release, pre/post-rename cutpoints with verified fixture references and injected I/O/close errors passed. The candidate primitive contract above is adopted for this profile; unsupported barriers still fail closed.
+
+This is not a full generation implementation or recovery/durability acceptance. Stateless byte conformance covers the initial reader subset; cross-frame replay/repair remains M03 T-013, process-success durability M09 T-023, snapshot handoff/install M13 T-015/T-016. OS/power-loss claims remain excluded. M03 is PARTIALLY COMPLETED; no remaining work starts automatically. Earlier OPEN/NOT RUN statements in this document describe the pre-M03 design stage, not the current primitive evidence.
