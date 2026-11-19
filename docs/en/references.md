@@ -27,3 +27,16 @@ Primary sources accessed on the web on **18 November 2026**: documents were acce
 ## Future verification
 
 APFS/SSD power-loss behavior, directory sync and macOS locking on the actual machine have not been experimentally verified. No hardware source is presented as proof of that guarantee. M03 requires platform-documentation verification and process tests; if a future source is inaccessible, record it as unverified with date and open question. Retain the URL and version used without vendoring whole copyrighted texts.
+
+## Platform sources checked for C-02 — 19 November 2026
+
+The following primary sources were read during this review, without copying complete texts. Archival API pages are not proof of support on current APFS; the [contract](macos-storage-contract.md) records limitations and pending tests.
+
+| ID | Source | Use and limitation |
+|---|---|---|
+| REF-14 | [Apple fsync](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html) | API distinction from full flush; not device validation. |
+| REF-15 | [Apple fcntl](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fcntl.2.html) | F_FULLFSYNC description; archival filesystem list predates APFS. |
+| REF-16 | [Apple rename](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/rename.2.html) | Namespace replacement, not a multi-file transaction. |
+| REF-17 | [Apple flock](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/flock.2.html) | Cooperative exclusive lock; actual release tests pending. |
+| REF-18 | [Apple About APFS](https://developer.apple.com/documentation/foundation/about-apple-file-system) | Filesystem features/space sharing, not database durability proof. |
+| REF-19 | [Go 1.27.4 Darwin Fsync source](https://raw.githubusercontent.com/golang/go/go1.27.4/src/internal/poll/fd_fsync_darwin.go) | Checked against the local toolchain: full-flush request and ENOTSUP fallback. |

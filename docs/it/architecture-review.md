@@ -256,3 +256,7 @@ Tre repliche moltiplicano anche l'I/O delle letture nel log: la fattibilità non
 Prima delle fasi successive chiudere i gate pertinenti C-01/C-02 e completare le evidenze C-03 al rispettivo gate di accettazione. Non è un'approvazione generale di ogni dettaglio binario ancora Proposed, né una certificazione delle garanzie runtime. I problemi corretti non richiedono cambiare Raft o imporre ReadIndex: richiedono rispettare esattamente le nuove barriere e gli oracoli.
 
 **Nessun codice applicativo è stato scritto; nessuna milestone è stata iniziata.** Nessun deploy, servizio, benchmark o infrastruttura a pagamento. Le due lingue sono aggiornate insieme; l'audit termina con la consegna documentale.
+
+## H. Seguito del 19 novembre 2026
+
+L’audit sopra è registro storico. La [revisione pre-M03](pre-m03-review.md) riesamina direttamente il codice M02 effettivo e registra lo stato attuale dei gate: specifica storage C-01 RESOLVED con fixture statiche verificate; scelta documentata C-02 CONDITIONALLY RESOLVED, validazione adattatore reale OPEN. Esito CONDITIONALLY READY soltanto per conformità formati iniziale e test isolati adattatore in un futuro incarico. Prima dell’integrazione writer/pubblicazione richiedere evidenze primitive/lock/errori/visibilità; prima dell’accettazione M03/M09 conservare T-013/T-023. C-03 resta ai gate originali. Nessuna implementazione M03 iniziata o promessa di durabilità validata.

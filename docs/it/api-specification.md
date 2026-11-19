@@ -142,3 +142,7 @@ Questo esempio non autorizza a contare due effetti: applied=true descrive il ris
 ## Compatibilità dei limiti CAS
 
 Il cap corpo è 49 152 byte (48 KiB). Due valori raw da 16 384 byte occupano 43 696 byte Base64; una richiesta CAS JSON compatta con chiave da 256 byte, client ID, sequenza massima e timeout occupa 44 116 byte. Quindi tutti i valori ammessi sono rappresentabili in una richiesta compatta; whitespace eccessivo può comunque superare il cap. L'entry log è ricostruita dai campi validati, senza copiare whitespace o campi di trasporto, e deve restare entro 48 KiB. T-009 deve includere questo limite esatto e il rifiuto a cap+1.
+
+## Confine della rappresentazione persistente
+
+I [formati canonici](canonical-formats.md) definiscono la futura proiezione interna entry/digest/risultato. Ordine campi e escape leciti del wire non sono persistiti alla lettera; request_id, outcome e deadline sono campi trasporto. Stato HTTP e limiti corpo invariati. OpenAPI/fixture wire complete restano gate M08/M04, non soddisfatti dalle fixture storage.

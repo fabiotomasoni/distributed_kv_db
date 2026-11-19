@@ -46,3 +46,7 @@ La motivazione è esplicitata dal problema nella seconda colonna: identità evit
 | NFR-012 | **Zero spese**. Non richiedere servizi, acquisti o infrastrutture a pagamento. **Motivo:** Rispettare il vincolo economico assoluto. | Must | Inventario dipendenze e procedura non richiedono pagamenti né account obbligatori. | AC-032 / T-032 | 
 
 La [matrice](traceability.md) associa ogni requisito a modulo, ADR, milestone e test. Nessun requisito può essere chiuso con la sola ispezione di un diagramma. Per NFR-001–003 i test costituiscono evidenza finita, non dimostrazioni universali.
+
+## Precisazione dei contratti pre-M03
+
+La [revisione](pre-m03-review.md) fissa [schema storage canonico](canonical-formats.md) e [contratto adattatore macOS condizionato](macos-storage-contract.md) per FR-013/FR-014/FR-015/FR-016, NFR-003/NFR-006. Nessun requisito/ID rimosso o indebolito: durabilità crash processo resta obiettivo; niente nuove garanzie crash OS o power loss. Aritmetica fixture formato è evidenza progettuale, non soddisfacimento AC-013/AC-023.

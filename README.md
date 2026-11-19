@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [Revisione pre-M03: readiness condizionata](docs/it/pre-m03-review.md) | [Pre-M03 review: conditional readiness](docs/en/pre-m03-review.md) |
 | [M02: applier, test e risultati](docs/it/milestone-m02.md) | [M02: applier, tests and results](docs/en/milestone-m02.md) |
 | [M01: implementazione e risultati](docs/it/milestone-m01.md) | [M01: implementation and results](docs/en/milestone-m01.md) |
 | [Documentazione completa](docs/it/README.md) | [Complete documentation](docs/en/README.md) |

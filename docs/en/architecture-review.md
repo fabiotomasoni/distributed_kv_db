@@ -256,3 +256,7 @@ Three replicas also multiply logged-read I/O: feasibility is not inferred from a
 Before later phases close applicable C-01/C-02 gates and complete C-03 evidence at its acceptance gate. This is not blanket approval of every still-Proposed binary detail or certification of runtime guarantees. Corrected findings require neither changing Raft nor imposing ReadIndex: they require following the new barriers and oracles precisely.
 
 **No application code was written; no milestone was started.** No deployment, service, benchmark or paid infrastructure. Both languages were updated together; the audit ends with this documentation delivery.
+
+## H. Follow-up on 19 November 2026
+
+The audit above is a historical record. The [pre-M03 review](pre-m03-review.md) independently re-examines actual M02 code and records current gate status: C-01 storage specification RESOLVED with checked static fixtures; C-02 documented choice CONDITIONALLY RESOLVED, actual adapter validation OPEN. Outcome CONDITIONALLY READY only for initial format conformance and isolated adapter tests in a future assignment. Before storage writer/publication integration require primitive/lock/error/visibility evidence; before M03/M09 acceptance retain T-013/T-023. C-03 remains at its original gates. No M03 implementation started and no durability claim validated.

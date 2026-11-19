@@ -42,3 +42,7 @@ Configuration `config/theme` → bytes `dark`; inventory `stock/pen` → bytes `
 ## Projection implemented in M01
 
 M01 implements only map and byte counter with sequential operations and quotas: [local interface](milestone-m01.md). Sessions and lastApplied in the full model remain future work. Go commands carry raw bytes; nil in an admitted value means an empty sequence, while Expected.Exists distinguishes presence/absence. JSON null remains invalid in the future HTTP adapter. M01 has no serialization, snapshots or canonical format.
+
+## Canonical storage projection
+
+[Canonical formats v1](canonical-formats.md) fixes typed digest bytes, entry/result/session schema, counters and snapshot ordering. Local M01 Go values and M02 admission remain unchanged; future adapters must distinguish nil/empty bytes from JSON null and the read/noop log kinds from M01 operations.

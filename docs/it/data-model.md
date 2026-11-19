@@ -42,3 +42,7 @@ Configurazione `config/theme` → byte `dark`; inventario `stock/pen` → byte `
 ## Proiezione implementata in M01
 
 M01 implementa soltanto mappa e contatore byte con operazioni sequenziali e quote: [interfaccia locale](milestone-m01.md). Sessioni e lastApplied del modello completo restano futuri. I comandi Go hanno byte raw; nil su un valore ammesso significa sequenza vuota, mentre Expected.Exists distingue presenza e assenza. JSON null resta invalido nel futuro adattatore HTTP. Non esiste serializzazione, snapshot o formato canonico M01.
+
+## Proiezione storage canonica
+
+I [formati canonici v1](canonical-formats.md) fissano byte digest tipizzato, schema entry/risultato/sessione, contatori e ordine snapshot. Valori Go M01 e ammissione M02 invariati; i futuri adattatori devono distinguere byte nil/vuoti da JSON null e kind log read/noop dalle operazioni M01.

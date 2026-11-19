@@ -46,3 +46,7 @@ The problem in the second column explains the motivation: identity prevents voti
 | NFR-012 | **Zero additional cost**. Require no paid services, purchases or infrastructure. **Reason:** Respect the absolute financial constraint. | Must | Dependency inventory and procedure require neither payments nor mandatory accounts. | AC-032 / T-032 |
 
 The [matrix](traceability.md) maps every requirement to a module, ADR, milestone and test. No requirement can be closed by inspecting a diagram alone. For NFR-001–003, tests provide finite evidence rather than universal proofs.
+
+## Pre-M03 contract refinement
+
+[Review](pre-m03-review.md) fixes the [canonical storage schema](canonical-formats.md) and [conditional macOS adapter contract](macos-storage-contract.md) for FR-013/FR-014/FR-015/FR-016, NFR-003/NFR-006. No requirement/ID is removed or weakened: process-crash durability remains the target; OS crash and power-loss guarantees are not added. Format-fixture arithmetic is design evidence, not satisfaction of AC-013/AC-023.

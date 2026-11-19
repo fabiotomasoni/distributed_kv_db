@@ -27,3 +27,16 @@ Fonti primarie consultate via web il **18 novembre 2026**: documenti accessibili
 ## Verifiche future
 
 Comportamento power loss APFS/SSD, sync directory e lock macOS sul computer reale non sono stati verificati sperimentalmente. Non viene indicata una fonte hardware come se provasse tale garanzia. M03 richiede verifica documentale della piattaforma e test di processo; se una fonte futura è irraggiungibile, registrarla come non verificata con data e questione aperta. Conservare URL e versione usata, senza vendorizzare interi testi coperti da copyright.
+
+## Fonti piattaforma verificate per C-02 — 19 novembre 2026
+
+Le seguenti fonti primarie sono state lette durante questa revisione, senza copiare testi completi. Pagine API d’archivio non provano supporto su APFS attuale; il [contratto](macos-storage-contract.md) registra limiti e test pendenti.
+
+| ID | Fonte | Uso e limite |
+|---|---|---|
+| REF-14 | [Apple fsync](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html) | Distinzione API dal full flush; non validazione device. |
+| REF-15 | [Apple fcntl](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fcntl.2.html) | Descrizione F_FULLFSYNC; elenco filesystem d’archivio precedente ad APFS. |
+| REF-16 | [Apple rename](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/rename.2.html) | Sostituzione namespace, non transazione multi-file. |
+| REF-17 | [Apple flock](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/flock.2.html) | Lock esclusivo cooperativo; test rilascio reali pendenti. |
+| REF-18 | [Apple About APFS](https://developer.apple.com/documentation/foundation/about-apple-file-system) | Funzioni filesystem/spazio condiviso, non prova durabilità database. |
+| REF-19 | [Sorgente Go 1.27.4 Darwin Fsync](https://raw.githubusercontent.com/golang/go/go1.27.4/src/internal/poll/fd_fsync_darwin.go) | Confrontato con toolchain locale: richiesta full flush e fallback ENOTSUP. |

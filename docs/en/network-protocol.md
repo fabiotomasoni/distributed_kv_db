@@ -63,3 +63,7 @@ If lastApplied already covers a snapshot, never rewrite state. Respond `accepted
 The standard library remains sufficient, but ordinary struct decoding alone does not enforce the strict contract. Before semantic decoding validate UTF-8 on the raw body; scan tokens with an object stack to reject duplicate keys (including nested expected/commands), field names that do not match exactly and depth >16. Keys duplicated after JSON unescaping still count as duplicates. Require one JSON object followed only by whitespace through EOF; no second document.
 
 Preserve numbers without float conversion, validate lexical form and ranges for sequence/timeout and decimal uint64 strings; reject exponents, fractions, signs and leading zeros where the contract requires canonical integers. Reject unpaired Unicode surrogates in text before silent replacement, and non-canonical Base64 by decode/encode comparison. Rebuild the hashing/WAL canonical format from typed fields; JSON input may use equivalent legal escapes. T-003 and T-009 include duplicate keys, case differences in field names, invalid UTF-8, unpaired surrogates and concatenated JSON. See [Go encoding/json](https://pkg.go.dev/encoding/json).
+
+## Canonical entry projection
+
+The [storage format](canonical-formats.md) fixes exact nested kind/command fields and canonical entry size, separate from HTTP envelopes. noop omits command; read contains key only. Rebuild validated entries canonically for persistence; protocol/configuration fixture coverage remains due at M04.

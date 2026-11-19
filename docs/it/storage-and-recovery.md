@@ -65,7 +65,7 @@ Crash prima/dopo write header, payload, Sync, checkpoint commit, rename generazi
 
 Su directory realmente vuota e bootstrap esplicito: creare IDENTITY durevole, generazione iniziale con snapshot vuoto a `(0,0)`, hard state `(term=0,votedFor=empty)`, commit 0 e WAL sequence iniziale; pubblicare CURRENT con la stessa procedura delle generazioni successive. Un crash a metà bootstrap lascia directory incompleta: avvio ordinario rifiuta, e un comando di ripresa esplicito futuro potrà completarla soltanto dopo verifica dei file, mai cancellarla silenziosamente.
 
-CURRENT è limitato a 4 KiB e non contiene un checksum autoreferenziale: calcolare digest sui soli campi dati, poi aggiungere il campo checksum. I campi base_index/base_term corrispondono all'immagine; snapshot_sha256 è digest dell'intero file immagine. Numeri indice/termine restano stringhe. M03 deve fissare fixture byte-per-byte per header, JSON canonico, digest e recovery: i dettagli di serializzazione non si risolvono usando output non ordinato di mappe.
+CURRENT è limitato a 4 KiB e non contiene un checksum autoreferenziale: calcolare digest sui soli campi dati, poi aggiungere il campo checksum. I campi base_index/base_term corrispondono all'immagine; snapshot_sha256 è digest dell'intero file immagine. Numeri indice/termine restano stringhe. La [specifica canonica](canonical-formats.md) fissa ora fixture byte-per-byte per header, JSON, digest e aspettative recovery; M03 deve verificarvi il proprio reader. La serializzazione non può usare output non ordinato di mappe.
 
 ## Barriera di cambio generazione e installazione
 
@@ -90,3 +90,9 @@ Conservare Sync necessarie a voto, hard state, replica e pubblicazione snapshot.
 La GET nel log aggiunge entry e normalmente checkpoint su ciascuna replica che apprende commit, quindi I/O non nullo anche per workload read-only. Misurare bytes scritti e numero Sync per operazione logica in M15; preferire prima batching sicuro entro deadline, log diagnostici campionati e carichi piccoli. ReadIndex è la futura ottimizzazione mirata alle letture, secondo ADR-006; non eliminare sincronizzazioni necessarie per migliorare una misura.
 
 La validazione finale dell’immagine confronta cluster/config, indice e termine inclusi, lunghezza e digest con l’envelope RPC; disaccordo è rifiuto, non installazione parziale. Il leader avanza matchIndex fino a S e nextIndex almeno S+1 soltanto su acknowledgment finale correlato `installed_index=S`, termine/generazione ancora validi e pubblicazione durevole conclusa; ack dei soli chunk non attestano replica. Un ack perso può essere risolto dal percorso snapshot obsoleto e dalla successiva AppendEntries verificata.
+
+## Formato normativo e contratto piattaforma provvisorio
+
+La [specifica canonica v1 con fixture verificate](canonical-formats.md) fissa ora lo schema storage: ordine ricorsivo ASCII dei campi, kind/nullabilità, digest comando tipizzato, oggetti entry/risultato/sessione, array/contatori snapshot e IDENTITY/CURRENT con checksum. Quel documento fornisce framing esatto e aspettative bootstrap/recovery; questa pagina conserva ordine e protocollo generazionale. Nessun codec storage esistente.
+
+Il [contratto macOS](macos-storage-contract.md) registra il percorso Darwin effettivo File.Sync in Go 1.27.4, lock advisory stabile e requisito fsync directory da testare separatamente. Se rename CURRENT riesce ma la barriera directory fallisce, pubblicazione incerta/fatale: conservare entrambe le generazioni, niente rollback o ack. C-01 risolto come progetto; C-02 condizionato alle evidenze reali dell’adattatore. [Revisione corrente](pre-m03-review.md). Test storage e accettazione durabilità restano futuri.

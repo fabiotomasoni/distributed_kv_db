@@ -85,3 +85,7 @@ Applicare contiguamente e senza applicare speculative entry. Risultati mutanti e
 | Nuovo leader con log incompleto | Filtro elettorale vieta vincita se escluderebbe prefisso committed; entry non committed possono sparire. |
 
 Il sistema privilegia safety alla disponibilità. Non usa lease temporali, non richiede clock sincronizzati e non promette elezione se i timeout sono continuamente violati. Test [T-004–008 e T-021](testing-strategy.md) dovranno verificare transizioni e invarianti con simulatori e processi reali; l'argomento progettuale non sostituisce le evidenze.
+
+## Confine dello schema persistente
+
+I [formati canonici](canonical-formats.md) fissano kind log, comandi tipizzati, semantica transazioni e metadati snapshot/controllo. Decodificare un checkpoint commit valido non stabilisce che una transizione Raft runtime fosse legale; il consenso deve fornirne prova. Questa specifica non implementa Raft o adattatore noop/sessioni.

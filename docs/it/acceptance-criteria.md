@@ -6,7 +6,7 @@
 
 ## Regola di accettazione
 
-I criteri completi rimangono aperti; soltanto i sottoinsiemi locali M01 di T-008/T-009 sono **Passed**, come documentato sotto. Per chiudere una riga servono procedura ripetibile, evidenza associata a revisione/configurazione e condizione rispettata. “Nessun panic” o un log senza errori non è sufficiente. Verifica il [catalogo test](testing-strategy.md) per dettagli di scheduling e fixture.
+I criteri completi rimangono aperti; i sottoinsiemi locali M01 di T-008/T-009 e M02 di T-008/T-018 sono **Passed**, come documentato sotto. Per chiudere una riga servono procedura ripetibile, evidenza associata a revisione/configurazione e condizione rispettata. “Nessun panic” o un log senza errori non è sufficiente. Verifica il [catalogo test](testing-strategy.md) per dettagli di scheduling e fixture.
 
 | Criterio | Requisito / procedura | Evidenza obbligatoria | Condizione di superamento |
 |---|---|---|---|
@@ -55,4 +55,8 @@ I sottoinsiemi iniziali della [roadmap](implementation-roadmap.md) non chiudono 
 
 ## Chiusura limitata di M01
 
-M01 è COMPLETED nel solo sottoinsieme ufficiale: semantica locale, CAS sequenziale, validazione, quote, ownership dei byte e determinismo verificati con test reali. [Relazione M01](milestone-m01.md). Non si chiudono AC-008 distribuito, AC-009 HTTP/GET Raft, AC-010 concorrente, AC-011 dedup né AC-026 risorse cluster. Nessun criterio relativo a M02 o successive è dichiarato superato.
+M01 è COMPLETED nel solo sottoinsieme ufficiale: semantica locale, CAS sequenziale, validazione, quote, ownership dei byte e determinismo verificati con test reali. [Relazione M01](milestone-m01.md). Non si chiudono AC-008 distribuito, AC-009 HTTP/GET Raft, AC-010 concorrente, AC-011 dedup né AC-026 risorse cluster. Questo registro M01 non chiude criteri completi successivi; seguono le evidenze locali M02.
+
+## Evidenze revisione M02 e gate pre-M03
+
+Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test e race mirato; AC completi server/distribuiti aperti. [Relazione pre-M03](pre-m03-review.md): progetto C-01 risolto, validazione implementativa C-02 aperta, CONDITIONALLY READY soltanto per test iniziali conformità/adattatore. AC-013 richiede che il futuro codec consumi [fixture statiche](canonical-formats.md) positive/negative, oltre a test write parziali/Sync/errori/cutpoint. AC-016 richiede test pubblicazione/handoff alla propria fase; AC-023 ancora evidenze reali processo/riavvio. Nessuno è chiuso da questa documentazione.

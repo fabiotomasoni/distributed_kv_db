@@ -82,3 +82,7 @@ T-008/M01 e T-009/M01 sono eseguiti e passano nel sottoinsieme della roadmap: 12
 ## Evidenze locali M02
 
 T-008/M02 e T-018/M02 Passed: 20 nuovi test; suite completa ripetuta tre volte, race detector mirato superato una volta senza race segnalate. Copertura: applier 99,3%, statemachine 100%. TestT008ApplyBacklogExactlyOnce esercita la separazione dei cursori schedulato/completato; TestT008QueueFullAndBlockingBackpressure esercita saturazione e ripresa. TestT018ShutdownDuringApplyAndConcurrentWaiters e TestT018ShutdownWakesBlockedProducers esercitano il lifecycle. TestT028FakeBoundariesAndControlledDelay fornisce fondamenta clock/transport/storage solo nei test. Vedere [scenari completi, comandi e limiti](milestone-m02.md). AC-008, AC-018 e AC-028 completi restano aperti ai gate finali; nessun risultato distribuito o di replay completo dichiarato.
+
+## Evidenze revisione pre-M03
+
+19 novembre 2026: [riesame M02](pre-m03-review.md) riprodotto l’unico return scoperto di cancellazione dopo copia e aggiunto test deterministico. Ora 21 test applier passano con 100,0% statement coverage; M01 resta 12 test/44 sottocasi, 100,0%. Un run race mirato superato. Vettori statici formato superano aritmetica/checksum, non esecuzione recovery. Il [piano finito C-02](macos-storage-contract.md) definisce futuri test isolati piattaforma; nessun test M03 o esperimento OS/power loss eseguito.

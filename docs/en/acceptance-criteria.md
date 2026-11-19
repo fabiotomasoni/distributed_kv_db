@@ -6,7 +6,7 @@
 
 ## Acceptance rule
 
-Full criteria remain open; only the local M01 subsets of T-008/T-009 are **Passed**, as documented below. Closing a row requires a repeatable procedure, evidence tied to a revision/configuration and a satisfied condition. “No panic” or an error-free log is insufficient. See the [test catalog](testing-strategy.md) for scheduling and fixture details.
+Full criteria remain open; the local M01 subsets of T-008/T-009 and M02 subsets of T-008/T-018 are **Passed**, as documented below. Closing a row requires a repeatable procedure, evidence tied to a revision/configuration and a satisfied condition. “No panic” or an error-free log is insufficient. See the [test catalog](testing-strategy.md) for scheduling and fixture details.
 
 | Criterion | Requirement / procedure | Required evidence | Passing condition |
 |---|---|---|---|
@@ -55,4 +55,8 @@ Early [roadmap](implementation-roadmap.md) subsets do not close these whole crit
 
 ## Limited M01 closure
 
-M01 is COMPLETED only within its official subset: local semantics, sequential CAS, validation, quotas, byte ownership and determinism verified by actual tests. [M01 report](milestone-m01.md). Distributed AC-008, HTTP/Raft-GET AC-009, concurrent AC-010, dedup AC-011 and cluster-resource AC-026 are not closed. No M02-or-later criterion is claimed passed.
+M01 is COMPLETED only within its official subset: local semantics, sequential CAS, validation, quotas, byte ownership and determinism verified by actual tests. [M01 report](milestone-m01.md). Distributed AC-008, HTTP/Raft-GET AC-009, concurrent AC-010, dedup AC-011 and cluster-resource AC-026 are not closed. This M01 record closes no later full criterion; M02 local evidence follows.
+
+## M02 review and pre-M03 gate evidence
+
+M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and targeted race checks; full server/distributed ACs remain open. [Pre-M03 report](pre-m03-review.md): C-01 design resolved, C-02 implementation validation open, CONDITIONALLY READY only for initial conformance/adapter tests. AC-013 requires the future codec to consume positive/negative [static fixtures](canonical-formats.md), plus partial-write/Sync/error/cutpoint tests. AC-016 requires publication/handoff tests at its phase; AC-023 still requires actual process-restart evidence. None is closed by this documentation.

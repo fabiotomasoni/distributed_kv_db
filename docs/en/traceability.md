@@ -54,3 +54,7 @@ T-008/M01 and T-009/M01 are Passed for the local sequential core; see [tests, fi
 ## M02 subset progress
 
 M02 COMPLETED: T-008/M02 (ordered single ownership, no duplicate scheduling, bounded queue/backpressure) and T-018/M02 (worker shutdown/cancellation) Passed; T-028 fake foundations present. [Evidence and limitations](milestone-m02.md). FR-008/FR-018 and NFR-008 have local subset evidence only. The primary matrix still points to full AC-008 at M07, AC-018 at M09 and AC-028 at M12; none is closed early.
+
+## Storage gate evidence before M03
+
+C-01/OQ-05: [fixed schemas and static vectors](canonical-formats.md), design prerequisite resolved; future T-013/T-015/T-016 conformance still required. C-02/OQ-01: [documented candidate and missing evidence](macos-storage-contract.md), conditional choice, implementation validation open. [Review](pre-m03-review.md) links FR-013–FR-016 and NFR-003/NFR-006 to these decisions; original final matrix gates and all full ACs are retained.

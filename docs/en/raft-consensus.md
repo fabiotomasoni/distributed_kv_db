@@ -85,3 +85,7 @@ Apply contiguously and never apply speculative entries. Mutation results and ses
 | New leader with incomplete log | Election restriction prevents victory if it would exclude the committed prefix; uncommitted entries may disappear. |
 
 The system favors safety over availability. It uses no time leases, requires no synchronized clocks and promises no election when timeouts are continuously violated. [T-004–008 and T-021](testing-strategy.md) must verify transitions and invariants in simulation and real processes; design arguments do not replace evidence.
+
+## Persistent schema boundary
+
+[Canonical formats](canonical-formats.md) fixes log kinds, typed commands, transaction semantics and snapshot/control metadata. Decoding a valid commit checkpoint does not establish that a runtime Raft transition was legal; consensus must supply that proof. No Raft or noop/session adapter is implemented by this specification.

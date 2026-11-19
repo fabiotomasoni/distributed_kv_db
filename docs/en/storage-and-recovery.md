@@ -65,7 +65,7 @@ Crash before/after header write, payload, Sync, commit checkpoint, generation re
 
 On a truly empty directory with explicit bootstrap: create durable IDENTITY, an initial generation with an empty `(0,0)` snapshot, hard state `(term=0,votedFor=empty)`, commit 0 and initial WAL sequence; publish CURRENT using the same procedure as later generations. A mid-bootstrap crash leaves an incomplete directory: ordinary startup rejects it, and a future explicit resume command may complete it only after validating files, never silently delete it.
 
-CURRENT is limited to 4 KiB and has no self-referential checksum: digest the data fields only, then add the checksum field. base_index/base_term match the image; snapshot_sha256 digests the entire image file. Index/term numbers remain strings. M03 must fix byte-for-byte fixtures for headers, canonical JSON, digests and recovery: serialization details cannot rely on unordered map output.
+CURRENT is limited to 4 KiB and has no self-referential checksum: digest the data fields only, then add the checksum field. base_index/base_term match the image; snapshot_sha256 digests the entire image file. Index/term numbers remain strings. The [canonical specification](canonical-formats.md) now fixes byte-for-byte fixtures for headers, JSON, digests and recovery expectations; M03 must test its reader against them. Serialization cannot rely on unordered map output.
 
 ## Generation-switch and installation barrier
 
@@ -90,3 +90,9 @@ Retain necessary Sync for votes, hard state, replication and snapshot publicatio
 Logged GET adds entries and normally checkpoints on each replica learning commit, so even a read-only workload has nonzero I/O. Measure bytes written and Sync count per logical operation at M15; first prefer safe batching within deadlines, sampled diagnostic logs and small workloads. ReadIndex is the future read-specific optimization under ADR-006; never remove required synchronization to improve a measurement.
 
 Final image validation compares cluster/config, included index/term, length and digest against the RPC envelope; disagreement means rejection, never partial installation. The leader advances matchIndex through S and nextIndex to at least S+1 only for a correlated final `installed_index=S` acknowledgment, with term/generation still valid and durable publication completed; chunk acknowledgments alone do not establish replication. A lost acknowledgment can be resolved through the obsolete-snapshot path followed by verified AppendEntries.
+
+## Normative format and provisional platform contract
+
+The [canonical v1 specification and checked fixtures](canonical-formats.md) now fix the storage schema: recursive ASCII field ordering, kind/nullability, typed command digest, entry/result/session objects, snapshot arrays/counters and checksummed IDENTITY/CURRENT. That document supplies exact framing and bootstrap/recovery expectations; this page retains the ordering and generation protocol. No storage codec exists.
+
+The [macOS contract](macos-storage-contract.md) records File.Sync’s actual Go 1.27.4 Darwin path, stable advisory locking and a directory-fsync requirement awaiting separate tests. If CURRENT rename succeeds but its directory barrier fails, publication is uncertain/fatal: preserve both generations, do not roll back or acknowledge. C-01 is resolved at design level; C-02 remains conditional pending actual adapter evidence. [Current review](pre-m03-review.md). All storage tests and durability acceptance remain future work.

@@ -51,3 +51,7 @@ M11/M13: client/server crashes, identity conflicts and retries after snapshot. I
 ## Audit 0.2 reassessment
 
 Confirmed sequential sessions without TTL and persistent latest result. The checker closes the logical interval at the earliest definitive response and never extends it for later retries; identity conflicts are separate protocol observations. No retry justifies more than one logical effect. Validate T-011/T-012/T-022 including after snapshots.
+
+## Canonical digest clarification — 19 November 2026
+
+[Canonical formats](../canonical-formats.md) now fixes the versioned typed digest preimage and cached-result/session snapshot schema. Identity/sequence are compared separately; the digest covers opcode and typed operation arguments, excluding transport metadata. Absent and present-empty expectations differ. This resolves storage-format ambiguity, not session implementation or T-011/T-012 acceptance.

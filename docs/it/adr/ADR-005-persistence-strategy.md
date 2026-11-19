@@ -51,3 +51,9 @@ M03/M13: sync directory, lock, formato finale e cutpoint; power loss resta garan
 ## Rivalutazione audit 0.2
 
 WAL sincrono confermato, non atomicità fisica della write: recovery accetta soltanto transazioni complete verificate. Specificata barriera finale, hard state aggiornato, token generation_id/write_sequence e installazione coordinata con applier. Il cap 32 MiB include riserva controllo. Contratti separati per crash processo, sistema operativo e power loss; solo il primo è obiettivo verificabile v1 con test di processo. Non vengono rimosse Sync necessarie. OQ-01/OQ-05 restano gate prima dello storage durevole.
+
+## Decisione pre-M03 — 19 novembre 2026
+
+Conservare strategia e stato implementativo Proposed; nessun nuovo ADR necessario. I [formati canonici](../canonical-formats.md) risolvono il prerequisito progettuale C-01 con byte verificati. Il [contratto macOS](../macos-storage-contract.md) è il candidato formalmente scelto: File.Sync per file regolari sulla baseline Go ispezionata, fsync directory esplicito controllato, inode LOCK stabile con flock esclusivo non bloccante, rename/pubblicazione seriale nello stesso filesystem, errori con chiusura. Fonti/scelte riviste; test capacità NOT RUN.
+
+C-02 è CONDITIONALLY RESOLVED per scelte documentate e OPEN per validazione implementativa, coerentemente con la fase test futuro adattatore dell’audit originale. Ammissibili all’inizio solo test isolati conformità/capacità; integrazione writer/pubblicazione attende evidenze primitive/lock/errori/visibilità. Barriere directory non supportate richiedono revisione qui, non errore ignorato o garanzia generica Sync. T-013/T-023 e T-015/T-016 restano gate accettazione implementativa. [Relazione readiness](../pre-m03-review.md). Nessun codice M03 o claim OS/power loss.

@@ -43,3 +43,7 @@ Controllo locale del 18 novembre 2026: **96 file Markdown**, **47 coppie linguis
 ## Esito dell’audit successivo 0.2
 
 Il controllo strutturale iniziale non escludeva problemi semantici: l’[audit architetturale](architecture-review.md) registra 11 rilievi e correzioni, aggiornando il giudizio a **APPROVED WITH CONDITIONS**. Le cifre del registro precedente sono storiche, non la misura del repository attuale. OQ-01/OQ-05 sono gate prima di storage/protocolli durevoli; il consenso completo resta subordinato ai test. M01–M02 sono le sole milestone tecnicamente autorizzabili ora; nessuna implementazione viene iniziata con questo incarico.
+
+## Decisioni correnti prima di M03
+
+19 novembre 2026: [revisione e confine esatto di readiness](pre-m03-review.md). Schemi storage e fixture byte OQ-05/C-01 risolti; configurazione/protocollo M04 e OpenAPI M08 ancora pendenti. Fonti piattaforma e scelte provvisorie adattatore OQ-01/C-02 documentate; validazione reale directory/lock/rename/errori resta aperta, all’inizio tramite test isolati M03. Soltanto quel lavoro limitato conformità/capacità è condizionatamente ammissibile; integrazione storage attende evidenze, gate durabilità M03/M09 conservati. Nessun cambiamento OQ-02/03/04/06/07 o autorizzazione a implementare qui M03.

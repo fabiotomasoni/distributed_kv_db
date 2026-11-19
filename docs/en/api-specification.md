@@ -142,3 +142,7 @@ This example does not count as two effects: applied=true describes the original 
 ## CAS limit compatibility
 
 The body cap is 49,152 bytes (48 KiB). Two raw 16,384-byte values occupy 43,696 Base64 bytes; a compact CAS JSON request with a 256-byte key, client ID, maximum sequence and timeout occupies 44,116 bytes. Thus all admitted values are representable in a compact request; excessive whitespace may still exceed the cap. Rebuild the log entry from validated fields rather than copying whitespace or transport fields, keeping it within 48 KiB. T-009 must include this exact boundary and rejection at cap+1.
+
+## Persistent representation boundary
+
+[Canonical formats](canonical-formats.md) defines the future internal entry/digest/result projection. Wire field order and allowed escapes are not persisted verbatim; request_id, outcome and deadlines are transport fields. Existing HTTP status and body limits remain unchanged. OpenAPI/full wire fixtures remain M08/M04 gates, not satisfied by storage fixtures.

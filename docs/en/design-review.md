@@ -43,3 +43,7 @@ Local check on 18 November 2026: **96 Markdown files**, **47 language pairs**, *
 ## Subsequent 0.2 audit outcome
 
 The initial structural check did not exclude semantic problems: the [architecture audit](architecture-review.md) records 11 findings and corrections, updating the judgment to **APPROVED WITH CONDITIONS**. Earlier check figures are historical, not a measurement of the current repository. OQ-01/OQ-05 gate durable storage/protocols; complete consensus remains subject to testing. Only M01–M02 are technically eligible to start now; this assignment starts no implementation.
+
+## Current pre-M03 decisions
+
+19 November 2026: [review and exact readiness boundary](pre-m03-review.md). OQ-05/C-01 storage schemas and byte fixtures resolved; M04 configuration/protocol and M08 OpenAPI still pending. OQ-01/C-02 platform sources and provisional adapter choices documented; actual directory/lock/rename/error validation remains open, first in isolated M03 tests. Only that limited conformance/capability work is conditionally eligible; storage integration waits for evidence, M03/M09 durability gates remain. No change to OQ-02/03/04/06/07 or authorization to implement M03 here.
