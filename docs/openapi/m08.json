@@ -1,0 +1,1111 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "QuorumKV M08 subset",
+    "version": "0.8.0",
+    "description": "PUT/DELETE only. No GET KV, CAS, sessions, deduplication, automatic retry or exactly-once. Loopback HTTP/1.1; configured membership only; body <=49152 bytes; no compression. Strict lexical JSON and runtime extensions apply beyond JSON Schema annotations. Timeout begins at handler admission and includes parsing. A proven exclusion before recording is UNAVAILABLE/not_admitted; deadline after possible recording is TIMEOUT/unknown. No redirects or forwarding."
+  },
+  "paths": {
+    "/v1/kv/put": {
+      "post": {
+        "operationId": "put",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/putRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "INVALID_ARGUMENT,INVALID_SEQUENCE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_ARGUMENT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "REQUEST_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "REQUEST_TOO_LARGE"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "OVERLOADED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OVERLOADED"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "NOT_LEADER,NO_LEADER,UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NOT_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        },
+                        "leader_id": {
+                          "enum": [
+                            "n1",
+                            "n2",
+                            "n3"
+                          ]
+                        },
+                        "leader_url": {
+                          "type": "string",
+                          "minLength": 8,
+                          "x-configured-leader-url": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "leader_id",
+                        "leader_url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NO_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "TIMEOUT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "STORAGE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Committed current-term quorum, applied result and valid completion fence. Independent attempt; no deduplication.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OK"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "applied": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "applied"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Applied deterministic resource rejection; no mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "RESOURCE_LIMIT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/kv/delete": {
+      "post": {
+        "operationId": "delete",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "INVALID_ARGUMENT,INVALID_SEQUENCE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_ARGUMENT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "REQUEST_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "REQUEST_TOO_LARGE"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "OVERLOADED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OVERLOADED"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "NOT_LEADER,NO_LEADER,UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NOT_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        },
+                        "leader_id": {
+                          "enum": [
+                            "n1",
+                            "n2",
+                            "n3"
+                          ]
+                        },
+                        "leader_url": {
+                          "type": "string",
+                          "minLength": 8,
+                          "x-configured-leader-url": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "leader_id",
+                        "leader_url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NO_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "TIMEOUT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "STORAGE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Committed current-term quorum, applied result and valid completion fence. Independent attempt; no deduplication.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OK"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "deleted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "deleted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Applied deterministic resource rejection; no mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "RESOURCE_LIMIT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/status": {
+      "get": {
+        "operationId": "localStatus",
+        "responses": {
+          "200": {
+            "description": "Local stale diagnostics; no quorum or linearizability proof.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "enum": [
+                        "n1",
+                        "n2",
+                        "n3"
+                      ]
+                    },
+                    "role": {
+                      "enum": [
+                        "follower",
+                        "candidate",
+                        "leader"
+                      ]
+                    },
+                    "term": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,19})$"
+                    },
+                    "commit_index": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,19})$"
+                    },
+                    "last_applied": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,19})$"
+                    }
+                  },
+                  "required": [
+                    "node_id",
+                    "role",
+                    "term",
+                    "commit_index",
+                    "last_applied"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "putRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "default": 2000
+          },
+          "value_b64": {
+            "type": "string",
+            "maxLength": 21848,
+            "contentEncoding": "base64",
+            "x-canonical-base64-max-decoded-bytes": 16384
+          }
+        },
+        "required": [
+          "key",
+          "client_id",
+          "sequence",
+          "value_b64"
+        ],
+        "additionalProperties": false
+      },
+      "deleteRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "default": 2000
+          }
+        },
+        "required": [
+          "key",
+          "client_id",
+          "sequence"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

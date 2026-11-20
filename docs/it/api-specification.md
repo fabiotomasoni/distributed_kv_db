@@ -2,11 +2,11 @@
 
 [Indice](README.md) · [English](../en/api-specification.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**21 novembre 2026 — sottoinsieme PUT/DELETE M08 implementato; GET, CAS e retry sicuri restano contratti futuri.**
 
 ## Contratto HTTP proposto
 
-Tutti gli esempi in questo documento descrivono l'interfaccia futura. Nessun endpoint è disponibile. HTTP/1.1 su loopback, `Content-Type: application/json`, niente compressione. Tutte le operazioni KV usano POST per evitare ambiguità di chiavi nei path e cache intermedie. Corpo massimo 48 KiB; rifiuto prima di ammissione con HTTP 413. Validazione rigorosa secondo [modello dati](data-model.md).
+Il contratto generale e gli esempi sotto descrivono l’interfaccia v1 finale. È disponibile solo il sottoinsieme M08 descritto in fondo. HTTP/1.1 su loopback, `Content-Type: application/json`, niente compressione. Tutte le operazioni KV usano POST per evitare ambiguità di chiavi nei path e cache intermedie. Corpo massimo 48 KiB; rifiuto prima di ammissione con HTTP 413. Validazione rigorosa secondo [modello dati](data-model.md).
 
 | Endpoint | Campi obbligatori specifici | Risultato normale |
 |---|---|---|
@@ -117,7 +117,7 @@ GET non usa sessione: ogni retry è una nuova lettura e può osservare un valore
 
 Il log ordina tutte le operazioni; tra richieste sovrapposte non si promette ordine di arrivo HTTP. Un risultato CAS riguarda il valore al suo indice. Non c'è atomicità fra chiavi. HTTP 200 di status non dimostra quorum, durabilità o linearizzabilità.
 
-OpenAPI è stato valutato: utile per generazione client, ma anticiperebbe un secondo contratto da sincronizzare durante la progettazione. In questa revisione le tabelle e gli esempi sono normativi; M08 dovrà derivare OpenAPI 3.1, verificare richieste/risposte come fixture e risolvere qualsiasi divergenza prima di dichiarare stabile v1. Non esiste ancora una specifica OpenAPI validata.
+OpenAPI è stato valutato: utile per generazione client, ma anticiperebbe un secondo contratto da sincronizzare durante la progettazione. In questa revisione le tabelle e gli esempi sono normativi; M08 dovrà derivare OpenAPI 3.1, verificare richieste/risposte come fixture e risolvere qualsiasi divergenza prima di dichiarare stabile v1. Il sottoinsieme M08 dispone ora dell’artefatto verificato collegato sotto; stabilità v1 completa resta ai gate M10/M11.
 
 ## Esempi di esito negativo e retry
 
@@ -146,3 +146,15 @@ Il cap corpo è 49 152 byte (48 KiB). Due valori raw da 16 384 byte occupano 43 
 ## Confine della rappresentazione persistente
 
 I [formati canonici](canonical-formats.md) definiscono la futura proiezione interna entry/digest/risultato. Ordine campi e escape leciti del wire non sono persistiti alla lettera; request_id, outcome e deadline sono campi trasporto. Stato HTTP e limiti corpo invariati. OpenAPI/fixture wire complete restano gate M08/M04, non soddisfatti dalle fixture storage.
+
+## Sottoinsieme M08 implementato e precedenza
+
+[Relazione M08](milestone-m08.md), [OpenAPI 3.1 JSON](../openapi/m08.json), [fixture HTTP](../fixtures/http-m08.json). Questa sezione governa il comportamento implementato; esempi retry/sessioni/GET/CAS sopra restano progetto futuro. node.StartAPI apre la porta client configurata dopo validazione/replay storage e prenotazione dei due listener. POST /v1/kv/put e /v1/kv/delete usano i campi obbligatori documentati; timeout_ms opzionale 50..5000, default 2000. GET /v1/status restituisce soltanto node_id, role e term/commit_index/last_applied come stringhe decimali canoniche; è diagnostica obsoleta. GET KV e CAS restituiscono 404 INVALID_ARGUMENT/not_admitted. Metodi/media errati restituiscono 405/415 INVALID_ARGUMENT/not_admitted. Nessun redirect o forwarding.
+
+Validazione lessicale/schema rigorosa e cap di 49.152 byte precedono le proposte. Deadline dall’ammissione handler, incluso parsing. request_id generato per tentativo; fornirlo come campo richiesta è invalido. Solo campi comando validati entrano nello schema WAL invariato. Completed richiede commit maggioritario durevole del termine corrente, applicazione esatta indice/termine e controllo serializzato leadership nell’owner seguito da controllo HTTP conservativo dello stato. RESOURCE_LIMIT è 409/completed con index; PUT riuscita ha applied=true e DELETE ha deleted=true/false. DELETE su chiave assente è 200/deleted=false.
+
+Un ticket cancellato prima della registrazione viene escluso permanentemente sotto il lock di ammissione: UNAVAILABLE/not_admitted per attesa scaduta/cancellata prima di registrazione. Dopo possibile registrazione, deadline è TIMEOUT/unknown; step-down osservato, cancellazione o errore infrastrutturale è UNAVAILABLE/unknown, oppure STORAGE_UNAVAILABLE/unknown per errore storage. Rifiuto esplicito WAL prima di scrittura per riserva è STORAGE_UNAVAILABLE/not_admitted. NOT_LEADER/NO_LEADER e OVERLOADED sono not_admitted solo prima della registrazione. Certezza relativa al solo tentativo. Disconnessione client non rimuove lavoro committed. Perdita non osservata dopo quorum/controllo legali non revoca commit passato; consegna TCP non atomica con cambi ruolo.
+
+Sessioni ancora assenti. client_id e sequence validi sono metadati persistiti, non prova di deduplicazione; ripetere la stessa DELETE può restituire true poi false a indici diversi. Nessun retry automatico, garanzia at-most-once/exactly-once o recupero del risultato originale incerto. Il test client limitato a un tentativo accetta solo membri configurati, rifiuta hint non configurati/redirect e segnala errore trasporto unknown. Risolvere incertezza esternamente fino a M11; istruzioni retry future sopra non abilitate in M08.
+
+Limiti: 32 connessioni client accettate incluse idle, 64 slot handler scrittura, 64 waiter/ticket servizio e 64 messaggi controllo finale, separati da 256 eventi peer. Ticket cancellati in coda possono occupare spazio limitato finché l’owner li drena. Massimo quattro chiamate test client attive; niente proxy ambiente, compressione o redirect. Limiti header/body/write/idle 500 ms/5 s/6 s/1 s. Body lenti possono consumare cap lettura di 5 s; deadline richiesta già scaduta esclude append. Asserzioni OpenAPI ed estensioni runtime lessicali/canoniche verificate offline con fixture e controlli negativi; non certificazione OpenAPI esterna. FR-009/AC-009 e FR-012/AC-012/T-012 completi restano ai gate M10/M11.

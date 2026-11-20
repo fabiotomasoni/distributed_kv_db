@@ -55,3 +55,7 @@ Confermate sessioni sequenziali senza TTL e risultato ultimo persistente. Il che
 ## Chiarimento digest canonico — 19 novembre 2026
 
 I [formati canonici](../canonical-formats.md) fissano ora preimmagine tipizzata/versionata del digest e schema risultato in cache/sessione snapshot. Identità/sequence confrontate separatamente; digest su opcode e argomenti operativi tipizzati, esclusi metadati trasporto. Expected assente e presente vuoto differiscono. Risolve ambiguità di formato storage, non implementazione sessioni o accettazione T-011/T-012.
+
+## Confine M08 — sessioni ancora assenti
+
+[M08](../milestone-m08.md) valida/persiste client_id e sequence ma deliberatamente non implementa deduplicazione prima di M11. Test client esegue un tentativo, mai retry automatico di unknown e valida hint leader configurati senza seguire redirect. DELETE identica ripetuta può restituire deleted=true poi false a nuovi indici; nessuna garanzia risultato originale o at-most-once. Decisione progettuale sopra resta richiesta per M11/M13, non promessa attuale. Timeout/disconnessione non annulla possibile effetto committed.

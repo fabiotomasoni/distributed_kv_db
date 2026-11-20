@@ -55,3 +55,7 @@ Confirmed sequential sessions without TTL and persistent latest result. The chec
 ## Canonical digest clarification — 19 November 2026
 
 [Canonical formats](../canonical-formats.md) now fixes the versioned typed digest preimage and cached-result/session snapshot schema. Identity/sequence are compared separately; the digest covers opcode and typed operation arguments, excluding transport metadata. Absent and present-empty expectations differ. This resolves storage-format ambiguity, not session implementation or T-011/T-012 acceptance.
+
+## M08 boundary — no sessions yet
+
+[M08](../milestone-m08.md) validates/persists client_id and sequence but deliberately implements no deduplication before M11. The test client issues one attempt, never automatically retries unknown and validates configured leader hints without following redirects. Repeated identical DELETE can return deleted=true then false at new indices; no original-result or at-most-once guarantee. The design decision above remains required for M11/M13, not a current promise. Timeout/disconnect cannot undo a possible committed effect.

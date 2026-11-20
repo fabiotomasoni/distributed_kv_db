@@ -82,3 +82,7 @@ FR-006 → internal/raft/replication.go + existing WAL replace_suffix + transpor
 ## M07 implementation mapping
 
 FR-007 → internal/raft/commit.go + M06 proof correlation + M03 checkpoint → AC-007/T-007. FR-008 → core cursors + application.go + internal/committed + unchanged M02/M01 → AC-008/T-008. C-03 M07 → gated backlog and permanent ghost oracle. [M07 evidence](milestone-m07.md) retains M08 API/OpenAPI, M09 complete server recovery, M10 read, M11 session/dedup, M13 snapshot and final NFR-001/history gates.
+
+## M08 phase evidence
+
+[M08 report](milestone-m08.md): FR-009/FR-012, AC-009/AC-012 and T-009/T-012 pass only for the roadmap's PUT/DELETE, strict HTTP validation, deadlines, unknown/not_admitted and OpenAPI subset. Tests include gated disk/apply cancellation, observed higher-term loss, bounded admission with separate peer capacity, real three-node concurrent writes/election/minority, lost response without automatic retry and repeated DELETE with a new result. The schema/HTTP fixture checker includes negative controls and runtime canonical extensions. M01–M07 regressions and targeted race pass. Full GET AC-009 remains M10; dedup/failover retry AC-012 remains M11, with snapshots/history checks at later gates. C-01's M08 subset artifact/fixture obligation is satisfied; full v1 stability is not claimed. C-02 and later C-03 obligations retain their original bounds.

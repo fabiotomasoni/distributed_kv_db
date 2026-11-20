@@ -48,3 +48,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## M07 commit/apply failure evidence
 
 [M07](milestone-m07.md) tests isolated old leader without new quorum commit, majority election with retained ghost prefix, checkpoint Sync errors, blocked apply with newer commits, canceled delivery, application panic and fresh restart. Domain-negative CAS advances LastApplied; infrastructure failure does not authorize retries on an uncertain live map. A complete unacknowledged checkpoint may recover; only its covered prefix is rebuilt. Normal stop drains known committed work, fatal stop rejects admission before waiting for accepted effects. No external exactly-once/OS/power-fault guarantee.
+
+## M08 HTTP uncertainty
+
+[M08](milestone-m08.md) distinguishes proven pre-record exclusion from possible append. Timeout/disconnect after that boundary cannot cancel replication or committed apply, nor prove failure. Observed leadership loss before completion authorization is unknown. Isolated leaders cannot confirm new writes without quorum. A response can be lost after apply; the single-attempt test client reports unknown and does not retry. Repeated DELETE is a new effect/result until M11; later sessions remain required. HTTP shutdown cancels bounded waiters before the existing committed drain and lock release. No new process-crash, OS-crash or power-loss guarantee.

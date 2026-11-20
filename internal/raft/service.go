@@ -116,6 +116,9 @@ type Service struct {
 	done            chan struct{}
 	published       atomic.Value
 	application     *applicationRuntime
+	writes          chan *writeTicket
+	fences          chan writeFence
+	writeSlots      chan struct{}
 }
 type realClock struct {
 	start  time.Time
@@ -173,7 +176,7 @@ func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
 		}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	x := &Service{cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
+	x := &Service{writes: make(chan *writeTicket, 64), fences: make(chan writeFence, 64), writeSlots: make(chan struct{}, 64), cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
 	for _, m := range c.Members() {
 		if m.ID != c.NodeID() {
 			x.peers[m.ID] = &peerState{jobs: make(chan peerprotocol.Message, 1)}
@@ -385,6 +388,10 @@ func (x *Service) run() {
 		select {
 		case <-x.ctx.Done():
 			return
+		case t := <-x.writes:
+			x.processWrite(t)
+		case f := <-x.fences:
+			x.processFence(f)
 		case completion := <-x.completionChannel():
 			x.applyCompleted(completion)
 		case _, ok := <-x.clock.Ticks():

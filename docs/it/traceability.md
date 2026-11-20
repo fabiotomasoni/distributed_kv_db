@@ -82,3 +82,7 @@ FR-006 → internal/raft/replication.go + replace_suffix WAL esistente + traspor
 ## Mappatura implementazione M07
 
 FR-007 → internal/raft/commit.go + correlazione prove M06 + checkpoint M03 → AC-007/T-007. FR-008 → cursori core + application.go + internal/committed + M02/M01 invariati → AC-008/T-008. C-03 M07 → backlog bloccato e oracolo ghost permanente. Le [evidenze M07](milestone-m07.md) conservano gate M08 API/OpenAPI, M09 recovery server completo, M10 read, M11 sessioni/dedup, M13 snapshot e NFR-001/storie finali.
+
+## Evidenze di fase M08
+
+[Relazione M08](milestone-m08.md): FR-009/FR-012, AC-009/AC-012 e T-009/T-012 superati solo per sottoinsieme roadmap PUT/DELETE, validazione HTTP rigorosa, deadline, unknown/not_admitted e OpenAPI. Test includono cancellazione con disco/apply bloccati, perdita osservata a termine maggiore, ammissione limitata con capacità peer separata, tre nodi reali con scritture concorrenti/elezione/minoranza, risposta persa senza retry automatico e DELETE ripetuta con nuovo risultato. Checker schema/fixture HTTP include controlli negativi ed estensioni canoniche runtime. Regressioni M01–M07 e race mirato superati. GET AC-009 completa resta M10; retry dedup/failover AC-012 resta M11, con snapshot/checker storie ai gate successivi. Obbligo artefatto/fixture sottoinsieme M08 C-01 soddisfatto; nessuna stabilità v1 completa dichiarata. C-02 e obblighi successivi C-03 mantengono limiti originali.

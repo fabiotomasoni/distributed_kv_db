@@ -1,0 +1,322 @@
+[
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "fixture-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "applied": true
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "RESOURCE_LIMIT",
+      "request_id": "fixture-attempt",
+      "outcome": "completed",
+      "index": "8"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 504,
+    "response": {
+      "code": "TIMEOUT",
+      "request_id": "fixture-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 503,
+    "response": {
+      "code": "NO_LEADER",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 503,
+    "response": {
+      "code": "NOT_LEADER",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted",
+      "leader_id": "n2",
+      "leader_url": "http://127.0.0.1:7402"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 503,
+    "response": {
+      "code": "UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 503,
+    "response": {
+      "code": "UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 429,
+    "response": {
+      "code": "OVERLOADED",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 507,
+    "response": {
+      "code": "STORAGE_UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50,
+      "value_b64": ""
+    },
+    "status": 507,
+    "response": {
+      "code": "STORAGE_UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "fixture-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "deleted": true
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 409,
+    "response": {
+      "code": "RESOURCE_LIMIT",
+      "request_id": "fixture-attempt",
+      "outcome": "completed",
+      "index": "8"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 504,
+    "response": {
+      "code": "TIMEOUT",
+      "request_id": "fixture-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "NO_LEADER",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "NOT_LEADER",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted",
+      "leader_id": "n2",
+      "leader_url": "http://127.0.0.1:7402"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 429,
+    "response": {
+      "code": "OVERLOADED",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 507,
+    "response": {
+      "code": "STORAGE_UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "timeout_ms": 50
+    },
+    "status": 507,
+    "response": {
+      "code": "STORAGE_UNAVAILABLE",
+      "request_id": "fixture-attempt",
+      "outcome": "not_admitted"
+    }
+  }
+]

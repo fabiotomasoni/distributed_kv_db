@@ -9,6 +9,7 @@ import (
 	"net"
 	"sync"
 
+	"github.com/fabiotomasoni/distributed_kv_db/internal/clientapi"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/raft"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/transport"
@@ -16,13 +17,15 @@ import (
 )
 
 type Node struct {
-	peer     *transport.Peer
-	store    *wal.Store
-	election *raft.Service
-	once     sync.Once
-	done     chan struct{}
-	served   chan error
-	err      error
+	peer         *transport.Peer
+	client       *clientapi.Server
+	clientServed chan error
+	store        *wal.Store
+	election     *raft.Service
+	once         sync.Once
+	done         chan struct{}
+	served       chan error
+	err          error
 }
 
 func Start(c config.Config, bootstrap bool, p transport.Processor) (*Node, error) {
@@ -42,6 +45,11 @@ func StartReplication(c config.Config, bootstrap bool) (*Node, error) {
 // committed prefix before binding. It exposes no client HTTP/read API.
 func StartCommitted(c config.Config, bootstrap bool) (*Node, error) {
 	return startRuntime(c, bootstrap, nil, net.Listen, true, 16, true)
+}
+
+// StartAPI enables only the M08 PUT/DELETE client surface.
+func StartAPI(c config.Config, bootstrap bool) (*Node, error) {
+	return startNode(c, bootstrap, nil, net.Listen, true, 16, true, true)
 }
 func (n *Node) WaitApplied(ctx context.Context, r raft.LocalAppend) (raft.AppliedResult, error) {
 	if n.election == nil {
@@ -65,6 +73,9 @@ func startMode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 	return startRuntime(c, bootstrap, p, listen, elections, batch, false)
 }
 func startRuntime(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int, commit bool) (*Node, error) {
+	return startNode(c, bootstrap, p, listen, elections, batch, commit, false)
+}
+func startNode(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int, commit, api bool) (*Node, error) {
 	if !c.Valid() {
 		return nil, config.ErrConfig
 	}
@@ -109,16 +120,49 @@ func startRuntime(c config.Config, bootstrap bool, p transport.Processor, listen
 		_ = peer.Shutdown(context.Background())
 		return nil, errors.Join(config.ErrConfig, s.Close())
 	}
+
+	var client *clientapi.Server
+	var cl net.Listener
+	if api {
+		client, err = clientapi.New(c, election)
+		if err == nil {
+			cl, err = listen("tcp", c.Local().Client)
+		}
+		if err == nil && cl.Addr().String() != c.Local().Client {
+			err = config.ErrConfig
+		}
+		if err != nil {
+			if cl != nil {
+				_ = cl.Close()
+			}
+			if client != nil {
+				_ = client.Shutdown(context.Background())
+			}
+			_ = l.Close()
+			cleanupElection()
+			_ = peer.Shutdown(context.Background())
+			return nil, errors.Join(err, s.Close())
+		}
+	}
 	if election != nil {
 		if err = election.Start(peer); err != nil {
+			if cl != nil {
+				_ = cl.Close()
+			}
+			if client != nil {
+				_ = client.Shutdown(context.Background())
+			}
 			cleanupElection()
 			_ = l.Close()
 			_ = peer.Shutdown(context.Background())
 			return nil, errors.Join(err, s.Close())
 		}
 	}
-	n := &Node{peer: peer, store: s, election: election, done: make(chan struct{}), served: make(chan error, 1)}
+	n := &Node{client: client, clientServed: make(chan error, 1), peer: peer, store: s, election: election, done: make(chan struct{}), served: make(chan error, 1)}
 	go func() { n.served <- peer.Serve(l); _ = n.Shutdown(context.Background()) }()
+	if client != nil {
+		go func() { n.clientServed <- client.Serve(cl); _ = n.Shutdown(context.Background()) }()
+	}
 	if election != nil {
 		go func() { <-election.Done(); _ = n.Shutdown(context.Background()) }()
 	}
@@ -137,6 +181,15 @@ func (n *Node) Recovered() wal.State { return n.store.State() }
 func (n *Node) Shutdown(ctx context.Context) error {
 	n.once.Do(func() {
 		go func() {
+			var clientErr error
+			if n.client != nil {
+				clientErr = n.client.Shutdown(context.Background())
+				serveClientErr := <-n.clientServed
+				if errors.Is(serveClientErr, raft.ErrClosed) {
+					serveClientErr = nil
+				}
+				clientErr = errors.Join(clientErr, serveClientErr)
+			}
 			var electionErr error
 			if n.election != nil {
 				electionErr = n.election.Shutdown(context.Background())
@@ -146,7 +199,7 @@ func (n *Node) Shutdown(ctx context.Context) error {
 			if errors.Is(serveErr, transport.ErrClosed) {
 				serveErr = nil
 			}
-			n.err = errors.Join(electionErr, peerErr, serveErr, n.store.Close())
+			n.err = errors.Join(clientErr, electionErr, peerErr, serveErr, n.store.Close())
 			close(n.done)
 		}()
 	})

@@ -34,6 +34,7 @@ type Peer struct {
 	started, closed bool
 	listener        net.Listener
 	connections     map[net.Conn]bool
+	connectionLimit int
 	active          sync.WaitGroup
 	slots           map[string]chan struct{}
 	done            chan struct{}
@@ -218,7 +219,7 @@ func (l boundedListener) Accept() (net.Conn, error) {
 			return nil, err
 		}
 		l.p.mu.Lock()
-		if l.p.closed || len(l.p.connections) >= 16 {
+		if l.p.closed || len(l.p.connections) >= l.p.limit() {
 			l.p.mu.Unlock()
 			_ = c.Close()
 			continue
@@ -289,4 +290,19 @@ func (x *Peer) Shutdown(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	}
+}
+
+// LimitListener shares M04's accepted-connection registry and Close accounting.
+// HTTP servers use distinct configured ports, but the same bounded primitive.
+func LimitListener(l net.Listener, max int) net.Listener {
+	if max < 1 {
+		max = 1
+	}
+	return boundedListener{l, &Peer{connections: map[net.Conn]bool{}, connectionLimit: max}}
+}
+func (x *Peer) limit() int {
+	if x.connectionLimit > 0 {
+		return x.connectionLimit
+	}
+	return 16
 }

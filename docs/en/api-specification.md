@@ -2,11 +2,11 @@
 
 [Index](README.md) · [Italiano](../it/api-specification.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**21 November 2026 — M08 PUT/DELETE subset implemented; GET, CAS and safe retries remain future contracts.**
 
 ## Proposed HTTP contract
 
-Every example in this document describes the future interface. No endpoint is available. HTTP/1.1 on loopback, `Content-Type: application/json`, no compression. All KV operations use POST to avoid ambiguous key paths and intermediary caches. Maximum body size is 48 KiB; reject with HTTP 413 before admission. Strict validation follows the [data model](data-model.md).
+The broad contract and examples below describe the eventual v1 interface. Only the M08 subset described at the end is available. HTTP/1.1 on loopback, `Content-Type: application/json`, no compression. All KV operations use POST to avoid ambiguous key paths and intermediary caches. Maximum body size is 48 KiB; reject with HTTP 413 before admission. Strict validation follows the [data model](data-model.md).
 
 | Endpoint | Specific required fields | Normal result |
 |---|---|---|
@@ -117,7 +117,7 @@ GET does not use a session: each retry is a new read and may observe a later val
 
 The log orders all operations; overlapping requests have no promised HTTP arrival order. A CAS result concerns the value at its index. There is no cross-key atomicity. HTTP 200 from status proves neither quorum, durability nor linearizability.
 
-OpenAPI was evaluated: useful for client generation, but it would introduce a second contract to synchronize during design. In this revision, tables and examples are normative; M08 must derive OpenAPI 3.1, validate requests/responses as fixtures and resolve any divergence before declaring v1 stable. A validated OpenAPI specification does not yet exist.
+OpenAPI was evaluated: useful for client generation, but it would introduce a second contract to synchronize during design. In this revision, tables and examples are normative; M08 must derive OpenAPI 3.1, validate requests/responses as fixtures and resolve any divergence before declaring v1 stable. The M08 subset now has the checked artifact linked below; full v1 stability remains gated by M10/M11.
 
 ## Negative-outcome and retry examples
 
@@ -146,3 +146,15 @@ The body cap is 49,152 bytes (48 KiB). Two raw 16,384-byte values occupy 43,696 
 ## Persistent representation boundary
 
 [Canonical formats](canonical-formats.md) defines the future internal entry/digest/result projection. Wire field order and allowed escapes are not persisted verbatim; request_id, outcome and deadlines are transport fields. Existing HTTP status and body limits remain unchanged. OpenAPI/full wire fixtures remain M08/M04 gates, not satisfied by storage fixtures.
+
+## M08 implemented subset and precedence
+
+[M08 report](milestone-m08.md), [OpenAPI 3.1 JSON](../openapi/m08.json), [HTTP fixtures](../fixtures/http-m08.json). This section controls implemented behavior; retry/session/GET/CAS examples above remain future design. node.StartAPI binds the configured client port after storage validation/replay and both listener reservations. POST /v1/kv/put and /v1/kv/delete use the documented required fields; optional timeout_ms is 50..5000, default 2000. GET /v1/status returns only node_id, role and canonical decimal-string term/commit_index/last_applied; it is stale diagnostics. KV GET and CAS return 404 INVALID_ARGUMENT/not_admitted. Wrong methods/media return 405/415 INVALID_ARGUMENT/not_admitted. No redirect or forwarding.
+
+Strict lexical/schema validation and the 49,152-byte cap precede proposals. Deadlines start at handler admission and include parsing. The request_id is generated per attempt; supplying it as a request field is invalid. Only validated command fields enter the unchanged WAL schema. Completed requires durable current-term majority commit, exact index/term application and a serialized owner leadership fence followed by a conservative HTTP status check. RESOURCE_LIMIT is 409/completed with index; successful PUT has applied=true and DELETE has deleted=true/false. Missing-key DELETE is 200/deleted=false.
+
+A ticket canceled before recording is permanently excluded under its admission lock: UNAVAILABLE/not_admitted for an expired/canceled wait before recording. After possible recording, deadline is TIMEOUT/unknown; observed step-down, cancellation or infrastructure failure is UNAVAILABLE/unknown, or STORAGE_UNAVAILABLE/unknown for storage failure. Explicit pre-write WAL reserve rejection is STORAGE_UNAVAILABLE/not_admitted. NOT_LEADER/NO_LEADER and OVERLOADED are not_admitted only before recording. All certainty concerns this attempt alone. Client disconnect does not remove committed work. An unobserved loss after a legal quorum/fence cannot revoke the past commit; TCP delivery is not atomic with role changes.
+
+There are no sessions yet. Valid client_id and sequence are persisted metadata, not deduplication proof; repeating the same DELETE can return true and then false at different indices. No automatic retry, at-most-once or exactly-once claim, nor recovery of an original unknown result. The bounded single-attempt test client accepts only configured members, rejects nonconfigured hints/redirects and reports transport failure as unknown. Resolve uncertainty externally until M11; the future retry instructions above are not enabled in M08.
+
+Limits: 32 accepted client connections including idle, 64 handler write slots, 64 service write waiters/queued tickets and 64 completion-fence messages, separate from 256 peer events. Canceled queued tickets can occupy bounded queue space until the owner drains it. Four active test-client calls maximum; no ambient proxy, compression or redirect. Header/body/write/idle bounds are 500 ms/5 s/6 s/1 s. Slow bodies can consume the 5 s read cap; an already-expired requested deadline is excluded before append. OpenAPI assertions and runtime lexical/canonical extensions are checked offline with fixtures and negative controls; this is not external OpenAPI certification. Full FR-009/AC-009 and FR-012/AC-012/T-012 remain gated at M10/M11.

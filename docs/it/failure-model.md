@@ -48,3 +48,7 @@ I [test M06](milestone-m06.md) coprono perdita/ritardo/duplicazione/riordino, co
 ## Evidenze guasti commit/apply M07
 
 [M07](milestone-m07.md) testa vecchio leader isolato senza nuovo commit quorum, elezione maggioranza con prefisso ghost conservato, errori Sync checkpoint, apply bloccato con commit nuovi, consegna cancellata, panic applicazione e riavvio su istanza nuova. CAS negativa di dominio avanza LastApplied; errore infrastruttura non autorizza retry su mappa viva incerta. Checkpoint completo non confermato può recuperare; ricostruito solo prefisso coperto. Stop normale drena lavoro committed noto, stop fatale rifiuta admission prima di attendere effetti accettati. Nessuna garanzia exactly-once esterna/guasti OS/alimentazione.
+
+## Incertezza HTTP M08
+
+[M08](milestone-m08.md) distingue esclusione provata prima di registrazione da possibile append. Timeout/disconnessione dopo tale confine non cancella replica o apply committed né prova fallimento. Perdita leadership osservata prima dell’autorizzazione completamento è unknown. Leader isolati non confermano nuove scritture senza quorum. Risposta può perdersi dopo apply; test client a singolo tentativo segnala unknown senza retry. DELETE ripetuta è nuovo effetto/risultato fino a M11; sessioni successive restano necessarie. Shutdown HTTP cancella waiter limitati prima del drain committed esistente e rilascio lock. Nessuna nuova garanzia crash processo, OS o perdita alimentazione.

@@ -101,3 +101,7 @@ The system favors safety over availability. It uses no time leases, requires no 
 ## M07 implemented commit and application
 
 [M07](milestone-m07.md) enables the current-term majority boundary only after correlated replica proof and persists commit_index before changing CommitIndex or scheduling. Followers learn max(old,min(leaderCommit,verified request end)) only after relevant log Sync; duplicate/obsolete/rejected-prefix traffic cannot advance it. The existing new-term noop enables indirect old-prefix commit. Core owns LastApplied<=ScheduledApplyIndex<=CommitIndex, advancing Scheduled only on M02 admission and LastApplied only on future completion. ApplyEpoch=1 is instance-local; snapshots/replacement epochs remain M13. Legacy M05/M06 modes remain available, StartCommitted selects M07. No public reads/client guarantee.
+
+## M08 completion authorization
+
+[Service.Write](../../internal/raft/write.go) preserves M07 commit/application algorithms. A ticket lock separates permanent pre-record exclusion from possible disk effects. Once recording may begin, cancellation abandons only the caller. Local Sync alone never yields completed: wait for the exact indexed/termed applied result, then send a fence through the owner. It rejects failure, shutdown, nonleader, changed term or insufficient commit/apply. Higher-term observation before that event prevents success even when the command is committed/applied. Result expiry or supersession yields uncertainty. No session table or new persistent format.

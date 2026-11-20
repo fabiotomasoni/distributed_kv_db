@@ -55,3 +55,7 @@ HTTP/JSON resta adeguato. Cap client corretto da 32 a 48 KiB per CAS con due val
 ## Evidenze implementazione M04 — 20 novembre 2026
 
 [M04](../milestone-m04.md) implementa la decisione tramite [configurazione/hash](../configuration.md) immutabili, fixture protocollo rigorose e HTTP loopback limitato con libreria standard. Identità storage/LOCK precedono bind di produzione; shutdown drena prima del rilascio. Nessun DNS/proxy/redirect/compressione o dipendenza esterna. Una RPC in uscita per peer, socket/deadline limitati. Decisioni callback e futuri timing/replica Raft restano fuori M04. Motivazioni originali e limiti loopback fidato invariati.
+
+## Evidenze implementazione M08 — 21 novembre 2026
+
+[M08](../milestone-m08.md) aggiunge HTTP PUT/DELETE e [sottoinsieme OpenAPI](../../openapi/m08.json) verificato offline con fixture HTTP comuni. Porte peer/client configurate distinte richiedono due server standard library che condividono limitatore socket accettati M04; nessun protocollo RPC indipendente. Cap JSON client resta 48 KiB. Solo hint membri configurati, niente forwarding/redirect/proxy. C-01 soddisfatto per sottoinsieme M08; GET/CAS e stabilità API finale restano gate successivi.

@@ -84,3 +84,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## M07 acceptance evidence
 
 [M07 COMPLETED](milestone-m07.md): FR-007/AC-007/T-007 pass old-term-majority/no-current-noop versus legal current-term indirect commit, no-quorum/stale response and checkpoint failure/recovery. FR-008/AC-008/T-008 pass identical three-model state/per-index results, 5→7 blocked capacity-1 backlog, no speculative/duplicate apply and unchanged M02 worker. C-03 M07 backlog/ghost obligation satisfied; snapshot handoff, session/read/history gates remain at their phases. No public client/complete durability acceptance inferred.
+
+## M08 phase evidence
+
+[M08 report](milestone-m08.md): FR-009/FR-012, AC-009/AC-012 and T-009/T-012 pass only for the roadmap's PUT/DELETE, strict HTTP validation, deadlines, unknown/not_admitted and OpenAPI subset. Tests include gated disk/apply cancellation, observed higher-term loss, bounded admission with separate peer capacity, real three-node concurrent writes/election/minority, lost response without automatic retry and repeated DELETE with a new result. The schema/HTTP fixture checker includes negative controls and runtime canonical extensions. M01–M07 regressions and targeted race pass. Full GET AC-009 remains M10; dedup/failover retry AC-012 remains M11, with snapshots/history checks at later gates. C-01's M08 subset artifact/fixture obligation is satisfied; full v1 stability is not claimed. C-02 and later C-03 obligations retain their original bounds.
