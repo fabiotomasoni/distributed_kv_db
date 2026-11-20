@@ -113,21 +113,11 @@ func EncodeFrame(sequence uint64, payload []byte) ([]byte, error) {
 // truncate a file: only a future recovery owner can establish a valid final tail.
 func DecodeFrame(raw []byte) (Frame, int, error) {
 	bad := func(err error) (Frame, int, error) { return Frame{}, 0, err }
-	if len(raw) < 24 {
-		return bad(ErrIncomplete)
+	end, err := FrameSize(raw)
+	if err != nil {
+		return bad(err)
 	}
-	if !bytes.Equal(raw[:4], []byte("QWAL")) {
-		return bad(ErrMalformed)
-	}
-	if binary.BigEndian.Uint16(raw[4:]) != 1 || binary.BigEndian.Uint16(raw[6:]) != 1 {
-		return bad(ErrVersion)
-	}
-	n := binary.BigEndian.Uint32(raw[8:])
 	seq := binary.BigEndian.Uint64(raw[12:])
-	if n == 0 || n > MaxPayload || seq == 0 {
-		return bad(ErrMalformed)
-	}
-	end := 24 + int(n)
 	if len(raw) < end {
 		return bad(ErrIncomplete)
 	}
@@ -139,4 +129,35 @@ func DecodeFrame(raw []byte) (Frame, int, error) {
 		return bad(err)
 	}
 	return Frame{seq, bytes.Clone(p)}, end, nil
+}
+
+// FrameSize validates header fields before a streaming reader allocates a
+// payload. In partial headers, contradicted magic/version/kind is fatal rather
+// than a plausible torn tail. It never scans ahead for a later magic.
+func FrameSize(raw []byte) (int, error) {
+	magic := []byte("QWAL")
+	for i := 0; i < len(raw) && i < 4; i++ {
+		if raw[i] != magic[i] {
+			return 0, ErrMalformed
+		}
+	}
+	versionKind := []byte{0, 1, 0, 1}
+	for i := 4; i < len(raw) && i < 8; i++ {
+		if raw[i] != versionKind[i-4] {
+			return 0, ErrVersion
+		}
+	}
+	if len(raw) >= 12 {
+		n := binary.BigEndian.Uint32(raw[8:])
+		if n == 0 || n > MaxPayload {
+			return 0, ErrMalformed
+		}
+	}
+	if len(raw) >= 20 && binary.BigEndian.Uint64(raw[12:]) == 0 {
+		return 0, ErrMalformed
+	}
+	if len(raw) < 24 {
+		return 0, ErrIncomplete
+	}
+	return 24 + int(binary.BigEndian.Uint32(raw[8:])), nil
 }
