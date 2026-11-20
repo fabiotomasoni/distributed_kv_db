@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/architecture.md)
 
-**Updated: 20 November 2026 — M01–M06 local components/elections implemented and checked; distributed commit remains design work.**
+**Updated: 20 November 2026 — M01–M07 local components/elections implemented and checked; internal commit/application implemented; client API remains design work.**
 
 ## Component boundaries
 
@@ -72,3 +72,7 @@ Implemented [interfaces and ownership](milestone-m04.md): node → config/transp
 ## M06 replication ownership
 
 [M06](milestone-m06.md) extends the same core/service without another worker pool. Owned canonical entries, copied fixed progress array, one registered request per peer; queue bounds remain 256 events and two network workers/results. Node.StartReplication enables batch=16, service options allow 1..16 at construction only. AppendLocal returns a local durable position, not a client commit. WAL AppendProposal preserves reserve for local admission, Append serves replication/control. No applier or commit advancement is connected.
+
+## M07 application ownership and bounds
+
+[M07](milestone-m07.md) adds the committed projection bridge, one unchanged M02 worker and one FIFO future collector to the existing owner/two peer workers. No worker per entry. Pending M02 queue 1..64, tickets/completions/outstanding futures <=64, copied recent results 64. The owner performs TrySubmit, preserves unscheduled committed work on ErrFull and drains completion events while networking/ticks continue. Normal shutdown drains durable committed work before releasing storage; fatal admission closes before waiting for an active application. Fresh replay precedes binding. No direct M01 calls from core/HTTP or new M02 production interface.

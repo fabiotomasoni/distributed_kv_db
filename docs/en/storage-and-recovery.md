@@ -110,3 +110,7 @@ Recovery does not apply KV commands; callers must later coordinate commit proof,
 ## M06 use of existing suffix transactions
 
 [M06](milestone-m06.md) reuses replace_suffix without changing storage code or bytes. Retain the committed prefix, replace from the first uncommitted conflict in a synchronized transaction and install RAM/ack only after its correlated token. Large legal RPC suffixes split at the existing per-transaction entry-byte cap; a crash can leave a complete prefix of these frames. No final RPC success precedes every required Sync; recovery validates each surviving whole frame and retry resumes idempotently. Local proposals use AppendProposal; replication/control use Append. Known commit_index is unchanged, no apply or new checkpoint transition.
+
+## M07 checkpoint and fresh replay
+
+[M07](milestone-m07.md) emits existing commit_index frames only after covered durable entries and legal leader/follower proof. Sync failure stops progress/application; complete surviving checkpoint recovery remains conditional on M03 validation. No applied-index file is added. StartCommitted reconstructs a fresh base-zero in-memory machine through M02 over exactly 1..recovered commit, ignoring speculative suffix. Replay rebuilds both application cursors before listening. Full process recovery/MVP, sessions and general snapshots remain M09/M11/M13; OS/power loss remains unverified.

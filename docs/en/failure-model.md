@@ -44,3 +44,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## M06 replication failure evidence
 
 [M06 tests](milestone-m06.md) cover loss/delay/duplication/reordering, divergent tails, restart after suffix Sync before acknowledgment and real WAL frame cuts. The oracle checks durable disk prefixes, not merely messages sent. Old-generation progress is ignored but valid higher terms persist. Sync/uncertain storage failure is fatal without a replica ack; known pre-write proposal quota rejection is retriable. Complete unacknowledged surviving frames can recover, with no inferred commit or application. OS/power faults remain outside this evidence.
+
+## M07 commit/apply failure evidence
+
+[M07](milestone-m07.md) tests isolated old leader without new quorum commit, majority election with retained ghost prefix, checkpoint Sync errors, blocked apply with newer commits, canceled delivery, application panic and fresh restart. Domain-negative CAS advances LastApplied; infrastructure failure does not authorize retries on an uncertain live map. A complete unacknowledged checkpoint may recover; only its covered prefix is rebuilt. Normal stop drains known committed work, fatal stop rejects admission before waiting for accepted effects. No external exactly-once/OS/power-fault guarantee.

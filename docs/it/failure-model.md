@@ -44,3 +44,7 @@ Le [evidenze M05](milestone-m05.md) esercitano split vote, perdita/ritardo/dupli
 ## Evidenze guasti replica M06
 
 I [test M06](milestone-m06.md) coprono perdita/ritardo/duplicazione/riordino, code divergenti, riavvio dopo Sync suffisso prima dell’acknowledgment e tagli frame WAL reali. Oracolo verifica prefissi disco durevoli, non soli messaggi inviati. Progresso vecchia generazione ignorato, termini maggiori validi persistiti. Errore Sync/storage incerto fatale senza ack replica; rifiuto quota proposta noto prima della scrittura ritentabile. Frame completi sopravvissuti non confermati recuperabili, senza inferire commit o applicazione. Guasti OS/alimentazione fuori evidenze.
+
+## Evidenze guasti commit/apply M07
+
+[M07](milestone-m07.md) testa vecchio leader isolato senza nuovo commit quorum, elezione maggioranza con prefisso ghost conservato, errori Sync checkpoint, apply bloccato con commit nuovi, consegna cancellata, panic applicazione e riavvio su istanza nuova. CAS negativa di dominio avanza LastApplied; errore infrastruttura non autorizza retry su mappa viva incerta. Checkpoint completo non confermato può recuperare; ricostruito solo prefisso coperto. Stop normale drena lavoro committed noto, stop fatale rifiuta admission prima di attendere effetti accettati. Nessuna garanzia exactly-once esterna/guasti OS/alimentazione.

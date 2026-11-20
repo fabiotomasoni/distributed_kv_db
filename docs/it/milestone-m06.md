@@ -131,3 +131,7 @@ Revisione prerequisito tecnico M05 superata entro evidenze finite. **M06 resta B
 </details>
 
 Verifica documentazione: 120 file Markdown, 59 coppie lingua, 1.503 link relativi, 106 tabelle e 25 esempi non-Mermaid appaiati; zero errori strutturali. Verificati link reciproci lingua, parità sezioni/ID, esempi JSON e fence, equivalenza semantica rivista localmente. Nessuna certificazione esterna o rendering Mermaid.
+
+## Aggiornamento consegna M07
+
+La relazione sopra registra consegna M06 solo replica. [M07 ora completata](milestone-m07.md) con capacità commit/applicazione esplicita all’avvio, conservando comportamento/fixture M06 legacy, byte WAL esistenti e produzione M02. Revisione correlazione senza difetti M06 bloccanti. M08 resta non iniziata; dichiarazioni precedenti che rimandano commit/apply descrivono fase storica.

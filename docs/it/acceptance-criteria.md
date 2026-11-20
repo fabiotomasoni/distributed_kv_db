@@ -80,3 +80,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Esito accettazione M06
 
 [M06 COMPLETED](milestone-m06.md): FR-006/AC-006/T-006 superati con log ordinari/in ritardo/divergenti, prefisso committed noto immutabile, nextIndex/matchIndex correlati, retry/risposte vecchie, errori storage e riavvio. Cinque tracce replica con seed riprodotte due volte contro oracolo Log Matching/append-only; riavvio follower loopback reale recupera. Checkpoint resta fisso; AC-007/AC-008 e regola commit quorum termine corrente restano M07. Tutti i test/fixture precedenti conservati.
+
+## Evidenze accettazione M07
+
+[M07 COMPLETED](milestone-m07.md): FR-007/AC-007/T-007 superano maggioranza vecchio termine/senza-noop-corrente contro commit indiretto corrente legale, assenza quorum/risposta obsoleta ed errore/recovery checkpoint. FR-008/AC-008/T-008 superano stato/risultati per indice identici tre modelli, backlog bloccato 5→7 capacità 1, nessun apply speculativo/duplicato e worker M02 invariato. Obbligo C-03 M07 backlog/ghost soddisfatto; gate handoff snapshot/sessioni/read/storie alle rispettive fasi. Nessuna accettazione client pubblico/durabilità completa inferita.

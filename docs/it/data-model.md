@@ -46,3 +46,7 @@ M01 implementa soltanto mappa e contatore byte con operazioni sequenziali e quot
 ## Proiezione storage canonica
 
 I [formati canonici v1](canonical-formats.md) fissano byte digest tipizzato, schema entry/risultato/sessione, contatori e ordine snapshot. Valori Go M01 e ammissione M02 invariati; i futuri adattatori devono distinguere byte nil/vuoti da JSON null e kind log read/noop dalle operazioni M01.
+
+## Sottoinsieme applicativo M07
+
+[M07](milestone-m07.md) mappa byte put/delete/cas approvati a comandi M01 invariati tramite M02 e gestisce noop dentro bridge worker privato. Errori quota/CAS sono risultati applicativi deterministici applicati. Regole sessioni/sequence complete sopra restano M11: client_id/sequence rimangono metadati validati/persistiti, senza deduplicazione tra indici in M07. Risultati interni recenti limitati a 64 slot indice/termine non sostituiscono tabella sessioni futura. Letture nel log non abilitate.

@@ -65,3 +65,7 @@ Theoretical reference: [Raft, section 8](https://raft.github.io/raft.pdf). The o
 ## Implemented M02 boundary
 
 The [local applier](milestone-m02.md) serializes caller-indexed commands and returns results at their exact application slot. Concurrent creation/arrival does not define order: only the next contiguous index is admitted. This supplies an ordered local component, not proof of commit, quorum or distributed linearizability. Rejected admission consumes no index; canceled waits after admission cannot revoke an operation.
+
+## M07 internal ordering evidence
+
+[M07](milestone-m07.md) now implements legal current-term commit and exact ordered mutation/noop application. A failed CAS remains committed/applied with COMPARE_FAILED. LocalAppend is still only a local Sync receipt; WaitApplied is internal indexed/termed delivery with bounded retention, cancellation and supersession errors. This is not a public linearizability/exactly-once API: external HTTP/error/session behavior and logged GET barriers remain later phases. M07 rejects future read entries instead of enabling an early read path. The broad client contract above remains design work.

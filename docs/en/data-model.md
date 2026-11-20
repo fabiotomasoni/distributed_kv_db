@@ -46,3 +46,7 @@ M01 implements only map and byte counter with sequential operations and quotas: 
 ## Canonical storage projection
 
 [Canonical formats v1](canonical-formats.md) fixes typed digest bytes, entry/result/session schema, counters and snapshot ordering. Local M01 Go values and M02 admission remain unchanged; future adapters must distinguish nil/empty bytes from JSON null and the read/noop log kinds from M01 operations.
+
+## M07 application subset
+
+[M07](milestone-m07.md) maps approved put/delete/cas bytes to unchanged M01 commands through M02 and handles noop inside a private worker bridge. Quotas/CAS failures are deterministic applied domain results. The complete session/sequence rules above remain M11: client_id/sequence stay validated/persisted metadata, with no cross-index deduplication in M07. Recent internal results are bounded to 64 indexed/termed slots and do not replace the future session table. Logged reads are not enabled.

@@ -71,6 +71,9 @@ func (d *memoryStorage) Append(raw []byte) (wal.Token, error) {
 	if tx.Replace != nil {
 		d.s.Entries = append(d.s.Entries[:tx.Replace.From-d.s.BaseIndex-1], tx.Replace.Entries...)
 	}
+	if tx.Commit != nil {
+		d.s.CommitIndex = *tx.Commit
+	}
 	return wal.Token{Generation: "gen-1", Sequence: d.s.Sequence}, nil
 }
 func (d *memoryStorage) AppendProposal(b []byte) (wal.Token, error) { return d.Append(b) }

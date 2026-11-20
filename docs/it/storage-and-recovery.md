@@ -110,3 +110,7 @@ Recovery non applica comandi KV; chiamanti dovranno coordinare prova commit, ses
 ## Uso M06 transazioni suffisso esistenti
 
 [M06](milestone-m06.md) riusa replace_suffix senza modificare codice storage o byte. Conserva prefisso committed, sostituisce dal primo conflitto non committed in transazione sincronizzata e installa RAM/ack solo dopo token correlato. Suffissi RPC leciti grandi divisi al cap byte entry per transazione esistente; crash può lasciare prefisso completo di questi frame. Nessun successo RPC finale prima di tutte le Sync richieste; recovery valida ogni frame intero sopravvissuto e retry riprende idempotentemente. Proposte locali usano AppendProposal; replica/controllo Append. commit_index noto invariato, nessun apply o nuova transizione checkpoint.
+
+## Checkpoint e replay nuovo M07
+
+[M07](milestone-m07.md) emette frame commit_index esistenti solo dopo entry coperte durevoli e prova leader/follower legale. Errore Sync ferma progresso/applicazione; recovery checkpoint completo sopravvissuto resta condizionato a validazione M03. Nessun file applied-index aggiunto. StartCommitted ricostruisce macchina memoria nuova con base zero tramite M02 su esattamente 1..commit recuperato, ignorando suffisso speculativo. Replay ricostruisce entrambi i cursori prima del listener. Recovery completo processi/MVP, sessioni e snapshot generali restano M09/M11/M13; perdita OS/alimentazione non verificata.

@@ -106,3 +106,7 @@ T-008/M02 and T-018/M02 Passed: 20 new tests; full suite repeated three times, t
 ## M06 replication suite
 
 [M06](milestone-m06.md) adds 11 final test functions (10 raft, one node), preserving the two preliminary lifecycle tests and every original election/WAL fixture. T-006 covers suffix reconciliation, duplicate/short heartbeat, committed conflict, actual-send correlation, hints/old generations, local quota/Sync failure, maximum wire/WAL split, frame cuts/reopen and real three-node follower restart. Five deterministic seeds replay twice against [saved results](../fixtures/replication-v1-results.json) and independent disk-view invariants. M05 20 seeds/100 rounds still pass. No commit/applier test is misreported as implemented M07 behavior.
+
+## M07 finite commit/application suite
+
+[M07](milestone-m07.md) adds 14 tests: current-term commit and old-term counterexample; follower prefix caps and failed checkpoint; separate scheduled/applied cursors; real M02 capacity-1 backlog 5→7 with a committed ghost; panic/domain-negative/cancellation/result-retention paths; real checkpoint cuts/fresh CAS replay; three twice-replayed [commit traces](../fixtures/commit-v1-results.json) with partition/election/restart and independent committed/result/state oracles; real loopback concurrent CAS/failover/replay. Previous fixtures/suites pass. The simulator controls core events, runtime backlog separately checks asynchronous scheduling; neither proves every OS schedule.

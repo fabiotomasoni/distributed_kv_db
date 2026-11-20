@@ -85,3 +85,7 @@ T-008/M02 and T-018/M02 are Passed, with T-028 fake foundations available. Full 
 ## Subsequent review
 
 The [pre-M03 review](pre-m03-review.md) reran M01/M02 and added one significant cancellation-boundary test: current applier count 21, coverage 100.0%, targeted race passed. The original 20-test/99.3% figures above remain historical delivery evidence. Production code unchanged; C-01 design resolved and C-02 validation still conditional/open as recorded in the review.
+
+## M07 integration follow-up
+
+[M07](milestone-m07.md) integrates the unchanged M02 worker with a private noop/mutation projection, core-owned scheduled/completed cursors, bounded future collection and fresh committed-prefix replay. No production M02/M01 interface or semantic change. Apply failure remains terminal, domain rejection consumes its slot, canceled waits do not undo accepted work. Snapshot epoch replacement and client sessions remain later phases.

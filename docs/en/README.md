@@ -2,15 +2,17 @@
 
 [Index](README.md) · [Italiano](../it/README.md)
 
-**Updated: 20 November 2026 — local M01/M02/M03/M04/M05/M06 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03/M04/M05/M06/M07 implemented and checked; distributed specifications remain design work.**
 
 ## How to read the design
 
-M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 is completed at the local WAL/log-recovery boundary: [results](milestone-m03.md). M04 is completed: [RPC/configuration evidence](milestone-m04.md). M05 is completed: [leader election evidence](milestone-m05.md). M06 is completed: [replication evidence](milestone-m06.md). M07 and later remain unimplemented. Distributed specifications and cluster startup commands are still proposals; reports dated 18 November document the previous phase.
+M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 is completed at the local WAL/log-recovery boundary: [results](milestone-m03.md). M04 is completed: [RPC/configuration evidence](milestone-m04.md). M05 is completed: [leader election evidence](milestone-m05.md). M06 is completed: [replication evidence](milestone-m06.md). M07 is completed: [commit/application evidence](milestone-m07.md). M08 and later remain unimplemented. Distributed specifications and cluster startup commands are still proposals; reports dated 18 November document the previous phase.
 
-Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02/M03/M04/M05/M06 are completed locally; M07 needs a new assignment and its own gates.
+Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02/M03/M04/M05/M06/M07 are completed locally; M08 needs a new assignment and its own gates.
 
 ## Complete specifications
+
+- [M07 completed: current-term commit, application and replay](milestone-m07.md)
 
 - [M06 completed: replication, conflicts and resolved scope](milestone-m06.md)
 

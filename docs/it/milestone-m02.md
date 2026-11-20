@@ -85,3 +85,7 @@ T-008/M02 e T-018/M02 sono Passed, con fondamenta fake T-028 disponibili. AC-008
 ## Revisione successiva
 
 La [revisione pre-M03](pre-m03-review.md) ha rieseguito M01/M02 e aggiunto un test significativo sul confine cancellazione: ora 21 test applier, copertura 100,0%, race mirato superato. Le cifre originali 20 test/99,3% sopra restano evidenze storiche della consegna. Codice di produzione invariato; progetto C-01 risolto e validazione C-02 ancora condizionata/aperta come registrato nella revisione.
+
+## Follow-up integrazione M07
+
+[M07](milestone-m07.md) integra worker M02 invariato con proiezione privata noop/mutazioni, cursori schedulato/completato posseduti dal core, raccolta future limitata e replay prefisso committed su macchina nuova. Nessuna modifica interfaccia/semantica produzione M02/M01. Errore apply resta terminale, rifiuto dominio consuma slot, attese cancellate non annullano lavoro accettato. Sostituzione epoch snapshot e sessioni client restano successive.

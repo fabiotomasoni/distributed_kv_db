@@ -63,3 +63,7 @@ Confirmed current-term commit and persistent voting. Corrected apply scheduling:
 ## M06 implementation decision
 
 [M06](../milestone-m06.md) retains this ADR: canonical suffix replacement above the known committed boundary, synchronized exact-token completion and bounded peer progress. Existing WAL bytes/primitives are reused; local proposals preserve reserve through AppendProposal. Legal large RPCs can span bounded WAL transactions with a single final ack and safe recoverable prefix on interruption. Commit/current-term quorum/apply and full snapshot semantics remain later gates. No complete-Raft or OS/power durability acceptance is inferred.
+
+## M07 implementation evidence
+
+[M07](../milestone-m07.md) retains this decision for current-term quorum proof, synchronized commit_index, fresh volatile-state replay through unchanged M02 and explicit completion cursors. Independent committed/result oracles, gated backlog, checkpoint cuts and complementary loopback tests pass. No extra checkpoint, new persistence bytes or per-entry goroutine. C-03 M07 evidence does not close later snapshots/sessions/read/checker gates or physical-fault guarantees.

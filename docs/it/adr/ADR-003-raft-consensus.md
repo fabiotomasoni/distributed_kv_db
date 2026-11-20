@@ -63,3 +63,7 @@ Confermata la regola di commit del termine corrente e il voto persistente. Corre
 ## Decisione implementativa M06
 
 [M06](../milestone-m06.md) conserva questo ADR: sostituzione suffisso canonica sopra confine committed noto, completamento sincronizzato con token esatto e progresso peer limitato. Byte/primitive WAL esistenti riusati; proposte locali conservano riserva con AppendProposal. RPC lecite grandi possono attraversare transazioni WAL limitate con un ack finale e prefisso recuperabile sicuro all’interruzione. Commit/quorum termine corrente/apply e semantica snapshot completa restano gate successivi. Nessuna accettazione Raft completo o durabilità OS/alimentazione inferita.
+
+## Evidenze implementazione M07
+
+[M07](../milestone-m07.md) conserva decisione per prova quorum termine corrente, commit_index sincronizzato, replay stato volatile nuovo tramite M02 invariato e cursori completamento espliciti. Superati oracoli committed/risultati indipendenti, backlog bloccato, tagli checkpoint e test loopback complementari. Nessun checkpoint aggiuntivo, byte persistente nuovo o goroutine per entry. Evidenze C-03 M07 non chiudono gate successivi snapshot/sessioni/read/checker o garanzie guasti fisici.

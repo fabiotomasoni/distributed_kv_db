@@ -131,3 +131,7 @@ The technical M05 prerequisite review is passed within its finite evidence. **M0
 </details>
 
 Documentation verification: 120 Markdown files, 59 language pairs, 1,503 relative links, 106 tables and 25 paired non-Mermaid examples; zero structural errors. Reciprocal language links, section/ID parity, JSON examples and fences checked, semantic equivalence reviewed locally. No external certification or Mermaid rendering.
+
+## M07 handoff update
+
+The report above records the M06 replication-only handoff. [M07 is now completed](milestone-m07.md) with explicit startup commit/application capability, preserving legacy M06 behavior/fixtures, existing WAL bytes and M02 production. Correlation review found no blocking M06 defect. M08 remains not started; previous statements deferring commit/apply describe their historical phase.

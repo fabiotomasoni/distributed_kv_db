@@ -55,3 +55,7 @@ Separati ProcessCrash e SystemCrashModel: write non sincronizzate possono soprav
 ## Evidenze implementative M02
 
 19 novembre 2026: [M02](../milestone-m02.md) aggiunge piccoli clock manuale e fake transport/storage solo nei test e una dipendenza Machine bloccabile. Ritardo controllato, rifiuto, consegna duplicata e cleanup worker verificati senza I/O del sistema o sleep casuali. Nessun replay seed/trace completo, cutpoint storage o modello crash implementato; AC-028 resta aperto a M12 e questo ADR resta Proposed.
+
+## Evidenze implementazione M07
+
+[M07](../milestone-m07.md) conserva decisione per prova quorum termine corrente, commit_index sincronizzato, replay stato volatile nuovo tramite M02 invariato e cursori completamento espliciti. Superati oracoli committed/risultati indipendenti, backlog bloccato, tagli checkpoint e test loopback complementari. Nessun checkpoint aggiuntivo, byte persistente nuovo o goroutine per entry. Evidenze C-03 M07 non chiudono gate successivi snapshot/sessioni/read/checker o garanzie guasti fisici.

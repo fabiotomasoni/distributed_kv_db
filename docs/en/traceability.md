@@ -78,3 +78,7 @@ FR-004 → internal/raft Core + M03 Append/Durable barrier → AC-004/T-004. FR-
 ## M06 implementation mapping
 
 FR-006 → internal/raft/replication.go + existing WAL replace_suffix + transport/service → AC-006/T-006. Sent/Failed/Response and copied progress establish actual-request correlation; WAL frame cuts and seeded disk-view oracle cover known prefix preservation/recovery. [M06 evidence](milestone-m06.md) preserves all later FR-007/FR-008 gates: no quorum commit, checkpoint advancement or apply.
+
+## M07 implementation mapping
+
+FR-007 → internal/raft/commit.go + M06 proof correlation + M03 checkpoint → AC-007/T-007. FR-008 → core cursors + application.go + internal/committed + unchanged M02/M01 → AC-008/T-008. C-03 M07 → gated backlog and permanent ghost oracle. [M07 evidence](milestone-m07.md) retains M08 API/OpenAPI, M09 complete server recovery, M10 read, M11 session/dedup, M13 snapshot and final NFR-001/history gates.

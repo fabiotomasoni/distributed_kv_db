@@ -1,10 +1,10 @@
 # QuorumKV
 
-A distributed key-value database project in Go. Its deterministic local state machine, ordered applier, local WAL/log recovery and validated loopback RPC/configuration are implemented. Leader election and log replication are implemented; distributed commit remains planned.
+A distributed key-value database project in Go. Its deterministic local state machine, ordered applier, local WAL/log recovery and validated loopback RPC/configuration are implemented. Leader election, log replication, distributed commit and ordered committed application are implemented. The public client API remains planned.
 
-Un progetto di database key-value distribuito in Go. Sono implementati macchina a stati locale deterministica, applier ordinato, WAL/recovery log locale e RPC loopback/configurazione validati. Leader election e replica log implementate; commit distribuito resta previsto.
+Un progetto di database key-value distribuito in Go. Sono implementati macchina a stati locale deterministica, applier ordinato, WAL/recovery log locale e RPC loopback/configurazione validati. Leader election, replica log, commit distribuito e applicazione committed ordinata implementati. API client pubblica ancora prevista.
 
-**Status / Stato — 20 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. **M03 COMPLETED**: local WAL and log recovery verified / WAL e recovery log locali verificati. **M04 COMPLETED**: validated peer RPC/configuration and storage-first startup / RPC peer, configurazione e avvio dopo validazione storage verificati. **M05 COMPLETED**: persistent voting, election and empty heartbeats verified / voto persistente, elezione e heartbeat vuoti verificati. **M06 COMPLETED**: durable log replication, conflict resolution and progress tracking / replica log durevole, risoluzione conflitti e tracking. Distributed commit and a usable database server are not available / garanzie distribuite e server utilizzabile non disponibili.
+**Status / Stato — 20 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. **M03 COMPLETED**: local WAL and log recovery verified / WAL e recovery log locali verificati. **M04 COMPLETED**: validated peer RPC/configuration and storage-first startup / RPC peer, configurazione e avvio dopo validazione storage verificati. **M05 COMPLETED**: persistent voting, election and empty heartbeats verified / voto persistente, elezione e heartbeat vuoti verificati. **M06 COMPLETED**: durable log replication, conflict resolution and progress tracking / replica log durevole, risoluzione conflitti e tracking. **M07 COMPLETED**: current-term quorum commit and ordered application/replay / commit quorum del termine corrente e applicazione/replay ordinati. A usable client database service is not available / servizio database client completo non ancora disponibile.
 
 Planned distributed architecture / Architettura distribuita prevista:
 
@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [M07 completata: commit e applicazione](docs/it/milestone-m07.md) | [M07 completed: commit and application](docs/en/milestone-m07.md) |
 | [M06 completata: replica e conflitti](docs/it/milestone-m06.md) | [M06 completed: replication and conflicts](docs/en/milestone-m06.md) |
 | [M05 completata: elezione leader](docs/it/milestone-m05.md) | [M05 completed: leader election](docs/en/milestone-m05.md) |
 | [M04 completata: RPC e configurazione](docs/it/milestone-m04.md) | [M04 completed: RPC and configuration](docs/en/milestone-m04.md) |

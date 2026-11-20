@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/network-protocol.md)
 
-**20 November 2026 — M04 transport, M05 elections and M06 replication implemented and checked; commit and snapshot effects remain design work.**
+**20 November 2026 — M04–M07 peer transport, elections, replication and commit propagation implemented and checked; client/snapshot effects remain future work.**
 
 ## Transport and addresses
 
@@ -79,3 +79,7 @@ StartElection now attaches Service.Handle: RequestVote implements durable voting
 ## M06 actual AppendEntries semantics
 
 [M06](milestone-m06.md) handles nonempty AppendEntries, identical-entry retries, bounded conflict index/term hints and prefix match acknowledgments after Sync. Outgoing batches cap canonical entry bytes at 256 KiB as well as configured 1..16 entries. Legal incoming batches exceeding the WAL entry-byte cap split into bounded sequential durable transactions, one final reply; complete wire validation precedes the first effect. Sent/Failed register actual transport attempts; stale/duplicate replies cannot change current progress, while a valid higher term still demotes. leaderCommit is preserved in the schema but operational commit advancement waits for M07. Snapshot installation remains unavailable.
+
+## M07 leaderCommit behavior
+
+StartCommitted enables [M07](milestone-m07.md): outgoing AppendEntries carries the synchronized checkpoint; a follower advances only through the verified request boundary after suffix/checkpoint Sync. Rejected/stale traffic does not propagate commit. Positive replication reply proves durable prefix/checkpoint, not application or client success. Future read entries and InstallSnapshot effects remain unavailable; original schema/body/socket/deadline limits unchanged. All cluster nodes must select compatible capability at startup, no rolling feature negotiation.

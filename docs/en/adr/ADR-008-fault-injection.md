@@ -55,3 +55,7 @@ Separated ProcessCrash and SystemCrashModel: unsynchronized writes may survive, 
 ## M02 implementation evidence
 
 19 November 2026: [M02](../milestone-m02.md) adds tiny test-only manual clock, transport/storage fakes and a gated Machine dependency. Controlled delay, refusal, duplicate delivery and worker cleanup are tested without OS I/O or random sleeps. No full seed/trace replay, storage cutpoints or crash model is implemented; AC-028 remains open at M12 and this ADR remains Proposed.
+
+## M07 implementation evidence
+
+[M07](../milestone-m07.md) retains this decision for current-term quorum proof, synchronized commit_index, fresh volatile-state replay through unchanged M02 and explicit completion cursors. Independent committed/result oracles, gated backlog, checkpoint cuts and complementary loopback tests pass. No extra checkpoint, new persistence bytes or per-entry goroutine. C-03 M07 evidence does not close later snapshots/sessions/read/checker gates or physical-fault guarantees.

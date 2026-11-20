@@ -37,6 +37,18 @@ func StartElection(c config.Config, bootstrap bool) (*Node, error) {
 func StartReplication(c config.Config, bootstrap bool) (*Node, error) {
 	return startMode(c, bootstrap, nil, net.Listen, true, 16)
 }
+
+// StartCommitted enables M07 and rebuilds a fresh machine from the persisted
+// committed prefix before binding. It exposes no client HTTP/read API.
+func StartCommitted(c config.Config, bootstrap bool) (*Node, error) {
+	return startRuntime(c, bootstrap, nil, net.Listen, true, 16, true)
+}
+func (n *Node) WaitApplied(ctx context.Context, r raft.LocalAppend) (raft.AppliedResult, error) {
+	if n.election == nil {
+		return raft.AppliedResult{}, raft.ErrUnsupported
+	}
+	return n.election.WaitApplied(ctx, r)
+}
 func (n *Node) AppendLocal(ctx context.Context, kind string, command json.RawMessage) (raft.LocalAppend, error) {
 	if n.election == nil {
 		return raft.LocalAppend{}, raft.ErrUnsupported
@@ -50,6 +62,9 @@ func startConfigured(c config.Config, bootstrap bool, p transport.Processor, lis
 	return startMode(c, bootstrap, p, listen, elections, 0)
 }
 func startMode(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int) (*Node, error) {
+	return startRuntime(c, bootstrap, p, listen, elections, batch, false)
+}
+func startRuntime(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int, commit bool) (*Node, error) {
 	if !c.Valid() {
 		return nil, config.ErrConfig
 	}
@@ -66,7 +81,7 @@ func startMode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 	}
 	var election *raft.Service
 	if elections {
-		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch})
+		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch, Commit: commit})
 		if err != nil {
 			return nil, errors.Join(err, s.Close())
 		}

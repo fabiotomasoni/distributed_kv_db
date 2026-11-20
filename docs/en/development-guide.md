@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 20 November 2026 — M01–M06 local components/elections implemented and checked; distributed commit remains design work.**
+**Updated: 20 November 2026 — M01–M07 local components/elections implemented and checked; internal commit/application implemented; client API remains design work.**
 
 ## Free prerequisites
 
@@ -68,3 +68,7 @@ node.StartElection(config,bootstrap) validates storage, binds the peer endpoint 
 ## M06 library entry points
 
 Use node.StartReplication(config,bootstrap) for M06. Existing StartElection remains the M05-only harness; there is no feature negotiation. node.AppendLocal(ctx,kind,command) gives only local Sync metadata, with an unknown local outcome if the caller cancels after admission; no dedup/client commit guarantee. Service Options.BatchSize accepts 1..16 before events. Inspect copied ElectionStatus.Progress or recovered log metadata; never apply directly. [M06 commands and evidence](milestone-m06.md) include replayable fixtures, local restart and targeted race. No node CLI/client API yet.
+
+## M07 library usage and limits
+
+node.StartCommitted(config,bootstrap) enables commit/application and fresh prefix replay. AppendLocal still returns only local durability; WaitApplied(ctx,receipt) returns an internal copied indexed/termed domain result, potentially ErrSuperseded/ErrResultExpired or a canceled/failed wait. No public server CLI/API yet. M05/M06 startup helpers retain legacy behavior. Service Options.ApplyCapacity is 1..64; MachineFactory is a trusted fresh exclusive dependency, production uses M01. [M07 commands/results](milestone-m07.md) record bounded offline checks and three replayed commit traces. Client/OpenAPI is M08, read/dedup/snapshot gates later.

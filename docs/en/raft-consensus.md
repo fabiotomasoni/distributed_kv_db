@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/raft-consensus.md)
 
-**20 November 2026 — M05 elections and M06 replication implemented and checked; commit and apply below remain design work.**
+**20 November 2026 — M05–M07 elections, replication and commit/application implemented and checked; full client/snapshot safety remains future work.**
 
 ## State, indices and properties
 
@@ -97,3 +97,7 @@ The system favors safety over availability. It uses no time leases, requires no 
 ## Implemented M06 replication boundary
 
 [M06](milestone-m06.md) adds startup EnableReplication(1..16), canonical owned entries, AppendLocal with local-Sync-only receipt, first-conflict replace_suffix and exact durable-prefix acknowledgments. Status.Progress copies next/match values; Sent/Failed distinguish actual dispatch from skipped offers, and correlated current-generation responses alone update progress. Conflict hints are bounded and match never regresses. Recovered committed prefixes cannot be overwritten. The general commit/apply algorithm above remains M07: leaderCommit is carried but never advances a checkpoint here. Original M05 mode/fixtures remain supported; StartReplication enables the complete M06 layer.
+
+## M07 implemented commit and application
+
+[M07](milestone-m07.md) enables the current-term majority boundary only after correlated replica proof and persists commit_index before changing CommitIndex or scheduling. Followers learn max(old,min(leaderCommit,verified request end)) only after relevant log Sync; duplicate/obsolete/rejected-prefix traffic cannot advance it. The existing new-term noop enables indirect old-prefix commit. Core owns LastApplied<=ScheduledApplyIndex<=CommitIndex, advancing Scheduled only on M02 admission and LastApplied only on future completion. ApplyEpoch=1 is instance-local; snapshots/replacement epochs remain M13. Legacy M05/M06 modes remain available, StartCommitted selects M07. No public reads/client guarantee.

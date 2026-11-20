@@ -2,15 +2,17 @@
 
 [Indice](README.md) · [English](../en/README.md)
 
-**Aggiornamento: 20 novembre 2026 — M01/M02/M03/M04/M05/M06 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — M01/M02/M03/M04/M05/M06/M07 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Come leggere il progetto
 
-M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 è completata: [evidenze RPC/configurazione](milestone-m04.md). M05 è completata: [evidenze leader election](milestone-m05.md). M06 è completata: [evidenze replica](milestone-m06.md). M07 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
+M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 è completata: [evidenze RPC/configurazione](milestone-m04.md). M05 è completata: [evidenze leader election](milestone-m05.md). M06 è completata: [evidenze replica](milestone-m06.md). M07 è completata: [evidenze commit/applicazione](milestone-m07.md). M08 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
 
-Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02/M03/M04/M05/M06 completate localmente; M07 richiede un nuovo incarico e i propri gate.
+Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02/M03/M04/M05/M06/M07 completate localmente; M08 richiede un nuovo incarico e i propri gate.
 
 ## Specifiche complete
+
+- [M07 completata: commit termine corrente, applicazione e replay](milestone-m07.md)
 
 - [M06 completata: replica, conflitti e perimetro risolto](milestone-m06.md)
 

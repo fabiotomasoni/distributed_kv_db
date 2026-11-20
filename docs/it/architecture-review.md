@@ -280,3 +280,7 @@ La [fase M03 limitata](milestone-m03-preliminary.md) registra GATE C-02 VERIFIED
 ## Follow-up M06 attuale
 
 [M06 COMPLETED](milestone-m06.md), dopo risoluzione esplicita perimetro che conferma roadmap. Replica log/conflitti/tracking hanno ora evidenze T-006; byte storage e limiti C-01/C-02 invariati. Gate C-03 commit/apply e accettazioni successive aperti alle fasi originali. Nessuna implementazione M07 o nuovo modello durabilità.
+
+## Follow-up gate M07 attuale
+
+[M07 COMPLETED](milestone-m07.md): commit legale corrente e cursori applicazione schedulato/completato separati verificati con backlog C-03 5→7 e oracolo ghost committed/stato. M01/M02/byte-primitive storage invariati, C-01/OpenAPI resta M08, limiti locali C-02 conservati. C-03 handoff/epoch snapshot, dedup, stale-read e checker finale indipendente non chiusi anticipatamente. Nessuna linearizzabilità client completa o garanzia OS/alimentazione.

@@ -1,4 +1,5 @@
-// Package raft implements M05 elections and opt-in M06 replication. Core is a deterministic single-
+// Package raft implements M05 elections and opt-in M06/M07 replication/commit.
+// Core is a deterministic single-
 // owner event machine: no sockets, filesystem calls, real clock or goroutines.
 package raft
 
@@ -38,14 +39,15 @@ const (
 // uses crypto/rand; tests inject deterministic draws. It must not block/panic.
 type Draw func(min, max uint64) (uint64, error)
 type Status struct {
-	Role                                Role
-	Term                                uint64
-	Vote, Leader                        string
-	LastIndex, LastTerm, CommitIndex    uint64
-	ElectionDeadline, HeartbeatDeadline uint64
-	Pending, Closed                     bool
-	Failure                             error
-	Progress                            [3]Progress
+	Role                                         Role
+	Term                                         uint64
+	Vote, Leader                                 string
+	LastIndex, LastTerm, CommitIndex             uint64
+	ElectionDeadline, HeartbeatDeadline          uint64
+	Pending, Closed                              bool
+	Failure                                      error
+	Progress                                     [3]Progress
+	ScheduledApplyIndex, LastApplied, ApplyEpoch uint64
 }
 type Persistence struct {
 	ID       uint64
@@ -79,6 +81,7 @@ type Core struct {
 	progress               map[string]Progress
 	active                 map[string]peerprotocol.Message
 	stepped                bool
+	commitEnabled          bool
 }
 
 // New recovers log metadata, never application state. The supplied WAL view must

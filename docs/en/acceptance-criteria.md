@@ -80,3 +80,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## M06 acceptance result
 
 [M06 COMPLETED](milestone-m06.md): FR-006/AC-006/T-006 passed with ordinary/lagging/divergent logs, immutable known committed prefix, correlated nextIndex/matchIndex, retries/old responses, storage failure and restart. Five seeded replication traces replay twice against a Log Matching/append-only oracle; real loopback follower restart catches up. Checkpoint stays fixed; AC-007/AC-008 and the current-term quorum commit rule remain M07. All prior tests/fixtures retained.
+
+## M07 acceptance evidence
+
+[M07 COMPLETED](milestone-m07.md): FR-007/AC-007/T-007 pass old-term-majority/no-current-noop versus legal current-term indirect commit, no-quorum/stale response and checkpoint failure/recovery. FR-008/AC-008/T-008 pass identical three-model state/per-index results, 5→7 blocked capacity-1 backlog, no speculative/duplicate apply and unchanged M02 worker. C-03 M07 backlog/ghost obligation satisfied; snapshot handoff, session/read/history gates remain at their phases. No public client/complete durability acceptance inferred.

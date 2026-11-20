@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/network-protocol.md)
 
-**20 novembre 2026 — trasporto M04, elezioni M05 e replica M06 implementati e verificati; effetti commit e snapshot restano progettuali.**
+**20 novembre 2026 — trasporto peer, elezioni, replica e propagazione commit M04–M07 implementati e verificati; effetti client/snapshot futuri.**
 
 ## Trasporto e indirizzi
 
@@ -79,3 +79,7 @@ StartElection collega ora Service.Handle: RequestVote implementa voto durevole, 
 ## Semantica AppendEntries M06 effettiva
 
 [M06](milestone-m06.md) gestisce AppendEntries non vuote, retry entry identiche, hint indice/termine conflitto limitati e acknowledgment match prefisso dopo Sync. Batch uscita limitano byte entry canoniche a 256 KiB oltre a 1..16 entry configurate. Batch ingresso leciti oltre cap byte entry WAL divisi in transazioni durevoli sequenziali limitate, una risposta finale; validazione wire completa prima del primo effetto. Sent/Failed registrano tentativi trasporto effettivi; risposte obsolete/duplicate non cambiano progresso corrente, termine maggiore valido declassa comunque. leaderCommit conservato nello schema ma avanzamento operativo commit attende M07. Installazione snapshot resta indisponibile.
+
+## Comportamento leaderCommit M07
+
+StartCommitted abilita [M07](milestone-m07.md): AppendEntries uscente trasporta checkpoint sincronizzato; follower avanza solo fino al confine richiesta verificato dopo Sync suffisso/checkpoint. Traffico rifiutato/obsoleto non propaga commit. Risposta replica positiva prova prefisso/checkpoint durevoli, non applicazione o successo client. Entry read future ed effetti InstallSnapshot restano indisponibili; limiti schema/body/socket/deadline originali invariati. Tutti i nodi devono selezionare capacità compatibile all’avvio, nessuna negoziazione rolling feature.

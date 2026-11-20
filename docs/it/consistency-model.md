@@ -65,3 +65,7 @@ Riferimento teorico: [Raft, sezione 8](https://raft.github.io/raft.pdf). La sequ
 ## Confine implementato M02
 
 L’[applier locale](milestone-m02.md) serializza comandi indicizzati dal chiamante e restituisce risultati nel loro esatto slot di applicazione. Creazione/arrivo concorrente non definisce l’ordine: è ammesso soltanto il prossimo indice contiguo. Fornisce un componente locale ordinato, non prova di commit, quorum o linearizzabilità distribuita. L’ammissione rifiutata non consuma indici; attese cancellate dopo l’ammissione non revocano l’operazione.
+
+## Evidenze ordinamento interno M07
+
+[M07](milestone-m07.md) implementa ora commit legale del termine corrente e applicazione esatta ordinata mutazioni/noop. CAS fallita rimane committed/applicata con COMPARE_FAILED. LocalAppend resta sola ricevuta Sync locale; WaitApplied è consegna interna indice/termine con conservazione limitata, cancellazione ed errori supersessione. Non è API pubblica linearizzabile/exactly-once: comportamento HTTP/errori/sessioni esterni e barriere GET nel log restano fasi successive. M07 rifiuta entry read future anziché abilitare percorso lettura anticipato. Contratto client generale sopra resta progettuale.

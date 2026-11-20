@@ -2,13 +2,13 @@
 
 [Index](README.md) · [Italiano](../it/implementation-roadmap.md)
 
-**Updated: 20 November 2026 — local M01/M02/M03/M04/M05/M06 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03/M04/M05/M06/M07 implemented and checked; distributed specifications remain design work.**
 
 ## Capacity and dependencies
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07 is **COMPLETED**: [commit/application report](milestone-m07.md). M08–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
@@ -18,7 +18,7 @@ M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [repor
 | M04 — RPC and configuration (**COMPLETED**) | M02,M03 | 6 | Envelope and validation; canonical configuration fixtures. | T-001/T-002/T-003/T-029 within the phase subset defined below; evidence saved. | parsing and identity | Medium |
 | M05 — Leader election (**COMPLETED**) | M03,M04 | 7–8 | Timers and persistent votes; election simulator. | T-004/T-005 within the phase subset defined below; evidence saved. | incorrect timer resets | High |
 | M06 — Log replication (**COMPLETED**) | M05 | 9 | AppendEntries and conflicts; divergent-log traces. | T-006 within the phase subset defined below; evidence saved. | incorrect truncation | High |
-| M07 — Distributed commit | M06 | 10 | Current-term rule and apply; commit traces. | T-007/T-008 within the phase subset defined below; evidence saved. | old-term commit | High |
+| M07 — Distributed commit (**COMPLETED**) | M06 | 10 | Current-term rule and apply; commit traces. | T-007/T-008 within the phase subset defined below; evidence saved. | old-term commit | High |
 | M08 — API and test client | M07 | 11 | PUT/DELETE, deadlines, derive OpenAPI; HTTP fixtures. | T-009/T-012 within the phase subset defined below; evidence saved. | unstable contract | Medium |
 | M09 — Crash recovery / internal MVP | M08,M03 | 12–13 | Committed replay and restart; limited MVP report. | T-014/T-018/T-023 within the phase subset defined below; evidence saved. | speculative replay | High |
 | M10 — Linearizable GET | M09 | 14 | Logged read barrier; stale-leader history. | T-019 within the phase subset defined below; evidence saved. | reading outside its slot | High |
@@ -79,3 +79,7 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 ## M06 final outcome — 20 November 2026
 
 [M06 COMPLETED](milestone-m06.md): scope clarification RESOLVED by confirming the unchanged roadmap. AppendEntries entry replication, first-conflict suffix reconciliation, synchronized WAL effects and bounded correlated nextIndex/matchIndex pass FR-006/AC-006/T-006. Five replayed replication seeds, WAL cutpoints, follower restart/loopback and previous regressions/race pass. Known commit checkpoints are preserved and frozen. M07 commit/current-term rule/apply are NOT STARTED.
+
+## M07 final outcome — 20 November 2026
+
+[M07 COMPLETED](milestone-m07.md): current-term quorum commit with synchronized M03 checkpoint, verified-prefix follower propagation, unchanged M02 worker plus noop/mutation adapter, separate scheduled/completed cursors and fresh committed-prefix replay. T-007/T-008 and the M07 C-03 backlog obligation pass; old-term-majority counterexample, 5→7 blocked apply, committed ghost/three models, checkpoint cuts and real failover/CAS have evidence. M08 NOT STARTED. M09 retains complete server/process recovery/MVP; this phase implements only the fresh-machine library reconstruction required for committed application.

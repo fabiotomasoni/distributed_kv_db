@@ -280,3 +280,7 @@ The [limited M03 phase](milestone-m03-preliminary.md) records GATE C-02 VERIFIED
 ## M06 current follow-up
 
 [M06 COMPLETED](milestone-m06.md), after explicit scope resolution confirming the roadmap. Log replication/conflicts/tracking now have T-006 evidence; storage bytes and C-01/C-02 limits unchanged. C-03 commit/apply and later acceptance gates remain open at their original phases. No M07 implementation or new durability model.
+
+## M07 current gate follow-up
+
+[M07 COMPLETED](milestone-m07.md): legal current-term commit and separate scheduled/completed application cursors verified with the C-03 5→7 backlog and committed ghost/state oracle. M01/M02/storage bytes/primitives unchanged, C-01/OpenAPI remains M08, C-02 local limits retained. C-03 snapshot handoff/epochs, dedup, stale-read and independent final checker are not prematurely closed. No full client linearizability or OS/power guarantee.

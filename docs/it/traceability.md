@@ -78,3 +78,7 @@ FR-004 → internal/raft Core + barriera M03 Append/Durable → AC-004/T-004. FR
 ## Mappatura implementazione M06
 
 FR-006 → internal/raft/replication.go + replace_suffix WAL esistente + trasporto/servizio → AC-006/T-006. Sent/Failed/Response e progresso copiato stabiliscono correlazione richiesta effettiva; tagli frame WAL e oracolo vista disco con seed coprono conservazione prefisso noto/recovery. Le [evidenze M06](milestone-m06.md) conservano tutti i gate FR-007/FR-008 successivi: nessun commit quorum, avanzamento checkpoint o apply.
+
+## Mappatura implementazione M07
+
+FR-007 → internal/raft/commit.go + correlazione prove M06 + checkpoint M03 → AC-007/T-007. FR-008 → cursori core + application.go + internal/committed + M02/M01 invariati → AC-008/T-008. C-03 M07 → backlog bloccato e oracolo ghost permanente. Le [evidenze M07](milestone-m07.md) conservano gate M08 API/OpenAPI, M09 recovery server completo, M10 read, M11 sessioni/dedup, M13 snapshot e NFR-001/storie finali.

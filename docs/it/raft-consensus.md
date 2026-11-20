@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/raft-consensus.md)
 
-**20 novembre 2026 — elezioni M05 e replica M06 implementate e verificate; commit e apply sotto restano progettuali.**
+**20 novembre 2026 — elezioni, replica e commit/applicazione M05–M07 implementati e verificati; safety client/snapshot completa futura.**
 
 ## Stato, indici e proprietà
 
@@ -97,3 +97,7 @@ I [formati canonici](canonical-formats.md) fissano kind log, comandi tipizzati, 
 ## Confine replica M06 implementato
 
 [M06](milestone-m06.md) aggiunge EnableReplication(1..16) all’avvio, entry canoniche possedute, AppendLocal con ricevuta solo Sync locale, replace_suffix dal primo conflitto e acknowledgment esatto del prefisso durevole. Status.Progress copia valori next/match; Sent/Failed distinguono invio effettivo da offerte saltate e solo risposte correlate di generazione corrente aggiornano progresso. Hint conflitto limitati e match mai regressivo. Prefissi committed recuperati non sovrascrivibili. Algoritmo generale commit/apply sopra resta M07: leaderCommit trasportato ma non avanza checkpoint qui. Modalità/fixture M05 originali conservate; StartReplication abilita livello M06 completo.
+
+## Commit e applicazione M07 implementati
+
+[M07](milestone-m07.md) abilita confine maggioritario del termine corrente solo dopo prova replica correlata e persiste commit_index prima di cambiare CommitIndex o schedulare. Follower apprendono max(vecchio,min(leaderCommit,fine richiesta verificata)) solo dopo Sync log pertinente; traffico duplicato/obsoleto/prefisso rifiutato non lo avanza. Noop nuovo termine esistente permette commit indiretto vecchio prefisso. Core possiede LastApplied<=ScheduledApplyIndex<=CommitIndex, avanzando Scheduled solo su admission M02 e LastApplied solo su completamento future. ApplyEpoch=1 locale all’istanza; snapshot/epoch sostitutive restano M13. Modalità M05/M06 legacy disponibili, StartCommitted seleziona M07. Nessuna lettura pubblica/garanzia client.

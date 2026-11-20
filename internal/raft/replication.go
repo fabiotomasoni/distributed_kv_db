@@ -110,6 +110,9 @@ func (x *Core) AppendLocal(now uint64, kind string, command json.RawMessage) (Ef
 	if x.batchSize == 0 {
 		return Effects{}, ErrUnsupported
 	}
+	if x.commitEnabled && kind == "read" {
+		return Effects{}, ErrUnsupported
+	}
 	if x.state.Role != Leader {
 		return Effects{}, ErrNotLeader
 	}
@@ -246,13 +249,34 @@ func (x *Core) replicationResponse(req, res peerprotocol.Message) (Effects, erro
 		p.NextIndex = next
 	}
 	x.progress[env.From] = p
+	if body["success"] == true {
+		return x.maybeCommit()
+	}
 	return Effects{}, nil
 }
 func (x *Core) receiveAppend(req peerprotocol.Message, body map[string]any, higher, obsolete bool) (Effects, error) {
+	if x.commitEnabled {
+		for _, v := range body["entries"].([]any) {
+			if v.(map[string]any)["kind"] == "read" {
+				after := func() (Effects, error) { return Effects{Rejected: ErrUnsupported}, nil }
+				if higher {
+					return x.persist(false, after)
+				}
+				return after()
+			}
+		}
+	}
 	prev, pt := numeric(body, "prev_log_index"), numeric(body, "prev_log_term")
 	local, exists := x.term(prev)
 	reply := func() (Effects, error) {
-		return x.respond(req, map[string]any{"success": true, "match_index": fmt.Sprint(prev + uint64(len(body["entries"].([]any))))})
+		end := prev + uint64(len(body["entries"].([]any)))
+		index := numeric(body, "leader_commit")
+		if index > end {
+			index = end
+		}
+		return x.persistCommit(index, func() (Effects, error) {
+			return x.respond(req, map[string]any{"success": true, "match_index": fmt.Sprint(end)})
+		})
 	}
 	if obsolete || !exists || local != pt {
 		conflict := x.state.LastIndex + 1

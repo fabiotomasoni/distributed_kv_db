@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/applier"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -38,10 +39,13 @@ type Clock interface {
 	Stop()
 }
 type Options struct {
-	Epoch     string
-	Draw      Draw
-	Clock     Clock
-	BatchSize int // 0: M05 compatibility; 1..16: M06 replication.
+	Epoch          string
+	Draw           Draw
+	Clock          Clock
+	BatchSize      int // 0: M05 compatibility; 1..16: M06 replication.
+	Commit         bool
+	ApplyCapacity  int
+	MachineFactory func() applier.Machine // optional fresh, exclusively owned dependency
 }
 type requestEvent struct {
 	ctx   context.Context
@@ -111,6 +115,7 @@ type Service struct {
 	workers         sync.WaitGroup
 	done            chan struct{}
 	published       atomic.Value
+	application     *applicationRuntime
 }
 type realClock struct {
 	start  time.Time
@@ -129,6 +134,9 @@ func randomDraw(min, max uint64) (uint64, error) {
 }
 
 func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
+	if opt.Commit && opt.BatchSize == 0 {
+		opt.BatchSize = 16
+	}
 	if s == nil {
 		return nil, ErrInput
 	}
@@ -172,6 +180,11 @@ func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
 		}
 	}
 	x.published.Store(core.Status())
+	if err = x.initApplication(opt); err != nil {
+		x.cancel()
+		return nil, err
+	}
+	x.published.Store(core.Status())
 	return x, nil
 }
 func (x *Service) Status() Status { return x.published.Load().(Status) }
@@ -196,6 +209,10 @@ func (x *Service) Start(sender Sender) error {
 		x.clock = &realClock{start: time.Now(), ticker: time.NewTicker(time.Duration(interval) * time.Millisecond)}
 	}
 	x.started = true
+	if x.application != nil {
+		x.application.collecting = true
+		go x.application.collect()
+	}
 	for id, p := range x.peers {
 		x.workers.Add(1)
 		go x.sendWorker(sender, id, p)
@@ -238,6 +255,10 @@ func (x *Service) Handle(ctx context.Context, msg peerprotocol.Message) (peerpro
 		x.mu.Unlock()
 		return peerprotocol.Message{}, ErrClosed
 	}
+	if failure := x.Status().Failure; failure != nil {
+		x.mu.Unlock()
+		return peerprotocol.Message{}, failure
+	}
 	select {
 	case x.events <- e:
 		x.mu.Unlock()
@@ -272,6 +293,10 @@ func (x *Service) AppendLocal(ctx context.Context, kind string, command json.Raw
 	if x.closed || !x.started {
 		x.mu.Unlock()
 		return LocalAppend{}, ErrClosed
+	}
+	if failure := x.Status().Failure; failure != nil {
+		x.mu.Unlock()
+		return LocalAppend{}, failure
 	}
 	select {
 	case x.events <- e:
@@ -336,12 +361,16 @@ func (x *Service) effects(e Effects, err error) (Effects, error) {
 }
 func (x *Service) run() {
 	defer func() {
+		x.mu.Lock()
+		x.closed = true
+		x.mu.Unlock()
 		x.cancel()
 		x.clock.Stop()
 		for _, p := range x.peers {
 			close(p.jobs)
 		}
 		x.workers.Wait()
+		x.finishApplication()
 		x.core.Stop()
 		x.published.Store(x.core.Status())
 		x.mu.Lock()
@@ -356,6 +385,8 @@ func (x *Service) run() {
 		select {
 		case <-x.ctx.Done():
 			return
+		case completion := <-x.completionChannel():
+			x.applyCompleted(completion)
 		case _, ok := <-x.clock.Ticks():
 			if !ok {
 				_, _ = x.core.fail(ErrInput)
@@ -406,14 +437,16 @@ func (x *Service) run() {
 			}
 			r.reply <- result
 		}
+		_ = x.scheduleApply()
+		x.published.Store(x.core.Status())
 		if x.core.Status().Failure != nil {
 			return
 		}
 	}
 }
 
-// Shutdown rejects admission and cancels networking, then waits for the one
-// in-progress storage call. A canceled waiter never closes borrowed storage.
+// Shutdown rejects admission and cancels networking, then waits for storage and
+// the M07 committed application drain. A canceled waiter never closes storage.
 func (x *Service) Shutdown(ctx context.Context) error {
 	x.mu.Lock()
 	if !x.closed {
@@ -423,6 +456,7 @@ func (x *Service) Shutdown(ctx context.Context) error {
 			if x.clock != nil {
 				x.clock.Stop()
 			}
+			x.finishApplication()
 			x.core.Stop()
 			x.published.Store(x.core.Status())
 			close(x.done)
