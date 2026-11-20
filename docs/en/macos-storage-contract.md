@@ -70,3 +70,7 @@ This is not a full generation implementation or recovery/durability acceptance. 
 ## Subsequent M03 completion
 
 20 November 2026: [M03 COMPLETED locally](milestone-m03.md), with synchronous WAL, persistent transition validation, bounded reader/log recovery, explicit bootstrap and fault/process evidence. C-01/C-02 retain their resolved/verified local scope. No machine apply, consensus, full snapshot/rotation or M04 code. Prior partial/proposed statements describe their historical phase; end-to-end/physical durability remains unverified at later gates.
+
+## Repeated-assignment reconfirmation
+
+20 November 2026: [fresh preliminary-scope checks](milestone-m03-preliminary.md) reconfirm C-02 VERIFIED on the same local APFS profile. Source/fixtures unchanged; bounded codec/adapter/M01/M02 and targeted race checks passed. The repeated preliminary prompt does not undo the separately completed M03 or authorize M04.

@@ -77,3 +77,30 @@ Documenti modificati per ciascuna lingua: README.md, acceptance-criteria.md, adr
 ## Completamento M03 successivo
 
 20 novembre 2026: [M03 COMPLETED localmente](milestone-m03.md), con WAL sincrono, validazione transizioni persistenti, reader/recovery log limitati, bootstrap esplicito ed evidenze errore/processo. C-01/C-02 conservano ambito locale risolto/verificato. Nessun apply macchina, consenso, snapshot/rotazione completi o codice M04. Precedenti stati parziali/proposti descrivono la fase storica pertinente; durabilità end-to-end/fisica ancora non verificata ai gate successivi.
+
+## Riconferma dopo incarico preliminare ripetuto — 20 novembre 2026
+
+**GATE C-02 VERIFIED, riconfermato. Stato complessivo M03 corrente ancora COMPLETED per l’[incarico WAL/recovery](milestone-m03.md) autorizzato separatamente.**
+
+Il nuovo allegato ripete l’incarico preliminare: descrive C-02 ancora aperto e richiede soltanto implementazione iniziale isolata. La baseline Git reale pulita d95e4a3 contiene già adattatore verificato e WAL locale successivamente autorizzato/completato. Roadmap approvata corrente e autorizzazione esplicita precedente prevalgono su quella descrizione iniziale superata. Questa riconferma non reimplementa o rimuove componenti, non riporta M03 a parziale e non inizia lavoro successivo. Lo stato preliminare parziale storico sopra resta valido per data/ambito originali; non è lo stato attuale della milestone.
+
+Riviste definizioni originali C-01/C-02, revisione pre-M03, roadmap, contratti storage/canonici, decisioni ADR applicabili e percorsi correnti adattatore/errori/ownership. Confini esistenti ancora validi: formati canonici separati da primitive filesystem e pubblicazione CURRENT; M01/M02 invariati. Nessuna nuova scelta progettuale, formato, dipendenza, test o modifica al codice di produzione necessaria per questo incarico ripetuto.
+
+Verifiche nuove, un run ordinario limitato e un run race mirato, con Go 1.27.4 darwin/arm64 esistente, impostazioni moduli offline e GOMAXPROCS=2:
+
+```sh
+gofmt -l internal
+go vet ./...
+go test -json -p 1 -count=1 -timeout=30s ./internal/storageformat ./internal/storagefs ./internal/statemachine ./internal/applier
+go test -race -p 1 -count=1 -timeout=30s ./internal/storagefs ./internal/applier
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+```
+
+Tutte superate. gofmt senza file elencati; vet senza problemi segnalati. storageformat: 7 test principali/18 sottocasi; storagefs: 13 funzioni incluso harness figlio/16 sottocasi; M01: 12/44; M02: 21/0. Race mirato senza data race segnalate nei percorsi adattatore/applier osservati. Qui non si dichiara nuova misura di copertura o run test WAL; le evidenze M03 finali restano nella relazione separata. Il verificatore aritmetico fixture invariato valida byte/checksum, non esecuzione recovery applicativo.
+
+Evidenze piattaforma nuove: macOS 27.2.1 build 26B131, Go 1.27.4 darwin/arm64, APFS /System/Volumes/Data su /dev/disk3s5; progetto ispezionato in sola lettura e scritture reali limitate a directory temporanee private possedute. File.Sync regolare, probe capacità F_FULLFSYNC esplicito e fsync directory nuovamente riusciti. Test riconfermano esclusione interprocesso, rilascio lock dopo close/arresto forzato figlio, sostituzione CURRENT completa, interruzioni pre/post-rename, errori I/O/close, evidenze di fallimento conservate, cleanup sicuro e Close/Publish serializzati. Nessun nuovo difetto di sicurezza dimostrato: sorgenti lasciati intatti.
+
+Run con piccoli file sintetici, massimo parent più un figlio contemporanei, deadline figli 5 s e package 30 s. Due cutpoint reali nominati di pubblicazione esercitati una volta ordinariamente e una sotto race (quattro interruzioni totali), nel budget preliminare. Nessun I/O massivo, stress, benchmark, riempimento SSD, flush cache, crash OS/interruzione alimentazione, servizio a pagamento, installazione, nuovo hardware o spesa. Nessuna misura RAM/CPU/SSD inventata. Sincronizzazione completata non dimostra sopravvivenza a crash OS o durabilità assoluta power loss; incertezza dopo rename esplicita, nessun rollback introdotto.
+
+Modificate soltanto questa relazione e traduzione, più i due rimandi evidenze del contratto macOS. C-01 resta RESOLVED con fixture invariate. C-02 resta VERIFIED per il profilo locale provato. M03 resta COMPLETED per le precedenti evidenze WAL/recovery indipendenti, non perché questa sola riconferma del gate la completi. M04 non iniziata. Garanzie distribuite, snapshot/compaction generali e guasti fisici conservano i gate originali. Budget aggiuntivo 0 €; nessun commit Git, deploy o implementazione ulteriore. Fermarsi dopo questa riconferma.

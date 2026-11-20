@@ -70,3 +70,7 @@ Non è implementazione generazionale completa o accettazione recovery/durabilit�
 ## Completamento M03 successivo
 
 20 novembre 2026: [M03 COMPLETED localmente](milestone-m03.md), con WAL sincrono, validazione transizioni persistenti, reader/recovery log limitati, bootstrap esplicito ed evidenze errore/processo. C-01/C-02 conservano ambito locale risolto/verificato. Nessun apply macchina, consenso, snapshot/rotazione completi o codice M04. Precedenti stati parziali/proposti descrivono la fase storica pertinente; durabilità end-to-end/fisica ancora non verificata ai gate successivi.
+
+## Riconferma dell’incarico ripetuto
+
+20 novembre 2026: [nuove verifiche nel perimetro preliminare](milestone-m03-preliminary.md) riconfermano C-02 VERIFIED sullo stesso profilo APFS locale. Sorgenti/fixture invariati; superati test limitati codec/adattatore/M01/M02 e race mirato. Il prompt preliminare ripetuto non annulla M03 completata separatamente né autorizza M04.
