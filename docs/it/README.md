@@ -2,15 +2,17 @@
 
 [Indice](README.md) · [English](../en/README.md)
 
-**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — M01/M02/M03 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Come leggere il progetto
 
-M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
+M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 e successive restano da implementare. Specifiche distribuite e comandi di avvio cluster sono ancora proposte; i rapporti datati 18 novembre documentano la fase precedente.
 
-Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02 sono completate; M03 resta subordinata a revisione e gate storage.
+Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02/M03 completate localmente; M04 richiede un nuovo incarico e i propri gate.
 
 ## Specifiche complete
+
+- [M03 completata: WAL locale, recovery ed evidenze](milestone-m03.md)
 
 - [M03 preliminare: C-02 VERIFIED, milestone parziale](milestone-m03-preliminary.md)
 

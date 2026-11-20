@@ -264,3 +264,7 @@ The audit above is a historical record. The [pre-M03 review](pre-m03-review.md) 
 ## I. Preliminary M03 platform evidence
 
 The [limited M03 phase](milestone-m03-preliminary.md) records GATE C-02 VERIFIED for the tested local adapter primitives and preserves the original audit scope: no full durability claim from Sync alone. C-01 schemas/fixtures remain unchanged; stateless byte conformance now runs against them. Full T-013 and later process/snapshot acceptance remain open; M03 PARTIALLY COMPLETED, no later milestone started. Earlier audit/follow-up statuses remain historical.
+
+## Subsequent M03 completion
+
+20 November 2026: [M03 COMPLETED locally](milestone-m03.md), with synchronous WAL, persistent transition validation, bounded reader/log recovery, explicit bootstrap and fault/process evidence. C-01/C-02 retain their resolved/verified local scope. No machine apply, consensus, full snapshot/rotation or M04 code. Prior partial/proposed statements describe their historical phase; end-to-end/physical durability remains unverified at later gates.

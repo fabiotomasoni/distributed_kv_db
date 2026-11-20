@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/architecture.md)
 
-**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — M01/M02/M03 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Confini dei componenti
 
@@ -56,3 +56,7 @@ InstallSnapshot richiede una barriera: fermare nuovo scheduling, drenare o inval
 I package implementati sono internal/statemachine (core sequenziale M01 invariato) e internal/applier (scheduler M02). Il secondo accetta Entry{Index,Command}, restituisce una Future con Outcome{Index,Result} e possiede l’unico chiamante Apply. Produttori concorrenti forniscono indici contigui; nessun buffer di riordino. Scheduled avanza all’ammissione, LastApplied al completamento; il chiamante deve stabilire il commit. La coda contiene per default 64 entry pendenti, configurabili 1..1024, più una chiamata attiva. Submit attende spazio; TrySubmit restituisce ErrFull senza avanzare il cursore.
 
 Shutdown chiude l’ammissione e drena; la cancellazione termina soltanto l’attesa del chiamante dopo l’accettazione. Le Future pubblicano senza richiedere un ricevente. I panic chiudono il worker con esiti espliciti incerto/corrente e abortito/pendenti. Contratti completi di ownership, limiti memoria e lifecycle: [relazione M02](milestone-m02.md). Epoch snapshot, sessioni, decisioni di commit e altri componenti restano progettuali. Il futuro adattatore di 64 completamenti non è implementato qui come canale; le Future evitano di bloccare il worker sulla disponibilità del destinatario.
+
+## Confine storage M03 implementato
+
+[internal/wal ed evidenze](milestone-m03.md) aggiungono un proprietario locale sincronizzato sopra storageformat/storagefs. Append restituisce token generazione/sequence fisica solo dopo Sync; Open ricostruisce metadati log validati e ripara soltanto coda finale incompleta ammissibile. Nessuna dipendenza statemachine/applier o percorso apply alternativo. Il futuro core deve stabilire commit e inviare storage bloccante fuori dal lock eventi. Rotazione snapshot, sessioni, rete e consenso restano previsti.

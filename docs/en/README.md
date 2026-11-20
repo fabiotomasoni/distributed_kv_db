@@ -2,15 +2,17 @@
 
 [Index](README.md) · [Italiano](../it/README.md)
 
-**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03 implemented and checked; distributed specifications remain design work.**
 
 ## How to read the design
 
-M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 and later milestones remain unimplemented. Distributed specifications and cluster startup commands are still proposals; reports dated 18 November document the previous phase.
+M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 is completed at the local WAL/log-recovery boundary: [results](milestone-m03.md). M04 and later milestones remain unimplemented. Distributed specifications and cluster startup commands are still proposals; reports dated 18 November document the previous phase.
 
-Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02 are completed; M03 remains subject to review and storage gates.
+Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02/M03 are completed locally; M04 needs a new assignment and its own gates.
 
 ## Complete specifications
+
+- [M03 completed: local WAL, recovery and evidence](milestone-m03.md)
 
 - [Preliminary M03: C-02 VERIFIED, milestone partial](milestone-m03-preliminary.md)
 

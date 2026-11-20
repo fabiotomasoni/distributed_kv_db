@@ -264,3 +264,7 @@ L’audit sopra è registro storico. La [revisione pre-M03](pre-m03-review.md) r
 ## I. Evidenze piattaforma M03 preliminare
 
 La [fase M03 limitata](milestone-m03-preliminary.md) registra GATE C-02 VERIFIED per le primitive adattatore locali provate e conserva l’ambito originale audit: niente claim durabilità completa da sola Sync. Schemi/fixture C-01 invariati; ora eseguita conformità byte senza stato contro di essi. T-013 completo e accettazione successiva processo/snapshot aperti; M03 PARTIALLY COMPLETED, nessuna milestone successiva iniziata. Stati audit/seguiti precedenti restano storici.
+
+## Completamento M03 successivo
+
+20 novembre 2026: [M03 COMPLETED localmente](milestone-m03.md), con WAL sincrono, validazione transizioni persistenti, reader/recovery log limitati, bootstrap esplicito ed evidenze errore/processo. C-01/C-02 conservano ambito locale risolto/verificato. Nessun apply macchina, consenso, snapshot/rotazione completi o codice M04. Precedenti stati parziali/proposti descrivono la fase storica pertinente; durabilità end-to-end/fisica ancora non verificata ai gate successivi.

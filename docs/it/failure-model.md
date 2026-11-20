@@ -32,3 +32,7 @@ Nella tabella, “GET/write” significa nuove operazioni client linearizzabili.
 ## Distinguere sicurezza e progresso
 
 Un nodo può credersi leader durante una partizione, ma non può confermare nuove operazioni senza quorum. Non sono ammesse due leadership dello stesso termine; leader di termini diversi possono temporaneamente coesistere come convinzione locale. Testare il primo fatto dalle tracce complete, il secondo mediante barriere fallite sul lato isolato. Nessuna deadline autorizza ad applicare una scrittura senza commit.
+
+## Evidenze implementate di guasto storage locale
+
+[M03](milestone-m03.md) verifica write parziali, errori Sync/lettura/close/ispezione, frame finali interrotti, corruzione completa, pubblicazione bootstrap fallita e terminazione processo attorno a write/Sync. Esiti append ignoti restano ignoti; byte completi sopravvissuti recuperabili senza provare acknowledgment precedente. Nessun recovery locale applica entry speculative o usa fallback su corruzione. Osservazioni crash processo/OS vivo, non test crash OS o power loss; scenari distribuiti completi aperti.

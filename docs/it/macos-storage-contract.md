@@ -66,3 +66,7 @@ C-02 è **CONDITIONALLY RESOLVED per la scelta documentata, OPEN per validazione
 [Relazione M03 preliminare](milestone-m03-preliminary.md): GATE C-02 VERIFIED per macOS 27.2.1/26B131, Go 1.27.4 darwin/arm64 su APFS locale /System/Volumes/Data. Riusciti File.Sync, probe capacità F_FULLFSYNC separato e fsync directory; superati lock interprocesso/rilascio close/kill, cutpoint pre/post-rename con riferimenti fixture verificati ed errori I/O/close iniettati. Il contratto candidato di primitive sopra è adottato per questo profilo; barriere non supportate continuano a bloccare.
 
 Non è implementazione generazionale completa o accettazione recovery/durabilità. Conformità byte senza stato copre il sottoinsieme iniziale reader; replay/riparazione fra frame resta M03 T-013, durabilità successi processo M09 T-023, handoff/installazione snapshot M13 T-015/T-016. Claim OS/power loss esclusi. M03 PARTIALLY COMPLETED; nessun lavoro residuo parte automaticamente. I precedenti OPEN/NOT RUN nel documento descrivono il progetto pre-M03, non le evidenze primitive correnti.
+
+## Completamento M03 successivo
+
+20 novembre 2026: [M03 COMPLETED localmente](milestone-m03.md), con WAL sincrono, validazione transizioni persistenti, reader/recovery log limitati, bootstrap esplicito ed evidenze errore/processo. C-01/C-02 conservano ambito locale risolto/verificato. Nessun apply macchina, consenso, snapshot/rotazione completi o codice M04. Precedenti stati parziali/proposti descrivono la fase storica pertinente; durabilità end-to-end/fisica ancora non verificata ai gate successivi.

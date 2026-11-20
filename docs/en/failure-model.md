@@ -32,3 +32,7 @@ In the table, “GET/write” means new linearizable client operations. An alrea
 ## Separate safety and progress
 
 A node may believe it is leader during a partition but cannot acknowledge new operations without a quorum. Two leaders in the same term are forbidden; leaders of different terms may temporarily coexist as local beliefs. Test the first fact through complete traces and the second through failed barriers on the isolated side. No deadline authorizes applying an uncommitted write.
+
+## Implemented local storage fault evidence
+
+[M03](milestone-m03.md) verifies partial writes, Sync/read/close/inspection errors, torn final frames, complete corruption, failed bootstrap publication and process termination around write/Sync. Unknown append outcomes remain unknown; complete surviving bytes can be recovered without proving prior acknowledgment. No local recovery applies speculative entries or falls back on corruption. These are process-crash/live-OS observations, not OS crash or power-loss tests; full distributed scenarios stay open.

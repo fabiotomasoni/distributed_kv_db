@@ -100,3 +100,9 @@ The [macOS contract](macos-storage-contract.md) records File.Sync’s actual Go 
 ## Preliminary implementation boundary
 
 [Phase evidence](milestone-m03-preliminary.md) verifies the C-02 local primitive contract and stateless QWAL/control-file codecs. No full append/replay/generation engine is available. PublishCurrent synchronizes one validated control file; its caller must already have synchronized/validated the referenced generation. A frame checksum or successful fsync is neither proof of legal commit nor full recovery correctness. M03 remains PARTIALLY COMPLETED; retain all later storage/snapshot/durability gates.
+
+## Current local WAL and recovery — M03 completed
+
+[Full local implementation and tests](milestone-m03.md) now provide explicit empty bootstrap, checksummed identity/CURRENT coordination, serial Sync-before-token append and bounded streaming hard-state/log/commit recovery. Ordinary Open selects only CURRENT, checks identity/checkpoint and never falls back. An incomplete final frame after a fully verified initial prefix is truncated and synchronized; any complete corruption/state violation or read error fails closed without repair. Recovered complete non-Sync frames are re-synchronized before use.
+
+Recovery does not apply KV commands; callers must later coordinate commit proof, sessions/noops and the applier. M03 supports only the mandatory empty checkpoint; nonzero snapshot bases fail explicitly pending M13. AppendProposal reserves 512 KiB inside the 8 MiB WAL cap; Append can use it for replication/control. All node files count toward 32 MiB with 64 KiB growth margin. No compaction/delete-for-space: reject at the cap. Full server crash recovery and durability remain M09, general snapshots/rotation M13. Earlier design/preliminary statuses in this document are historical.

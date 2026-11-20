@@ -61,3 +61,7 @@ C-02 is CONDITIONALLY RESOLVED for documented choices and OPEN for implementatio
 ## Preliminary M03 validation
 
 [Evidence](../milestone-m03-preliminary.md): GATE C-02 VERIFIED for the tested local Darwin/APFS primitive choices. Adopt stable flock ownership, checked File.Sync/directory fsync and same-parent CURRENT replacement with explicit uncertain failures. The overall generation/WAL strategy remains Proposed until its full phase tests; this does not accept unimplemented recovery, snapshots or OS/power-loss guarantees. M03 remains PARTIALLY COMPLETED, pending a separate assignment for its remaining work.
+
+## Local M03 implementation decision — 20 November 2026
+
+[M03 local WAL](../milestone-m03.md) adopts this ADR for initial-generation framed append, hard-state/log/commit recovery, lock and explicit bootstrap. Local T-013 evidence passes; generation/sequence tokens follow the existing contract. The same File.Sync/directory barriers and PublishCurrent are reused. The complete snapshot/rotation portion remains Proposed until M13, end-to-end durability until M09; no OS/power-loss guarantee is accepted. No new persistence format or redundant applied cursor added.

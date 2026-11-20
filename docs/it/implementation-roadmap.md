@@ -2,19 +2,19 @@
 
 [Indice](README.md) · [English](../en/implementation-roadmap.md)
 
-**Aggiornamento: 19 novembre 2026 — M01/M02 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — M01/M02/M03 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Capacità e dipendenze
 
 Piano indicativo 24 settimane (~6 mesi), 6–8 ore/settimana per uno studente individuale, capacità disponibile di 144–192 ore, che non è una stima validata dello sforzo necessario; è una stima incerta, non un impegno. Quattro mesi richiedono più ore o riduzione degli obiettivi opzionali, mai eliminazione dei gate di correttezza. Recuperare ritardi prima tagliando ottimizzazioni, poi estendendo calendario. Nessuna data di completamento è garantita.
 
-M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **PARTIALLY COMPLETED**, limitata a codec preliminari/validazione piattaforma: [relazione di fase](milestone-m03-preliminary.md). M04–M16 sono **Not started**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
+M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04–M16 sono **Not started**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
 
 | ID / obiettivo | Prerequisiti | Settimane | Progettazione, implementazione e deliverable | Test / completamento | Rischio | Complessità |
 |---|---|---|---|---|---|---|
 | M01 — Macchina a stati KV (**COMPLETED**) | — | 1–2 | Mappa, semantica e fixture; tabella operazioni/quote. | T-008/T-009 nel sottoinsieme di fase sotto definito; evidenze salvate. | Semantica ambigua | Bassa |
 | M02 — Ownership e concorrenza (**COMPLETED**) | M01 | 3 | Eventi, applier e backpressure; contratto di ownership. | T-008/T-018 nel sottoinsieme di fase sotto definito; evidenze salvate. | Data race | Media |
-| M03 — Persistenza locale (**PARTIALLY COMPLETED**) | M01 | 4–5 | Frame, hard state e lock; specifica binaria e cutpoint. | T-013 nel sottoinsieme di fase sotto definito; evidenze salvate. | Sync macOS | Alta |
+| M03 — Persistenza locale (**COMPLETED**) | M01 | 4–5 | Frame, hard state e lock; specifica binaria e cutpoint. | T-013 nel sottoinsieme di fase sotto definito; evidenze salvate. | Sync macOS | Alta |
 | M04 — RPC e configurazione | M02,M03 | 6 | Envelope e validazione; fixture configurazione canonica. | T-001/T-002/T-003/T-029 nel sottoinsieme di fase sotto definito; evidenze salvate. | Parsing e identità | Media |
 | M05 — Leader election | M03,M04 | 7–8 | Timer e voto persistente; simulatore elettorale. | T-004/T-005 nel sottoinsieme di fase sotto definito; evidenze salvate. | Timer resettati male | Alta |
 | M06 — Replica log | M05 | 9 | AppendEntries e conflitti; tracce log divergenti. | T-006 nel sottoinsieme di fase sotto definito; evidenze salvate. | Troncamento errato | Alta |
@@ -59,3 +59,7 @@ M12 completa fault injection, non ne avvia le fondamenta: introdurre fake clock 
 ## Esito M03 preliminare
 
 [Evidenze locali](milestone-m03-preliminary.md): GATE C-02 VERIFIED per le primitive Darwin/APFS provate; M03 PARTIALLY COMPLETED. Passano conformità senza stato frame/manifest/entry-digest e test isolati lock/barriere/pubblicazione. Nessun writer WAL/motore recovery completo implementato. Un nuovo incarico potrà autorizzare lavoro residuo WAL/hard-state/bootstrap limitato e T-013; milestone successive e accettazione durabilità completa restano bloccate. Fermarsi a questa fase.
+
+## Esito M03 locale finale — 20 novembre 2026
+
+[M03 COMPLETED](milestone-m03.md): WAL con frame, validazione persistente hard-state/log/commit, recovery streaming, bootstrap esplicito, CURRENT autorevole, quote/riserve ed evidenze errore/processo. C-01/C-02 conservati. Recovery espone soltanto stato log; non applica comandi né stabilisce consenso. Gate M09 server/durabilità e M13 snapshot/compaction aperti. Prerequisiti storage M04 pronti per revisione, ma M04 Not started e richiede nuovo incarico; precedenti stati parziali sono storici.

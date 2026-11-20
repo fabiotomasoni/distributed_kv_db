@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/canonical-formats.md)
 
-**19 novembre 2026 — baseline v1 normativa; codec preliminari senza stato implementati, WAL/recovery completi non implementati.**
+**19 novembre 2026 — baseline v1 normativa; WAL/recovery log locale implementati; snapshot generali e integrazione distribuita restano futuri.**
 
 ## Confine e compatibilità
 
@@ -104,3 +104,7 @@ Il progetto storage C-01 è RESOLVED quando: tutte le regole byte/tipi/union/ver
 ## Sottoinsieme preliminare implementato
 
 [Relazione di fase](milestone-m03-preliminary.md): internal/storageformat implementa ora encode/decode esatto frame QWAL, validazione entry/digest tipizzato e seal/validazione canonici CURRENT/IDENTITY. Byte fixture approvati invariati. DecodeFrame è senza stato: non autorizza troncamento, non valida commit/voti fra frame né seleziona generazioni. Codec snapshot/risultati/sessioni e conformità recovery completa restano futuri. Progetto C-01 risolto; T-013 M03 completo non chiuso.
+
+## Conformità M03 ora implementata
+
+[Evidenze M03 finali](milestone-m03.md): esercitati tutti i 13 casi recovery di immagini byte e le cinque aspettative namespace. Transazioni tipizzate decodificate riusano il validatore canonico esatto; nessuno schema o byte fixture approvato cambiato. EmptySnapshot supporta solo immagine bootstrap (0,0) obbligatoria. FrameSize consente allocazione streaming limitata e rifiuta magic/versione/kind/lunghezza parziali contraddetti prima di trattare coda finale come incompleta. WAL valida atomicamente prima transazione, continuità fisica, voto/termine persistenti, suffisso e commit; solo incompletezza EOF finale valida può essere troncata e sincronizzata. Applicazione snapshot/risultati/sessioni generale resta ai gate successivi.

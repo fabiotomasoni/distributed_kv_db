@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/architecture.md)
 
-**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03 implemented and checked; distributed specifications remain design work.**
 
 ## Component boundaries
 
@@ -56,3 +56,7 @@ InstallSnapshot requires a barrier: stop new scheduling, drain or coordinately i
 The implemented packages are internal/statemachine (unchanged sequential M01 core) and internal/applier (M02 scheduler). The latter accepts Entry{Index,Command}, returns a Future with Outcome{Index,Result}, and owns the only Apply caller. Concurrent producers supply contiguous indices; no reorder buffer. Scheduled advances on admission, LastApplied on completion; the caller must establish commit. The queue holds 64 pending entries by default, configurable 1..1024, plus one active call. Submit waits for space; TrySubmit returns ErrFull without advancing the cursor.
 
 Shutdown closes admission and drains; cancellation only ends a caller’s wait after acceptance. Futures publish without requiring a receiver. Panics fail closed with explicit uncertain/current and aborted/pending outcomes. Full ownership, memory bounds and lifecycle contracts: [M02 report](milestone-m02.md). Snapshot epochs, sessions, commit decisions and all other components remain design work. The future 64-completion adapter is not implemented as a channel here; futures avoid blocking the worker on recipient availability.
+
+## Implemented M03 storage boundary
+
+[internal/wal and evidence](milestone-m03.md) add a single synchronized local storage owner above storageformat/storagefs. Append returns a generation/physical-sequence token only after Sync; Open reconstructs validated log metadata and repairs only an eligible incomplete final tail. No dependency on statemachine/applier and no alternate apply path. A future core must establish commit and dispatch blocking storage outside its event lock. Snapshot rotation, sessions, networking and consensus remain planned.

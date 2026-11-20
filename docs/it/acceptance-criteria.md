@@ -64,3 +64,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Evidenze successive M03 preliminare
 
 [Relazione di fase](milestone-m03-preliminary.md): GATE C-02 VERIFIED per primitive locali, M03 PARTIALLY COMPLETED. Passano 7 test storageformat/18 sottocasi e 13 funzioni test storagefs/16 sottocasi; superati race mirato e regressioni M01/M02 invariate. Ambito codec: frame/entry/digest/manifest senza stato; nessun motore WAL/replay o chiusura completa AC-013/AC-014/AC-023. Gate snapshot e successivi aperti. Cifre/stati precedenti descrivono la fase storica pertinente.
+
+## Chiusura M03 locale
+
+[Evidenze finali](milestone-m03.md): M03 COMPLETED; T-013/parte storage AC-013 locali Passed. WAL con 17 funzioni principali/25 sottocasi, 82,9% statement coverage locale; passano regressioni M01/M02, codec/adattatore e race mirato WAL/adattatore/applier. Tutte le 18 aspettative recovery canoniche coperte al confine byte/namespace pertinente. Integrazione risposte Raft FR-013 completa, restart server AC-014 e AC-023 end-to-end dipendono da milestone successive; accettazione snapshot AC-015/AC-016 a M13. Copertura/race/test processo non certificano resilienza a guasti fisici. Nessun ID requisito/AC primario o gate distribuito finale rimosso.

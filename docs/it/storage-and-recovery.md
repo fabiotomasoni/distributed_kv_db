@@ -100,3 +100,9 @@ Il [contratto macOS](macos-storage-contract.md) registra il percorso Darwin effe
 ## Confine dell’implementazione preliminare
 
 Le [evidenze di fase](milestone-m03-preliminary.md) verificano contratto primitive locali C-02 e codec senza stato QWAL/file controllo. Nessun motore completo append/replay/generazione disponibile. PublishCurrent sincronizza un file controllo validato; il chiamante deve già aver sincronizzato/validato la generazione referenziata. Checksum frame o fsync riuscito non provano commit legale o correttezza recovery completa. M03 resta PARTIALLY COMPLETED; conservare tutti i gate storage/snapshot/durabilità successivi.
+
+## WAL e recovery locali correnti — M03 completata
+
+[L’implementazione locale completa con test](milestone-m03.md) offre ora bootstrap vuoto esplicito, coordinamento identità/CURRENT con checksum, append seriale Sync-prima-del-token e recovery streaming limitato hard-state/log/commit. Open ordinaria seleziona solo CURRENT, controlla identità/checkpoint e non usa fallback. Frame finale incompleto dopo prefisso iniziale interamente verificato troncato e sincronizzato; corruzione/violazione stato completa o errore lettura bloccano senza repair. Frame completi non-Sync recuperati risincronizzati prima dell’uso.
+
+Recovery non applica comandi KV; chiamanti dovranno coordinare prova commit, sessioni/noop e applier. M03 supporta solo checkpoint vuoto obbligatorio; basi snapshot nonzero rifiutate esplicitamente fino a M13. AppendProposal riserva 512 KiB nel cap WAL 8 MiB; Append può usarli per replica/controllo. Tutti i file nodo conteggiati nei 32 MiB con margine crescita 64 KiB. Niente compaction/eliminazione per spazio: rifiutare al cap. Crash recovery/durabilità server completa resta M09, snapshot/rotazione generali M13. Precedenti stati progettuali/preliminari nel documento sono storici.

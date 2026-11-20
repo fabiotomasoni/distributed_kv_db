@@ -1,10 +1,10 @@
 # QuorumKV
 
-A distributed key-value database project in Go. Its deterministic local state machine and ordered applier are implemented; Raft, networking and the persistent database engine remain planned.
+A distributed key-value database project in Go. Its deterministic local state machine, ordered applier and local WAL/log recovery are implemented; Raft and networking remain planned.
 
-Un progetto di database key-value distribuito in Go. La macchina a stati locale deterministica e l’applier ordinato sono implementati; Raft, rete e il motore persistente restano previsti.
+Un progetto di database key-value distribuito in Go. Macchina a stati locale deterministica, applier ordinato e WAL/recovery log locale sono implementati; Raft e rete restano previsti.
 
-**Status / Stato — 19 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
+**Status / Stato — 20 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. **M03 COMPLETED**: local WAL and log recovery verified / WAL e recovery log locali verificati. Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
 
 Planned distributed architecture / Architettura distribuita prevista:
 
@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [M03 completata: WAL e recovery](docs/it/milestone-m03.md) | [M03 completed: WAL and recovery](docs/en/milestone-m03.md) |
 | [M03 preliminare: gate C-02 verificato](docs/it/milestone-m03-preliminary.md) | [Preliminary M03: C-02 verified](docs/en/milestone-m03-preliminary.md) |
 | [Revisione pre-M03: readiness condizionata](docs/it/pre-m03-review.md) | [Pre-M03 review: conditional readiness](docs/en/pre-m03-review.md) |
 | [M02: applier, test e risultati](docs/it/milestone-m02.md) | [M02: applier, tests and results](docs/en/milestone-m02.md) |
@@ -59,7 +60,7 @@ Go 1.27.4; no running cluster is required / non serve un cluster avviato.
 ```sh
 go test -timeout=30s ./...
 go vet ./...
-go test -race -timeout=30s ./internal/applier
+go test -race -timeout=30s ./internal/wal ./internal/storagefs ./internal/applier
 ```
 
-M03: preliminary codecs and local filesystem primitives verified; milestone partially completed / codec preliminari e primitive filesystem locali verificati; milestone parzialmente completata.
+M03 completed locally; M04 not started / M03 completata localmente; M04 non iniziata.

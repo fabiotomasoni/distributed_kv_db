@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/traceability.md)
 
-**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03 implemented and checked; distributed specifications remain design work.**
 
 ## Normative matrix
 
@@ -62,3 +62,7 @@ C-01/OQ-05: [fixed schemas and static vectors](canonical-formats.md), design pre
 ## Subsequent preliminary M03 evidence
 
 [Phase report](milestone-m03-preliminary.md): GATE C-02 VERIFIED for local primitives, M03 PARTIALLY COMPLETED. 7 storageformat tests/18 subcases and 13 storagefs test functions/16 subcases pass; targeted race and unchanged M01/M02 regressions pass. Codec scope is stateless frames/entries/digests/manifests; no WAL/replay engine or complete AC-013/AC-014/AC-023 closure. Full snapshot and later gates remain open. Earlier figures/statuses describe their historical phase.
+
+## Local M03 closure
+
+[Final evidence](milestone-m03.md): M03 COMPLETED; local T-013/storage AC-013 portion Passed. WAL has 17 top-level functions/25 subcases, 82.9% local statement coverage; M01/M02, codec/adapter regressions and targeted WAL/adapter/applier race checks pass. All 18 canonical recovery expectations covered at the appropriate byte/namespace boundary. Full FR-013 Raft-response integration, AC-014 server restart and AC-023 end-to-end remain dependent on later milestones; AC-015/AC-016 snapshot acceptance is M13. Coverage/race/process tests do not certify physical-fault resilience. No primary requirement/AC ID or final distributed gate removed.
