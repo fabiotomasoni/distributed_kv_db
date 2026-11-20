@@ -1,8 +1,10 @@
 package wal
 
 import (
+	"encoding/binary"
 	"errors"
 	"io"
+	"math"
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/storageformat"
 )
@@ -36,6 +38,13 @@ func Replay(r io.Reader, baseIndex, baseTerm uint64) (Recovery, error) {
 			return Recovery{}, err
 		}
 		size, herr := storageformat.FrameSize(header[:n])
+		// A fully available sequence already contradicts a torn-write origin
+		// when it is not the next one, even if CRC/payload bytes are missing.
+		if n >= 20 && (herr == nil || errors.Is(herr, storageformat.ErrIncomplete)) {
+			if s.Sequence == math.MaxUint64 || binary.BigEndian.Uint64(header[12:20]) != s.Sequence+1 {
+				return Recovery{}, errors.Join(ErrCorrupt, ErrTransition)
+			}
+		}
 		if herr != nil {
 			if errors.Is(herr, storageformat.ErrIncomplete) && err == io.ErrUnexpectedEOF && s.Sequence > 0 {
 				return Recovery{State: s, ValidBytes: offset, TailBytes: int64(n)}, nil

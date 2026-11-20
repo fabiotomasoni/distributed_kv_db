@@ -66,3 +66,7 @@ C-01/OQ-05: [fixed schemas and static vectors](canonical-formats.md), design pre
 ## Local M03 closure
 
 [Final evidence](milestone-m03.md): M03 COMPLETED; local T-013/storage AC-013 portion Passed. WAL has 17 top-level functions/25 subcases, 82.9% local statement coverage; M01/M02, codec/adapter regressions and targeted WAL/adapter/applier race checks pass. All 18 canonical recovery expectations covered at the appropriate byte/namespace boundary. Full FR-013 Raft-response integration, AC-014 server restart and AC-023 end-to-end remain dependent on later milestones; AC-015/AC-016 snapshot acceptance is M13. Coverage/race/process tests do not certify physical-fault resilience. No primary requirement/AC ID or final distributed gate removed.
+
+## M04 implementation mapping
+
+FR-001 → internal/node + wal identity/LOCK → AC-001/T-001. FR-002 → internal/config + configuration-v1.json + peer envelope → AC-002/T-002. FR-003 → internal/strictjson + peerprotocol + transport + peer-v1.json → AC-003/T-003. NFR-009 → native darwin/arm64 build and bounded suite → AC-029/T-029. [M04 evidence](milestone-m04.md) records results/limits; no later requirement is closed by these tests.

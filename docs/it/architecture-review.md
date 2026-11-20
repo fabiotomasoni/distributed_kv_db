@@ -268,3 +268,7 @@ La [fase M03 limitata](milestone-m03-preliminary.md) registra GATE C-02 VERIFIED
 ## Completamento M03 successivo
 
 20 novembre 2026: [M03 COMPLETED localmente](milestone-m03.md), con WAL sincrono, validazione transizioni persistenti, reader/recovery log limitati, bootstrap esplicito ed evidenze errore/processo. C-01/C-02 conservano ambito locale risolto/verificato. Nessun apply macchina, consenso, snapshot/rotazione completi o codice M04. Precedenti stati parziali/proposti descrivono la fase storica pertinente; durabilità end-to-end/fisica ancora non verificata ai gate successivi.
+
+## Follow-up M04 attuale — 20 novembre 2026
+
+[M04 COMPLETED](milestone-m04.md) soddisfa l’obbligo residuo fixture configurazione/protocollo M04 di C-01 senza modificare formati storage. OpenAPI resta dovuta prima della stabilità M08; C-03 conserva i gate di accettazione originali. C-02 mantiene perimetro locale Darwin/APFS verificato e limiti guasti fisici. Una lacuna riprodotta nella sequenza coda incompleta M03 è stata corretta minimamente/testata prima dell’integrazione M04. Le precedenti dichiarazioni non iniziata sopra sono storiche; M05 resta non iniziata.

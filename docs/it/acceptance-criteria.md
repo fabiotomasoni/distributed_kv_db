@@ -68,3 +68,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Chiusura M03 locale
 
 [Evidenze finali](milestone-m03.md): M03 COMPLETED; T-013/parte storage AC-013 locali Passed. WAL con 17 funzioni principali/25 sottocasi, 82,9% statement coverage locale; passano regressioni M01/M02, codec/adattatore e race mirato WAL/adattatore/applier. Tutte le 18 aspettative recovery canoniche coperte al confine byte/namespace pertinente. Integrazione risposte Raft FR-013 completa, restart server AC-014 e AC-023 end-to-end dipendono da milestone successive; accettazione snapshot AC-015/AC-016 a M13. Copertura/race/test processo non certificano resilienza a guasti fisici. Nessun ID requisito/AC primario o gate distribuito finale rimosso.
+
+## Evidenze accettazione M04
+
+[M04 COMPLETED](milestone-m04.md): AC-001/AC-002/AC-003/AC-029 superati per FR-001/FR-002/FR-003/NFR-009 nel sottoinsieme ufficiale di fase. Evidenze: tre avvii libreria isolati, errore lock/manifest prima del bind, hash configurazione/fixture protocollo esatti, messaggi malformati/eccessivi senza consegna processor, scambio locale limitato e build/test ARM64. UX exit code CLI runtime e successivi criteri consenso/client/durabilità non dichiarati. Corretta regressione corruzione coda M03 e superati test componenti precedenti.

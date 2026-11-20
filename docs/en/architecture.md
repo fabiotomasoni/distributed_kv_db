@@ -60,3 +60,7 @@ Shutdown closes admission and drains; cancellation only ends a caller’s wait a
 ## Implemented M03 storage boundary
 
 [internal/wal and evidence](milestone-m03.md) add a single synchronized local storage owner above storageformat/storagefs. Append returns a generation/physical-sequence token only after Sync; Open reconstructs validated log metadata and repairs only an eligible incomplete final tail. No dependency on statemachine/applier and no alternate apply path. A future core must establish commit and dispatch blocking storage outside its event lock. Snapshot rotation, sessions, networking and consensus remain planned.
+
+## M04 component boundary
+
+Implemented [interfaces and ownership](milestone-m04.md): node → config/transport/wal, transport → peerprotocol/config, peerprotocol → config/strictjson/storageformat. Immutable configuration and owned message bytes; storage identity and LOCK precede bind, canceled/drained peer work precedes WAL close. No dependency on statemachine/applier from peer handlers; no recovered entry is automatically applied. Future Raft core owns term/vote/log decisions and schedules blocking storage outside its critical section.

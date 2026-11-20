@@ -12,9 +12,9 @@ Go and the standard library suffice for runtime; the toolchain has a [BSD licens
 
 Every new dependency requires an ADR: concrete need, standard-library alternative, pinned version, license, maintainer activity, known vulnerabilities, ARM64 compatibility without extra toolchains, RAM/disk costs and offline acquisition/cache procedure. Never add a package merely because production projects commonly use it.
 
-## Proposed configuration
+## Validated configuration schema
 
-No binary or operational config file is included. This is an n1 configuration proposal; n2/n3 change node_id, data_dir and bind addresses according to [networking](network-protocol.md). Shared fields remain identical. config_hash derives from cluster_id, the member list sorted by ID and replicated quotas; it excludes local data_dir and binds. M04 must fix canonical encoding as a shared fixture.
+No node binary is included. This n1 example conforms to the implemented schema; n2/n3 change node_id, data_dir and bind addresses according to [networking](network-protocol.md). Shared fields remain identical. config_hash derives from cluster_id, the member list sorted by ID and replicated quotas; it excludes local data_dir and binds. M04 fixes the exact canonical encoding in the shared fixture: [contract](configuration.md).
 
 ```json
 {"config_version":1,"cluster_id":"11111111111111111111111111111111","node_id":"n1","client_addr":"127.0.0.1:7401","peer_addr":"127.0.0.1:7501","data_dir":".local/n1","members":[{"id":"n1","client":"127.0.0.1:7401","peer":"127.0.0.1:7501"},{"id":"n2","client":"127.0.0.1:7402","peer":"127.0.0.1:7502"},{"id":"n3","client":"127.0.0.1:7403","peer":"127.0.0.1:7503"}],"max_logical_bytes":4194304,"max_keys":10000,"max_sessions":1024,"heartbeat_ms":100,"election_min_ms":600,"election_max_ms":1000}
@@ -56,3 +56,7 @@ Keep `.local/` out of future version control; use synthetic data only. Manual ba
 ## Checks now available for M01/M02
 
 go.mod, internal/statemachine and internal/applier now exist; Go 1.27.4 darwin/arm64 was actually used. With that toolchain installed, go test -timeout=30s ./... and go vet ./... run from the root without services or external dependencies. This session used a temporary /tmp copy with a verified official checksum, not a global installation: [details and reproduction](milestone-m01.md). Node CLI/configuration examples remain proposals. M02 is completed; run go test -race -p 1 -count=1 -timeout=30s ./internal/applier with CGO_ENABLED=1 and the existing C compiler. See [M02 commands and results](milestone-m02.md).
+
+## M04 configuration and local verification
+
+The configuration schema is now implemented in [config.Parse](configuration.md), with canonical fixtures and bounded loopback tests. Node Start is a library, not the future qkv-node CLI; client listeners/commands above remain proposals. Reproduce M04 with the [report commands](milestone-m04.md), offline caches and temporary OS-assigned loopback ports. Loopback access must be allowed by the local execution policy; external access is unnecessary. M01–M04 are completed locally, M05 not started.

@@ -2,11 +2,11 @@
 
 [Indice](README.md) · [English](../en/network-protocol.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**20 novembre 2026 — trasporto, envelope e validazione schemi implementati/verificati in M04; effetti consenso e snapshot restano progettuali.**
 
 ## Trasporto e indirizzi
 
-Proposta v1: HTTP/1.1 persistente su TCP, JSON UTF-8, libreria standard `net/http` e `encoding/json`. Rispetto a RPC binario: più byte e parsing, ma ispezionabilità e nessun generatore o dipendenza. TCP non elimina timeout, duplicazione di tentativi o risposte obsolete. No TLS nel modello loopback fidato, no compressione, no proxy ambientale per connessioni peer.
+Trasporto implementato v1: HTTP/1.1 persistente su TCP, JSON UTF-8, libreria standard `net/http` e `encoding/json`. Rispetto a RPC binario: più byte e parsing, ma ispezionabilità e nessun generatore o dipendenza. TCP non elimina timeout, duplicazione di tentativi o risposte obsolete. No TLS nel modello loopback fidato, no compressione, no proxy ambientale per connessioni peer.
 
 | Nodo | API client | RPC peer | Directory proposta |
 |---|---|---|---|
@@ -66,4 +66,8 @@ Usare numeri conservati senza conversione float, validare lessico e range di seq
 
 ## Proiezione canonica entry
 
-Il [formato storage](canonical-formats.md) fissa campi kind/command annidati esatti e dimensione entry canonica, separati dagli envelope HTTP. noop omette command; read contiene soltanto key. Ricostruire canonicamente le entry validate per persistenza; copertura fixture protocollo/configurazione ancora dovuta a M04.
+Il [formato storage](canonical-formats.md) fissa campi kind/command annidati esatti e dimensione entry canonica, separati dagli envelope HTTP. noop omette command; read contiene soltanto key. Ricostruire canonicamente le entry validate per persistenza; copertura fixture protocollo/configurazione implementata e verificata in M04.
+
+## Confine implementativo M04 e fixture
+
+Il livello trasporto/envelope prima proposto è ora implementato: [relazione M04](milestone-m04.md), [configurazione statica](configuration.md), [fixture RPC esatte](../fixtures/peer-v1.json). Tutti e tre gli schemi vengono controllati, senza implementare voto, replica o staging/installazione snapshot. Un tentativo, admission stesso peer posseduta dal chiamante, dial 100 ms/totale uscita 300 ms, header 500 ms, handler/read/write/idle ingresso 1 s, due socket nel pool per peer e 16 socket accettati. Processor nil dà 503; le callback devono rispettare cancellazione. rpc_id usa 1–128 lettere/cifre ASCII o -_.:, unico per responsabilità chiamante/processo. Richiesti Host configurato/HTTP1.1/POST/JSON; schema invalido 400, identità 409, dimensione 413, media 415, percorso 404, metodo 405. Parsing rigoroso e verifiche byte fixture superati. Retry/backoff, effetti termine/generazione leader, stato offset/ritrasmissione snapshot e decisioni positive durevoli restano al core/integrazione futuri.

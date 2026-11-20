@@ -1,10 +1,10 @@
 # QuorumKV
 
-A distributed key-value database project in Go. Its deterministic local state machine, ordered applier and local WAL/log recovery are implemented; Raft and networking remain planned.
+A distributed key-value database project in Go. Its deterministic local state machine, ordered applier, local WAL/log recovery and validated loopback RPC/configuration are implemented. Raft remains planned.
 
-Un progetto di database key-value distribuito in Go. Macchina a stati locale deterministica, applier ordinato e WAL/recovery log locale sono implementati; Raft e rete restano previsti.
+Un progetto di database key-value distribuito in Go. Sono implementati macchina a stati locale deterministica, applier ordinato, WAL/recovery log locale e RPC loopback/configurazione validati. Raft resta previsto.
 
-**Status / Stato — 20 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. **M03 COMPLETED**: local WAL and log recovery verified / WAL e recovery log locali verificati. Distributed guarantees and a running server are not available / garanzie distribuite e server utilizzabile non disponibili.
+**Status / Stato — 20 November / novembre 2026:** **M01 COMPLETED**. Local PUT/GET/DELETE/CAS and quota tests pass / operazioni locali e test quote superati. **M02 COMPLETED**: ordered applier, bounded queue and worker lifecycle verified / applier ordinato, coda limitata e lifecycle worker verificati. **M03 COMPLETED**: local WAL and log recovery verified / WAL e recovery log locali verificati. **M04 COMPLETED**: validated peer RPC/configuration and storage-first startup / RPC peer, configurazione e avvio dopo validazione storage verificati. Distributed guarantees and a usable database server are not available / garanzie distribuite e server utilizzabile non disponibili.
 
 Planned distributed architecture / Architettura distribuita prevista:
 
@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [M04 completata: RPC e configurazione](docs/it/milestone-m04.md) | [M04 completed: RPC and configuration](docs/en/milestone-m04.md) |
 | [M03 completata: WAL e recovery](docs/it/milestone-m03.md) | [M03 completed: WAL and recovery](docs/en/milestone-m03.md) |
 | [M03 preliminare: gate C-02 verificato](docs/it/milestone-m03-preliminary.md) | [Preliminary M03: C-02 verified](docs/en/milestone-m03-preliminary.md) |
 | [Revisione pre-M03: readiness condizionata](docs/it/pre-m03-review.md) | [Pre-M03 review: conditional readiness](docs/en/pre-m03-review.md) |

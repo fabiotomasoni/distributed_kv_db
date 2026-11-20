@@ -47,3 +47,7 @@ M04/M14: verify configuration and local failover. If gates fail, update or super
 ## References
 
 [Related specification](../scope.md); [sources REF-01/02](../references.md); [roadmap](../implementation-roadmap.md).
+
+## M04 implementation evidence — 20 November 2026
+
+[M04](../milestone-m04.md) implements this decision through immutable [configuration/hash](../configuration.md), strict protocol fixtures and bounded standard-library loopback HTTP. Storage identity/LOCK precede production bind; shutdown drains before release. No DNS/proxy/redirect/compression or external dependency. One outgoing RPC per peer, bounded sockets/deadlines. Callback decisions and future Raft timing/replication remain outside M04. The original design rationale and trusted-loopback limitations remain unchanged.

@@ -6,7 +6,7 @@
 
 ## Confine e compatibilità
 
-C-01 richiede schema byte-per-byte, kind/nullabilità, bootstrap, checksum e fixture di recovery prima di fissare il codice WAL/snapshot M03. Questo documento fissa quel sottoinsieme storage. Fixture configurazione/protocollo restano obblighi M04; OpenAPI resta M08. [Vettori statici](../fixtures/canonical-v1.json) e [verificatore aritmetico](../fixtures/verify_canonical_v1.py) specificano byte, non un WAL funzionante. [Revisione e decisione sui gate](pre-m03-review.md).
+C-01 richiede schema byte-per-byte, kind/nullabilità, bootstrap, checksum e fixture di recovery prima di fissare il codice WAL/snapshot M03. Questo documento fissa quel sottoinsieme storage. Fixture configurazione/protocollo ora implementate e verificate in [M04](milestone-m04.md), con [hash configurazione](configuration.md) esatto; OpenAPI resta M08. [Vettori statici](../fixtures/canonical-v1.json) e [verificatore aritmetico](../fixtures/verify_canonical_v1.py) specificano byte, non un WAL funzionante. [Revisione e decisione sui gate](pre-m03-review.md).
 
 Command/Result M01 sono valori Go locali senza rappresentazione serializzata. M02 accetta soltanto comandi KV indicizzati; nessuno dei due package acquisisce qui sessioni, gestione noop o persistenza. Il futuro adattatore di replica dovrà mappare read su get M01, trattare noop senza mutazione KV avanzando il confine apply globale e coordinare atomicamente le sessioni. Non dovrà inviare un opcode noop sconosciuto a M01 o saltarne l'indice globale. Tale integrazione resta futura.
 

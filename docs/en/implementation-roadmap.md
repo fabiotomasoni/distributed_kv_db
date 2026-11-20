@@ -2,20 +2,20 @@
 
 [Index](README.md) · [Italiano](../it/implementation-roadmap.md)
 
-**Updated: 20 November 2026 — local M01/M02/M03 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03/M04 implemented and checked; distributed specifications remain design work.**
 
 ## Capacity and dependencies
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
 | M01 — KV state machine (**COMPLETED**) | — | 1–2 | Map, semantics and fixtures; operation/quota table. | T-008/T-009 within the phase subset defined below; evidence saved. | ambiguous semantics | Low |
 | M02 — Ownership and concurrency (**COMPLETED**) | M01 | 3 | Events, applier and backpressure; ownership contract. | T-008/T-018 within the phase subset defined below; evidence saved. | data races | Medium |
 | M03 — Local persistence (**COMPLETED**) | M01 | 4–5 | Frames, hard state and lock; binary specification and cutpoints. | T-013 within the phase subset defined below; evidence saved. | macOS Sync | High |
-| M04 — RPC and configuration | M02,M03 | 6 | Envelope and validation; canonical configuration fixtures. | T-001/T-002/T-003/T-029 within the phase subset defined below; evidence saved. | parsing and identity | Medium |
+| M04 — RPC and configuration (**COMPLETED**) | M02,M03 | 6 | Envelope and validation; canonical configuration fixtures. | T-001/T-002/T-003/T-029 within the phase subset defined below; evidence saved. | parsing and identity | Medium |
 | M05 — Leader election | M03,M04 | 7–8 | Timers and persistent votes; election simulator. | T-004/T-005 within the phase subset defined below; evidence saved. | incorrect timer resets | High |
 | M06 — Log replication | M05 | 9 | AppendEntries and conflicts; divergent-log traces. | T-006 within the phase subset defined below; evidence saved. | incorrect truncation | High |
 | M07 — Distributed commit | M06 | 10 | Current-term rule and apply; commit traces. | T-007/T-008 within the phase subset defined below; evidence saved. | old-term commit | High |
@@ -62,4 +62,8 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 
 ## Final local M03 outcome — 20 November 2026
 
-[M03 COMPLETED](milestone-m03.md): framed WAL, persistent hard-state/log/commit validation, streaming recovery, explicit bootstrap, authoritative CURRENT, quota/reserve enforcement and fault/process evidence. C-01/C-02 preserved. Recovery exposes log state only; it neither applies commands nor establishes consensus. M09 server/durability and M13 snapshot/compaction gates remain open. M04 storage prerequisites are ready for review, but M04 is Not started and requires a new assignment; prior partial-status entries are historical.
+[M03 COMPLETED](milestone-m03.md): framed WAL, persistent hard-state/log/commit validation, streaming recovery, explicit bootstrap, authoritative CURRENT, quota/reserve enforcement and fault/process evidence. C-01/C-02 preserved. Recovery exposes log state only; it neither applies commands nor establishes consensus. M09 server/durability and M13 snapshot/compaction gates remain open. At the M03 handoff, M04 storage prerequisites were ready for review, while M04 was Not started and required a new assignment; prior partial-status entries are historical.
+
+## M04 final local outcome — 20 November 2026
+
+[M04 COMPLETED](milestone-m04.md): immutable static configuration/hash fixtures, strict RPC envelopes/three schemas, bounded loopback HTTP transport and storage-before-listener lifecycle. T-001/T-002/T-003/T-029 pass within the M04 phase boundary. M03 tail-sequence integrity regression fixed; C-01 configuration/protocol fixtures fulfilled, C-02 local limits preserved. No Raft election, replication or snapshot installation. M05 is NOT STARTED; its preliminary review can consume these interfaces under a new assignment.

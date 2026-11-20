@@ -1,12 +1,12 @@
 # QuorumKV — Documentation / Documentazione
 
-**M01/M02/M03 COMPLETED — 20 November / novembre 2026. M04 not started / non iniziata.**
+**M01/M02/M03/M04 COMPLETED — 20 November / novembre 2026. M05 not started / non iniziata.**
 
 [Italiano: documentazione completa](it/README.md) · [English: complete documentation](en/README.md)
 
-Due percorsi equivalenti, con specifiche, requisiti, ADR, diagrammi, test previsti e roadmap. Sono implementati la macchina a stati locale, l’applier ordinato e WAL/recovery log; il database distribuito resta da costruire.
+Due percorsi equivalenti, con specifiche, requisiti, ADR, diagrammi, test previsti e roadmap. Sono implementati la macchina a stati locale, l’applier ordinato, WAL/recovery log e RPC/configurazione; il database distribuito resta da costruire.
 
-Two equivalent paths with specifications, requirements, ADRs, diagrams, planned tests and a roadmap. The local state machine, ordered applier and WAL/log recovery are implemented; the distributed database remains future work.
+Two equivalent paths with specifications, requirements, ADRs, diagrams, planned tests and a roadmap. The local state machine, ordered applier, WAL/log recovery and RPC/configuration are implemented; the distributed database remains future work.
 
 [README del progetto / Project README](../README.md)
 
@@ -19,3 +19,5 @@ Two equivalent paths with specifications, requirements, ADRs, diagrams, planned 
 [M03 preliminare: C-02 VERIFIED, milestone parziale](it/milestone-m03-preliminary.md) · [Preliminary M03: C-02 VERIFIED, milestone partial](en/milestone-m03-preliminary.md)
 
 [M03 completata: WAL/recovery](it/milestone-m03.md) · [M03 completed: WAL/recovery](en/milestone-m03.md)
+
+[M04 completata: RPC/configurazione](it/milestone-m04.md) · [M04 completed: RPC/configuration](en/milestone-m04.md)

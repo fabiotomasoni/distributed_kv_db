@@ -1,0 +1,31 @@
+# Static configuration v1
+
+[Index](README.md) · [Italiano](../it/configuration.md)
+
+**20 November 2026 — implemented in M04.**
+
+## Input and immutable ownership
+
+[config.Parse](../../internal/config/config.go) accepts one UTF-8 JSON object, at most 16 KiB, with exactly the fields in [configuration-v1.json](../fixtures/configuration-v1.json). Required integer numbers: config_version=1, max_logical_bytes=4194304, max_keys=10000, max_sessions=1024, heartbeat_ms, election_min_ms, election_max_ms. No exponents, fractions, signs or leading zeros. Required strings: cluster_id (32 lowercase hex), node_id, client_addr, peer_addr, data_dir. members is an array of exactly three objects with id/client/peer; IDs are exactly n1,n2,n3, each once. Unknown/duplicate names, invalid Unicode, multiple documents and excessive nesting fail. No defaults or environment expansion.
+
+Each of the six endpoints is distinct, an explicit canonical loopback IP and nonzero decimal port. IPv4-mapped aliases are compared after unmapping for uniqueness. DNS, public/wildcard IPs, scoped IPv6, implicit ports and URLs fail. The local bind fields must equal the matching member's endpoints. data_dir is nonempty and cleaned, without parent traversal; actual private-path, file and exclusive-lock checks belong to storage. Timing requires 0 < heartbeat_ms < election_min_ms <= election_max_ms <= 2147483647. Timings are configuration only; M04 starts no election timer.
+
+Parse returns an immutable Config value; private fields cannot be changed, Members returns an array copy, SharedBytes returns fresh bytes. ErrConfig means no usable configuration. Parsing performs no I/O, DNS lookup, listener creation or state mutation. Concurrent access to a parsed value is safe.
+
+## Exact config_hash
+
+Hash only cluster_id, members sorted lexicographically by id, and the three replicated quota fields. Recursively sort ASCII JSON field names, use decimal integer numbers, no whitespace or newline. All values in this preimage are ASCII. SHA-256 of these UTF-8 bytes, encoded as 64 lowercase hex digits, is config_hash. Local node_id, client_addr, peer_addr, data_dir, timing and config_version are excluded; the shared member endpoints remain included. Version compatibility is checked separately. Quotas are fixed in v1; changing them is rejected rather than silently producing a supported variant.
+
+The fixture records the complete exact preimage and expected hash:
+
+```text
+7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400
+```
+
+Member permutation or local configuration changes preserve this hash. A shared endpoint or cluster change changes it. There is no user-supplied hash override. Configuration and [peer fixtures](../fixtures/peer-v1.json) are checked by TestConfigurationCanonicalFixtureAndRejections and TestProtocolFixturesAndInvalidMessages. Existing storage fixtures are unchanged.
+
+## Startup and shutdown
+
+[node.Start](../../internal/node/node.go) consumes the parsed value, an explicit bootstrap boolean and an optional transport Processor. Bootstrap requires a pre-existing private empty directory; restart uses wal.Open. Both validate/acquire storage before binding the peer endpoint. Persistent cluster_id/node_id/config_hash must match exactly. Duplicate ownership, divergent metadata or storage failure prevents listener creation. Bind failure releases ownership and preserves initialized data. No automatic bootstrap or directory reset.
+
+After an unexpected listener failure, peer work is canceled/drained and storage closed; Shutdown returns the serve error. Shutdown(ctx) closes admission, cancels network work, waits for accepted processors/outbound calls and server termination, then closes WAL/releases LOCK. A canceled waiter does not release the lock early; waiting can be repeated. Processor must honor cancellation and finish; arbitrary callbacks cannot be forcibly stopped by Go. Recovered returns a detached WAL state and never applies commands. The client endpoint is reserved/validated but not opened before M08. There is no node CLI yet. See [M04 evidence](milestone-m04.md).

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -196,6 +197,35 @@ func TestReadErrorsAndInitialTransaction(t *testing.T) {
 		}
 		if _, err := Replay(bytes.NewReader(b), 0, 0); err == nil {
 			t.Fatal("invalid initialization accepted")
+		}
+	}
+}
+
+func TestIncompleteTailWithWrongSequenceFailsClosed(t *testing.T) {
+	initial := rawHex(t, fixtures(t).WAL[0].Hex)
+	s, root := newStore(t)
+	closeOK(t, s)
+	path := filepath.Join(root, "gen-1/wal")
+	for _, seq := range []uint64{1, 3} {
+		tail, err := storageformat.EncodeFrame(seq, appendTx(t, 1, 1, false))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, cut := range []int{20, 25} {
+			bad := append(bytes.Clone(initial), tail[:cut]...)
+			if _, err = Replay(bytes.NewReader(bad), 0, 0); !errors.Is(err, ErrCorrupt) {
+				t.Fatalf("incomplete physical sequence %d classified as repairable: %v", seq, err)
+			}
+			if err = os.WriteFile(path, bad, 0600); err != nil {
+				t.Fatal(err)
+			}
+			if r, err := Open(root, testIdentity); r != nil || !errors.Is(err, ErrCorrupt) {
+				t.Fatal("corrupt tail opened", err)
+			}
+			got, err := os.ReadFile(path)
+			if err != nil || !bytes.Equal(got, bad) {
+				t.Fatal("contradictory tail destructively truncated", err)
+			}
 		}
 	}
 }

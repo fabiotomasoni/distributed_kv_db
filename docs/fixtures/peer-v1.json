@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "request-vote",
+    "request": "{\"candidate_id\":\"n1\",\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"from\":\"n1\",\"last_log_index\":\"0\",\"last_log_term\":\"0\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"term\":\"3\",\"to\":\"n2\"}",
+    "response": "{\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"from\":\"n2\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"term\":\"3\",\"to\":\"n1\",\"vote_granted\":false}"
+  },
+  {
+    "kind": "append-entries",
+    "request": "{\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"entries\":[{\"index\":\"1\",\"kind\":\"noop\",\"term\":\"3\"}],\"from\":\"n1\",\"leader_commit\":\"0\",\"leader_id\":\"n1\",\"prev_log_index\":\"0\",\"prev_log_term\":\"0\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"term\":\"3\",\"to\":\"n2\"}",
+    "response": "{\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"from\":\"n2\",\"match_index\":\"1\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"success\":true,\"term\":\"3\",\"to\":\"n1\"}"
+  },
+  {
+    "kind": "install-snapshot",
+    "request": "{\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"data_b64\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"done\":true,\"from\":\"n1\",\"last_included_index\":\"1\",\"last_included_term\":\"3\",\"leader_id\":\"n1\",\"offset\":\"0\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"sha256\":\"85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0\",\"snapshot_id\":\"85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0\",\"term\":\"3\",\"to\":\"n2\",\"total_bytes\":\"44\"}",
+    "response": "{\"accepted\":true,\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"from\":\"n2\",\"installed_index\":\"1\",\"next_offset\":\"44\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"term\":\"3\",\"to\":\"n1\"}"
+  },
+  {
+    "kind": "install-snapshot",
+    "request": "{\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"data_b64\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"done\":true,\"from\":\"n1\",\"last_included_index\":\"1\",\"last_included_term\":\"3\",\"leader_id\":\"n1\",\"offset\":\"0\",\"protocol_version\":1,\"rpc_id\":\"n1-42\",\"sha256\":\"85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0\",\"snapshot_id\":\"85759b3811ff7dc47b03792ac85317be51431a3f9e01dcafce317ed736a391b0\",\"term\":\"3\",\"to\":\"n2\",\"total_bytes\":\"44\"}",
+    "response": "{\"accepted\":false,\"cluster_id\":\"11111111111111111111111111111111\",\"config_hash\":\"7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400\",\"from\":\"n2\",\"next_offset\":\"0\",\"protocol_version\":1,\"reason\":\"obsolete\",\"resume_index\":\"2\",\"resume_term\":\"3\",\"rpc_id\":\"n1-42\",\"term\":\"3\",\"to\":\"n1\"}"
+  }
+]

@@ -2,11 +2,11 @@
 
 [Index](README.md) · [Italiano](../it/network-protocol.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**20 November 2026 — transport, envelopes and schema validation implemented/checked in M04; consensus and snapshot effects remain design work.**
 
 ## Transport and addresses
 
-Proposed v1: persistent HTTP/1.1 over TCP, UTF-8 JSON, standard-library `net/http` and `encoding/json`. Compared with binary RPC: more bytes and parsing, but inspectability and no generator or dependency. TCP does not eliminate timeouts, duplicate attempts or obsolete responses. No TLS in the trusted loopback model, no compression, no ambient proxy for peer connections.
+Implemented transport v1: persistent HTTP/1.1 over TCP, UTF-8 JSON, standard-library `net/http` and `encoding/json`. Compared with binary RPC: more bytes and parsing, but inspectability and no generator or dependency. TCP does not eliminate timeouts, duplicate attempts or obsolete responses. No TLS in the trusted loopback model, no compression, no ambient proxy for peer connections.
 
 | Node | Client API | Peer RPC | Proposed directory |
 |---|---|---|---|
@@ -66,4 +66,8 @@ Preserve numbers without float conversion, validate lexical form and ranges for 
 
 ## Canonical entry projection
 
-The [storage format](canonical-formats.md) fixes exact nested kind/command fields and canonical entry size, separate from HTTP envelopes. noop omits command; read contains key only. Rebuild validated entries canonically for persistence; protocol/configuration fixture coverage remains due at M04.
+The [storage format](canonical-formats.md) fixes exact nested kind/command fields and canonical entry size, separate from HTTP envelopes. noop omits command; read contains key only. Rebuild validated entries canonically for persistence; protocol/configuration fixture coverage is implemented and checked in M04.
+
+## M04 implementation boundary and fixtures
+
+The previously proposed transport/envelope layer is now implemented: [M04 report](milestone-m04.md), [static configuration](configuration.md), [exact RPC fixtures](../fixtures/peer-v1.json). All three schemas are checked, but no voting, replication or snapshot staging/installation is implemented. One attempt, caller-owned same-peer admission, 100 ms dial/300 ms total outgoing deadline, 500 ms headers, 1 s incoming handler/read/write/idle, two pooled sockets per peer and 16 accepted sockets. nil processor gives 503; callbacks must honor cancellation. rpc_id is 1–128 ASCII letters/digits or -_.:, unique by caller/process responsibility. Configured Host/HTTP1.1/POST/JSON are required; invalid schema 400, identity 409, size 413, media 415, route 404, method 405. Strict parsing and all fixture byte checks pass. Retries/backoff, term/leader-generation effects, snapshot offsets/retransmission state and durable positive decisions remain future core/integration work.

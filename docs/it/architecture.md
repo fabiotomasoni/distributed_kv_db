@@ -60,3 +60,7 @@ Shutdown chiude l’ammissione e drena; la cancellazione termina soltanto l’at
 ## Confine storage M03 implementato
 
 [internal/wal ed evidenze](milestone-m03.md) aggiungono un proprietario locale sincronizzato sopra storageformat/storagefs. Append restituisce token generazione/sequence fisica solo dopo Sync; Open ricostruisce metadati log validati e ripara soltanto coda finale incompleta ammissibile. Nessuna dipendenza statemachine/applier o percorso apply alternativo. Il futuro core deve stabilire commit e inviare storage bloccante fuori dal lock eventi. Rotazione snapshot, sessioni, rete e consenso restano previsti.
+
+## Confine componenti M04
+
+Implementate [interfacce e ownership](milestone-m04.md): node → config/transport/wal, transport → peerprotocol/config, peerprotocol → config/strictjson/storageformat. Configurazione immutabile e byte messaggio posseduti; identità storage e LOCK precedono bind, lavoro peer cancellato/drenato precede chiusura WAL. Nessuna dipendenza da statemachine/applier negli handler peer; nessuna entry recuperata applicata automaticamente. Il core Raft futuro possiede decisioni termine/voto/log e pianifica storage bloccante fuori dalla propria sezione critica.

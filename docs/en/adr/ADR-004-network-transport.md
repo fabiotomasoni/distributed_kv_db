@@ -51,3 +51,7 @@ M04/M08: interoperable fixtures and client OpenAPI before API stability. If gate
 ## Audit 0.2 reassessment
 
 HTTP/JSON remains appropriate. Corrected client cap from 32 to 48 KiB for CAS with two maximum values; peer cap unchanged. Strict decoding requires duplicate-key scanning, UTF-8, exact field names and document-end checks beyond standard decoding. T-003/T-009 must exercise boundaries. No new external package.
+
+## M04 implementation evidence — 20 November 2026
+
+[M04](../milestone-m04.md) implements this decision through immutable [configuration/hash](../configuration.md), strict protocol fixtures and bounded standard-library loopback HTTP. Storage identity/LOCK precede production bind; shutdown drains before release. No DNS/proxy/redirect/compression or external dependency. One outgoing RPC per peer, bounded sockets/deadlines. Callback decisions and future Raft timing/replication remain outside M04. The original design rationale and trusted-loopback limitations remain unchanged.

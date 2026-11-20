@@ -68,3 +68,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## Local M03 closure
 
 [Final evidence](milestone-m03.md): M03 COMPLETED; local T-013/storage AC-013 portion Passed. WAL has 17 top-level functions/25 subcases, 82.9% local statement coverage; M01/M02, codec/adapter regressions and targeted WAL/adapter/applier race checks pass. All 18 canonical recovery expectations covered at the appropriate byte/namespace boundary. Full FR-013 Raft-response integration, AC-014 server restart and AC-023 end-to-end remain dependent on later milestones; AC-015/AC-016 snapshot acceptance is M13. Coverage/race/process tests do not certify physical-fault resilience. No primary requirement/AC ID or final distributed gate removed.
+
+## M04 acceptance evidence
+
+[M04 COMPLETED](milestone-m04.md): AC-001/AC-002/AC-003/AC-029 pass for FR-001/FR-002/FR-003/NFR-009 within the official phase subset. Evidence: three isolated library startups, lock/manifest failure before bind, exact configuration hash/protocol fixtures, malformed/oversized messages without processor delivery, bounded local exchange and ARM64 build/tests. Runtime CLI exit-code UX and later consensus/client/durability criteria remain unclaimed. M03 tail corruption regression is fixed and prior-component tests pass.

@@ -66,3 +66,7 @@ C-01/OQ-05: [schemi fissati e vettori statici](canonical-formats.md), prerequisi
 ## Chiusura M03 locale
 
 [Evidenze finali](milestone-m03.md): M03 COMPLETED; T-013/parte storage AC-013 locali Passed. WAL con 17 funzioni principali/25 sottocasi, 82,9% statement coverage locale; passano regressioni M01/M02, codec/adattatore e race mirato WAL/adattatore/applier. Tutte le 18 aspettative recovery canoniche coperte al confine byte/namespace pertinente. Integrazione risposte Raft FR-013 completa, restart server AC-014 e AC-023 end-to-end dipendono da milestone successive; accettazione snapshot AC-015/AC-016 a M13. Copertura/race/test processo non certificano resilienza a guasti fisici. Nessun ID requisito/AC primario o gate distribuito finale rimosso.
+
+## Mappatura implementazione M04
+
+FR-001 → internal/node + identità/LOCK wal → AC-001/T-001. FR-002 → internal/config + configuration-v1.json + envelope peer → AC-002/T-002. FR-003 → internal/strictjson + peerprotocol + transport + peer-v1.json → AC-003/T-003. NFR-009 → build darwin/arm64 nativa e suite limitata → AC-029/T-029. Le [evidenze M04](milestone-m04.md) registrano risultati/limiti; nessun requisito successivo chiuso da questi test.

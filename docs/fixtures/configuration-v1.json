@@ -1,0 +1,35 @@
+{
+  "configuration": {
+    "config_version": 1,
+    "cluster_id": "11111111111111111111111111111111",
+    "node_id": "n1",
+    "client_addr": "127.0.0.1:7401",
+    "peer_addr": "127.0.0.1:7501",
+    "data_dir": ".local/n1",
+    "members": [
+      {
+        "id": "n1",
+        "client": "127.0.0.1:7401",
+        "peer": "127.0.0.1:7501"
+      },
+      {
+        "id": "n2",
+        "client": "127.0.0.1:7402",
+        "peer": "127.0.0.1:7502"
+      },
+      {
+        "id": "n3",
+        "client": "127.0.0.1:7403",
+        "peer": "127.0.0.1:7503"
+      }
+    ],
+    "max_logical_bytes": 4194304,
+    "max_keys": 10000,
+    "max_sessions": 1024,
+    "heartbeat_ms": 100,
+    "election_min_ms": 600,
+    "election_max_ms": 1000
+  },
+  "shared_preimage": "{\"cluster_id\":\"11111111111111111111111111111111\",\"max_keys\":10000,\"max_logical_bytes\":4194304,\"max_sessions\":1024,\"members\":[{\"client\":\"127.0.0.1:7401\",\"id\":\"n1\",\"peer\":\"127.0.0.1:7501\"},{\"client\":\"127.0.0.1:7402\",\"id\":\"n2\",\"peer\":\"127.0.0.1:7502\"},{\"client\":\"127.0.0.1:7403\",\"id\":\"n3\",\"peer\":\"127.0.0.1:7503\"}]}",
+  "config_hash": "7331643cc3f13679fc939ad80f62ca4eec3f52c680c8538a2ea0e95ff834c400"
+}

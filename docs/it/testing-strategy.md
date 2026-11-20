@@ -94,3 +94,7 @@ T-008/M02 e T-018/M02 Passed: 20 nuovi test; suite completa ripetuta tre volte, 
 ## Chiusura M03 locale
 
 [Evidenze finali](milestone-m03.md): M03 COMPLETED; T-013/parte storage AC-013 locali Passed. WAL con 17 funzioni principali/25 sottocasi, 82,9% statement coverage locale; passano regressioni M01/M02, codec/adattatore e race mirato WAL/adattatore/applier. Tutte le 18 aspettative recovery canoniche coperte al confine byte/namespace pertinente. Integrazione risposte Raft FR-013 completa, restart server AC-014 e AC-023 end-to-end dipendono da milestone successive; accettazione snapshot AC-015/AC-016 a M13. Copertura/race/test processo non certificano resilienza a guasti fisici. Nessun ID requisito/AC primario o gate distribuito finale rimosso.
+
+## Evidenze finite M04
+
+[Test e risultati M04](milestone-m04.md) implementano sottoinsiemi locali T-001/T-002/T-003/T-029: tre avvii libreria/identità/lock-prima-bind, fixture configurazione/protocollo canoniche, rifiuto input/dimensione prima del processor, scambio HTTP, cancellazione/timeout 300 ms, cap connessioni, errore/shutdown e build ARM64 nativa. 12 nuove funzioni test M04 più una regressione sequenza coda WAL; race verificata su node/transport/wal/storagefs/applier. Canali/contesti sincronizzano i test; listener loopback dinamici mantenuti e cartelle temporanee private piccole evitano gare sulle porte/file personali. Evidenze exit code CLI, safety Raft e applicazione/durabilità end-to-end restano gate successivi.
