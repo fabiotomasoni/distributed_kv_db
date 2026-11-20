@@ -74,3 +74,7 @@ FR-001 → internal/node + wal identity/LOCK → AC-001/T-001. FR-002 → intern
 ## M05 implementation mapping
 
 FR-004 → internal/raft Core + M03 Append/Durable barrier → AC-004/T-004. FR-005 → injected Tick/Draw and empty AppendEntries + Service/transport → AC-005/T-005. INV-01/INV-05/INV-06 election evidence → independent persistent vote/quorum/leader oracle; NFR-008 finite replay → election-v1-results.json. [M05 report](milestone-m05.md) preserves NFR-001 later full safety gate and all M06+ obligations; no app/client requirement is closed.
+
+## M06 implementation mapping
+
+FR-006 → internal/raft/replication.go + existing WAL replace_suffix + transport/service → AC-006/T-006. Sent/Failed/Response and copied progress establish actual-request correlation; WAL frame cuts and seeded disk-view oracle cover known prefix preservation/recovery. [M06 evidence](milestone-m06.md) preserves all later FR-007/FR-008 gates: no quorum commit, checkpoint advancement or apply.

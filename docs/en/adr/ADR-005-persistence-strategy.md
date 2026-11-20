@@ -69,3 +69,7 @@ C-02 is CONDITIONALLY RESOLVED for documented choices and OPEN for implementatio
 ## M05 election implementation — 20 November 2026
 
 [M05](../milestone-m05.md) adopts this decision for deterministic roles/timers, one persistent vote per term, exact generation/sequence completion and the local election noop. One serial synchronous storage adapter suspends core advancement without holding a global mutex; no positive dependent output before Sync. Shutdown preserves I/O failures and ownership until drain. The 20-seed election oracle, 100 healthy heartbeat rounds and targeted race pass. Full replication/commit/apply/snapshot and physical-fault claims remain at their original gates; this does not mark all Raft or generation rotation Accepted.
+
+## M06 implementation decision
+
+[M06](../milestone-m06.md) retains this ADR: canonical suffix replacement above the known committed boundary, synchronized exact-token completion and bounded peer progress. Existing WAL bytes/primitives are reused; local proposals preserve reserve through AppendProposal. Legal large RPCs can span bounded WAL transactions with a single final ack and safe recoverable prefix on interruption. Commit/current-term quorum/apply and full snapshot semantics remain later gates. No complete-Raft or OS/power durability acceptance is inferred.

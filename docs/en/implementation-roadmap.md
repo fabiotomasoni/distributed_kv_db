@@ -2,13 +2,13 @@
 
 [Index](README.md) · [Italiano](../it/implementation-roadmap.md)
 
-**Updated: 20 November 2026 — local M01/M02/M03/M04/M05 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — local M01/M02/M03/M04/M05/M06 implemented and checked; distributed specifications remain design work.**
 
 ## Capacity and dependencies
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
@@ -17,7 +17,7 @@ M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [repor
 | M03 — Local persistence (**COMPLETED**) | M01 | 4–5 | Frames, hard state and lock; binary specification and cutpoints. | T-013 within the phase subset defined below; evidence saved. | macOS Sync | High |
 | M04 — RPC and configuration (**COMPLETED**) | M02,M03 | 6 | Envelope and validation; canonical configuration fixtures. | T-001/T-002/T-003/T-029 within the phase subset defined below; evidence saved. | parsing and identity | Medium |
 | M05 — Leader election (**COMPLETED**) | M03,M04 | 7–8 | Timers and persistent votes; election simulator. | T-004/T-005 within the phase subset defined below; evidence saved. | incorrect timer resets | High |
-| M06 — Log replication | M05 | 9 | AppendEntries and conflicts; divergent-log traces. | T-006 within the phase subset defined below; evidence saved. | incorrect truncation | High |
+| M06 — Log replication (**COMPLETED**) | M05 | 9 | AppendEntries and conflicts; divergent-log traces. | T-006 within the phase subset defined below; evidence saved. | incorrect truncation | High |
 | M07 — Distributed commit | M06 | 10 | Current-term rule and apply; commit traces. | T-007/T-008 within the phase subset defined below; evidence saved. | old-term commit | High |
 | M08 — API and test client | M07 | 11 | PUT/DELETE, deadlines, derive OpenAPI; HTTP fixtures. | T-009/T-012 within the phase subset defined below; evidence saved. | unstable contract | Medium |
 | M09 — Crash recovery / internal MVP | M08,M03 | 12–13 | Committed replay and restart; limited MVP report. | T-014/T-018/T-023 within the phase subset defined below; evidence saved. | speculative replay | High |
@@ -71,3 +71,11 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 ## Final M05 outcome — 20 November 2026
 
 [M05 COMPLETED](milestone-m05.md): deterministic follower/candidate/leader elections, synchronized term/vote, local election noop, empty heartbeats, bounded service/node integration. T-004: 20 saved seeds replayed twice with split vote and crash after vote Sync; independent vote/quorum/leader oracle passes. T-005: 100 fault-free heartbeat rounds without spurious elections. M01–M04 regressions and targeted race pass; C-01/C-02 limits retained, C-03 later gates unchanged. No replication/commit/apply or M06 implementation. M06 NOT STARTED.
+
+## Historical M06 preliminary scope gate
+
+[Preliminary report](milestone-m06.md): M05 regression and targeted resource-release tests passed. At the preliminary handoff M06 implementation remained NOT STARTED pending the clarification explicitly required by section 3 of the new assignment: M06 is replication/T-006, M07 is distributed commit/apply/T-007/T-008. No roadmap reassignment or later implementation. The block concerns scope, not a detected M05 correctness defect.
+
+## M06 final outcome — 20 November 2026
+
+[M06 COMPLETED](milestone-m06.md): scope clarification RESOLVED by confirming the unchanged roadmap. AppendEntries entry replication, first-conflict suffix reconciliation, synchronized WAL effects and bounded correlated nextIndex/matchIndex pass FR-006/AC-006/T-006. Five replayed replication seeds, WAL cutpoints, follower restart/loopback and previous regressions/race pass. Known commit checkpoints are preserved and frozen. M07 commit/current-term rule/apply are NOT STARTED.

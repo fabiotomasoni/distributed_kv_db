@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/architecture.md)
 
-**Updated: 20 November 2026 — M01–M05 local components/elections implemented and checked; replication and distributed commit remain design work.**
+**Updated: 20 November 2026 — M01–M06 local components/elections implemented and checked; distributed commit remains design work.**
 
 ## Component boundaries
 
@@ -68,3 +68,7 @@ Implemented [interfaces and ownership](milestone-m04.md): node → config/transp
 ## M05 core and adapter ownership
 
 [M05 interfaces](milestone-m05.md) add internal/raft: pure single-owner event core, explicit persistence completion, copied Status. Service serializes events and performs the one synchronous WAL operation as the disk adapter outside a core/global mutex; core advancement pauses with bounded peer queues. One owner plus two fixed network workers, 256 queued peer events, two results, one job/active call per peer. Atomic snapshots allow status access during disk waits. Shutdown cancels admission/network, waits for disk and workers/handlers, then node releases storage. StartElection adds this integration while Start retains M04 injection. No applier or client path is connected.
+
+## M06 replication ownership
+
+[M06](milestone-m06.md) extends the same core/service without another worker pool. Owned canonical entries, copied fixed progress array, one registered request per peer; queue bounds remain 256 events and two network workers/results. Node.StartReplication enables batch=16, service options allow 1..16 at construction only. AppendLocal returns a local durable position, not a client commit. WAL AppendProposal preserves reserve for local admission, Append serves replication/control. No applier or commit advancement is connected.

@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/raft-consensus.md)
 
-**20 novembre 2026 — elezioni/timer/voti persistenti M05 implementati e verificati; replica, commit e apply sotto restano progettuali.**
+**20 novembre 2026 — elezioni M05 e replica M06 implementate e verificate; commit e apply sotto restano progettuali.**
 
 ## Stato, indici e proprietà
 
@@ -93,3 +93,7 @@ I [formati canonici](canonical-formats.md) fissano kind log, comandi tipizzati, 
 ## Confine elettorale M05 implementato
 
 [M05](milestone-m05.md) implementa New/Tick/Request/Response/Durable/Stop con millisecondi correnti espliciti, estrazioni iniettate e un effetto sincronizzato pendente. Recovery follower/termine/voto e confini termini copiati; conta sé solo dopo completamento esatto generazione/sequenza, quorum 2 poi sincronizza noop locale nuovo termine prima di pubblicare leader. Heartbeat vuoti riconoscono leadership/resettano timer e verificano prev senza eliminare log, avanzare commit o applicare. Effetti append non vuote/snapshot restano indisponibili, pur persistendo termini maggiori validi. Risposte tardive comunicano ancora termini maggiori; voti vecchi non eleggono un nuovo termine. Status.Pending marca campi provvisori, Failure li rende inutilizzabili come acknowledgment. Superati oracolo voto/termine/leader salvato su 20 seed e 100 round heartbeat sani. Replica log, nextIndex/matchIndex, commit/apply, sessioni e macchine stati snapshot restano fasi future; l’algoritmo generale sopra non è tutto implementato.
+
+## Confine replica M06 implementato
+
+[M06](milestone-m06.md) aggiunge EnableReplication(1..16) all’avvio, entry canoniche possedute, AppendLocal con ricevuta solo Sync locale, replace_suffix dal primo conflitto e acknowledgment esatto del prefisso durevole. Status.Progress copia valori next/match; Sent/Failed distinguono invio effettivo da offerte saltate e solo risposte correlate di generazione corrente aggiornano progresso. Hint conflitto limitati e match mai regressivo. Prefissi committed recuperati non sovrascrivibili. Algoritmo generale commit/apply sopra resta M07: leaderCommit trasportato ma non avanza checkpoint qui. Modalità/fixture M05 originali conservate; StartReplication abilita livello M06 completo.

@@ -40,3 +40,7 @@ Un nodo può credersi leader durante una partizione, ma non può confermare nuov
 ## Guasti elettorali M05 implementati
 
 Le [evidenze M05](milestone-m05.md) esercitano split vote, perdita/ritardo/duplicati/riordino messaggi, partizione/heal con vecchio leader isolato, crash modello dopo Sync voto/prima risposta, riavvio e rifiuto secondo voto incompatibile. Errori storage fermano il voto, inclusi quelli scoperti durante shutdown; worker/LOCK non vengono abbandonati per nascondere attesa fallita. Termini maggiori da risposte vecchie valide vengono ancora persistiti. Progresso heartbeat sano ed Election Safety stesso termine sono osservazioni finite. Scenari generali GET/write/replica sopra restano successivi; nessuna garanzia guasti OS/alimentazione o disponibilità fisica aggiunta.
+
+## Evidenze guasti replica M06
+
+I [test M06](milestone-m06.md) coprono perdita/ritardo/duplicazione/riordino, code divergenti, riavvio dopo Sync suffisso prima dell’acknowledgment e tagli frame WAL reali. Oracolo verifica prefissi disco durevoli, non soli messaggi inviati. Progresso vecchia generazione ignorato, termini maggiori validi persistiti. Errore Sync/storage incerto fatale senza ack replica; rifiuto quota proposta noto prima della scrittura ritentabile. Frame completi sopravvissuti non confermati recuperabili, senza inferire commit o applicazione. Guasti OS/alimentazione fuori evidenze.

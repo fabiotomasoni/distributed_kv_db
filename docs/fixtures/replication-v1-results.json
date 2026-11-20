@@ -1,0 +1,42 @@
+[
+  {
+    "seed": 0,
+    "trace_sha256": "52843e7972b8e40bf90cd170996b1947a357773cc60c4deca05415397f439921",
+    "events": 98,
+    "last_index": 6,
+    "commit_index": 1,
+    "restarted_after_suffix_sync": true
+  },
+  {
+    "seed": 1,
+    "trace_sha256": "a3c7c0454870abdf69afae42c5a1f84b85f21afbb0cbaef7cf827f432901591c",
+    "events": 92,
+    "last_index": 6,
+    "commit_index": 1,
+    "restarted_after_suffix_sync": true
+  },
+  {
+    "seed": 2,
+    "trace_sha256": "4ee80a1dc856159d9abb6308106b0a0885af074ef19993728db6560044689ff0",
+    "events": 94,
+    "last_index": 6,
+    "commit_index": 1,
+    "restarted_after_suffix_sync": true
+  },
+  {
+    "seed": 3,
+    "trace_sha256": "a3506feb8735fdf73815126d9a87c368747116999d1a56a59f41d0991e674537",
+    "events": 93,
+    "last_index": 6,
+    "commit_index": 1,
+    "restarted_after_suffix_sync": true
+  },
+  {
+    "seed": 4,
+    "trace_sha256": "c81d41f5147e3f0a69703e4451316f34d9fc433297286788dc14fbbe3335a40a",
+    "events": 92,
+    "last_index": 6,
+    "commit_index": 1,
+    "restarted_after_suffix_sync": true
+  }
+]

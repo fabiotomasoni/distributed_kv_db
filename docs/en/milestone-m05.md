@@ -90,3 +90,11 @@ Budget **€0 additional**; standard library and existing toolchain only. All te
 **Final state: M05 COMPLETED.** M06 can begin its own review with recovered term/log views, strict transport and tested election roles; it still needs log replacement, conflict handling and correlated replication progress. Commit/apply remains M07, client/server features later. No M06 implementation, no Git commit. Stop at M05.
 
 Documentation verification: 118 Markdown files, 58 language pairs, 1,445 relative links, 106 tables and 23 matching non-Mermaid technical example pairs checked with zero structural errors. Reciprocal language links, headings/IDs, JSON and fences checked; translations reviewed locally.
+
+## Pre-M06 regression addendum
+
+[Preliminary review](milestone-m06.md) reran M01–M05 and targeted race checks, confirmed saved election traces and the 100 heartbeat rounds, and added two node resource-release tests (bind/mismatched listener and independent service termination). No production change or known M05 blocker; aggregate node coverage is now 81.4%, raft 92.3%. The 74.3% above records the M05 handoff. M06 scope clarification is pending; no replication or commit implemented.
+
+## M06 final handoff update
+
+The preliminary scope gate described above is now resolved by the follow-up assignment: [M06 completed](milestone-m06.md) with replication/conflict tracking, preserving original M05 behavior/fixtures and the preliminary tests. M07 commit/apply remains not started. Historical M05 coverage and preliminary evidence above remain phase-specific.

@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/network-protocol.md)
 
-**20 novembre 2026 — trasporto/envelope M04 e voto/heartbeat vuoti M05 implementati e verificati; effetti replica e snapshot restano progettuali.**
+**20 novembre 2026 — trasporto M04, elezioni M05 e replica M06 implementati e verificati; effetti commit e snapshot restano progettuali.**
 
 ## Trasporto e indirizzi
 
@@ -75,3 +75,7 @@ Il livello trasporto/envelope prima proposto è ora implementato: [relazione M04
 ## Processor elettorale M05
 
 StartElection collega ora Service.Handle: RequestVote implementa voto durevole, AppendEntries vuota gestisce heartbeat elettorale/validazione prev. Il noop nuovo termine è solo locale e non viene trasmesso come replica. Heartbeat riconosciuto non obsoleto resetta il timeout anche con prev divergente; heartbeat obsoleto/voto negato no. Termini maggiori validi, incluse risposte vecchie correlate o richieste append/snapshot non supportate, vengono persistiti prima di output dipendente. Effetti append non vuote/snapshot danno 503/indisponibile; nessun avanzamento commit o conteggio progresso. Retry core su tick successivi con backoff errori peer 50..400 ms, mai paralleli verso stesso peer. Contratti envelope/body/socket/deadline esistenti invariati. [Test e limiti](milestone-m05.md).
+
+## Semantica AppendEntries M06 effettiva
+
+[M06](milestone-m06.md) gestisce AppendEntries non vuote, retry entry identiche, hint indice/termine conflitto limitati e acknowledgment match prefisso dopo Sync. Batch uscita limitano byte entry canoniche a 256 KiB oltre a 1..16 entry configurate. Batch ingresso leciti oltre cap byte entry WAL divisi in transazioni durevoli sequenziali limitate, una risposta finale; validazione wire completa prima del primo effetto. Sent/Failed registrano tentativi trasporto effettivi; risposte obsolete/duplicate non cambiano progresso corrente, termine maggiore valido declassa comunque. leaderCommit conservato nello schema ma avanzamento operativo commit attende M07. Installazione snapshot resta indisponibile.

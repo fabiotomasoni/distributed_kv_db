@@ -1,4 +1,4 @@
-// Package raft implements only M05 elections. Core is a deterministic single-
+// Package raft implements M05 elections and opt-in M06 replication. Core is a deterministic single-
 // owner event machine: no sockets, filesystem calls, real clock or goroutines.
 package raft
 
@@ -22,7 +22,7 @@ var (
 	ErrClosed      = errors.New("raft: closed")
 	ErrFatal       = errors.New("raft: fatal, restart required")
 	ErrInput       = errors.New("raft: invalid event, recovered view or clock")
-	ErrUnsupported = errors.New("raft: outside M05 election scope")
+	ErrUnsupported = errors.New("raft: outside enabled milestone capability")
 	ErrFull        = errors.New("raft: peer event capacity exhausted")
 )
 
@@ -45,20 +45,24 @@ type Status struct {
 	ElectionDeadline, HeartbeatDeadline uint64
 	Pending, Closed                     bool
 	Failure                             error
+	Progress                            [3]Progress
 }
 type Persistence struct {
-	ID    uint64
-	Bytes []byte
+	ID       uint64
+	Bytes    []byte
+	Proposal bool
 }
 type Effects struct {
 	Persist  *Persistence
 	Send     []peerprotocol.Message
 	Reply    *peerprotocol.Message
 	Rejected error
+	Local    *LocalAppend
 }
 type pending struct {
-	id    uint64
-	after func() (Effects, error)
+	id       uint64
+	after    func() (Effects, error)
+	proposal bool
 }
 type Core struct {
 	cfg                    config.Config
@@ -70,6 +74,11 @@ type Core struct {
 	draw                   Draw
 	votes                  map[string]bool
 	pending                *pending
+	entries                []storageformat.LogEntry
+	batchSize              int
+	progress               map[string]Progress
+	active                 map[string]peerprotocol.Message
+	stepped                bool
 }
 
 // New recovers log metadata, never application state. The supplied WAL view must
@@ -97,6 +106,8 @@ func New(c config.Config, s wal.State, generation, epoch string, draw Draw, now 
 			return nil, ErrInput
 		}
 		x.terms = append(x.terms, e.Term)
+		e.Raw = append([]byte(nil), e.Raw...)
+		x.entries = append(x.entries, e)
 		x.state.LastTerm = e.Term
 	}
 	if err = x.reset(); err != nil {
@@ -104,13 +115,23 @@ func New(c config.Config, s wal.State, generation, epoch string, draw Draw, now 
 	}
 	return x, nil
 }
-func (x *Core) Status() Status { return x.state }
+func (x *Core) Status() Status {
+	s := x.state
+	if x.state.Role == Leader {
+		for i, m := range x.cfg.Members() {
+			s.Progress[i] = x.progress[m.ID]
+		}
+	}
+	return s
+}
 func (x *Core) fail(err error) (Effects, error) {
 	x.state.Failure = errors.Join(ErrFatal, err)
 	x.state.Role = Follower
 	x.state.Leader = ""
 	x.state.Pending = false
 	x.pending = nil
+	x.progress = nil
+	x.active = nil
 	return Effects{}, x.state.Failure
 }
 func (x *Core) enter(now uint64) error {
@@ -127,6 +148,7 @@ func (x *Core) enter(now uint64) error {
 		return ErrInput
 	}
 	x.now = now
+	x.stepped = true
 	return nil
 }
 func (x *Core) reset() error {
@@ -156,20 +178,26 @@ func (x *Core) persist(noop bool, after func() (Effects, error)) (Effects, error
 	}
 	payload := map[string]any{"hard_state": map[string]any{"current_term": fmt.Sprint(x.state.Term), "voted_for": vote}}
 	if noop {
-		if x.state.LastIndex == math.MaxUint64 {
+		if x.state.LastIndex == math.MaxUint64 || x.batchSize > 0 && x.state.LastIndex == math.MaxUint64-1 {
 			return x.fail(ErrInput)
 		}
 		i := x.state.LastIndex + 1
 		payload["replace_suffix"] = map[string]any{"from_index": fmt.Sprint(i), "entries": []any{map[string]any{"index": fmt.Sprint(i), "term": fmt.Sprint(x.state.Term), "kind": "noop"}}}
+	}
+	return x.persistBatch(payload, false, after)
+}
+func (x *Core) persistBatch(payload map[string]any, proposal bool, after func() (Effects, error)) (Effects, error) {
+	if x.sequence == math.MaxUint64 {
+		return x.fail(ErrInput)
 	}
 	raw, _ := json.Marshal(payload)
 	if _, err := storageformat.DecodeTransaction(raw); err != nil {
 		return x.fail(err)
 	}
 	id := x.sequence + 1
-	x.pending = &pending{id, after}
+	x.pending = &pending{id: id, after: after, proposal: proposal}
 	x.state.Pending = true
-	return Effects{Persist: &Persistence{id, raw}}, nil
+	return Effects{Persist: &Persistence{ID: id, Bytes: raw, Proposal: proposal}}, nil
 }
 
 // Durable correlates the exact generation/physical sequence, never an entry
@@ -181,7 +209,15 @@ func (x *Core) Durable(id uint64, token wal.Token, err error) (Effects, error) {
 	if x.pending == nil {
 		return Effects{}, ErrInput
 	}
+	if id != x.pending.id {
+		return x.fail(ErrInput)
+	}
 	if err != nil {
+		if x.pending.proposal && errors.Is(err, wal.ErrLimit) && !errors.Is(err, wal.ErrFailed) {
+			x.pending = nil
+			x.state.Pending = false
+			return Effects{}, err
+		}
 		return x.fail(err)
 	}
 	if id != x.pending.id || token.Generation != x.generation || token.Sequence != id {
@@ -194,6 +230,8 @@ func (x *Core) Durable(id uint64, token wal.Token, err error) (Effects, error) {
 	return p.after()
 }
 func (x *Core) Stop() {
+	x.progress = nil
+	x.active = nil
 	x.state.Closed = true
 	x.state.Role = Follower
 	x.state.Leader = ""
@@ -225,6 +263,17 @@ func (x *Core) broadcast() (Effects, error) {
 		kind := peerprotocol.Vote
 		fields := map[string]any{"candidate_id": x.cfg.NodeID(), "last_log_index": fmt.Sprint(x.state.LastIndex), "last_log_term": fmt.Sprint(x.state.LastTerm)}
 		if x.state.Role == Leader {
+			if x.batchSize > 0 {
+				if x.active[m.ID].Envelope().RPCID != "" {
+					continue
+				}
+				msg, err := x.appendRequest(m.ID)
+				if err != nil {
+					return x.fail(err)
+				}
+				e.Send = append(e.Send, msg)
+				continue
+			}
 			kind = peerprotocol.Append
 			fields = map[string]any{"leader_id": x.cfg.NodeID(), "prev_log_index": fmt.Sprint(x.state.LastIndex), "prev_log_term": fmt.Sprint(x.state.LastTerm), "entries": []any{}, "leader_commit": fmt.Sprint(x.state.CommitIndex)}
 		}
@@ -258,6 +307,8 @@ func (x *Core) Tick(now uint64) (Effects, error) {
 		x.state.Role = Candidate
 		x.state.Leader = ""
 		x.votes = map[string]bool{}
+		x.progress = nil
+		x.active = nil
 		if err := x.reset(); err != nil {
 			return x.fail(err)
 		}
@@ -304,6 +355,8 @@ func (x *Core) Request(now uint64, req peerprotocol.Message) (Effects, error) {
 		x.state.Role = Follower
 		x.state.Leader = ""
 		x.votes = nil
+		x.progress = nil
+		x.active = nil
 	}
 	var after func() (Effects, error)
 	switch req.Kind() {
@@ -334,6 +387,9 @@ func (x *Core) Request(now uint64, req peerprotocol.Message) (Effects, error) {
 			if err = x.reset(); err != nil {
 				return x.fail(err)
 			}
+		}
+		if x.batchSize > 0 && req.Kind() == peerprotocol.Append {
+			return x.receiveAppend(req, body, higher, obsolete)
 		}
 		after = func() (Effects, error) {
 			if req.Kind() == peerprotocol.Snapshot || len(body["entries"].([]any)) != 0 {
@@ -390,7 +446,12 @@ func (x *Core) Response(now uint64, req, res peerprotocol.Message) (Effects, err
 		x.state.Role = Follower
 		x.state.Leader = ""
 		x.votes = nil
+		x.progress = nil
+		x.active = nil
 		return x.persist(false, func() (Effects, error) { return Effects{}, nil })
+	}
+	if x.batchSize > 0 && req.Kind() == peerprotocol.Append {
+		return x.replicationResponse(req, checked)
 	}
 	if x.state.Role != Candidate || req.Kind() != peerprotocol.Vote || req.Envelope().Term != x.state.Term || env.Term != x.state.Term {
 		return Effects{}, nil
@@ -403,14 +464,20 @@ func (x *Core) Response(now uint64, req, res peerprotocol.Message) (Effects, err
 	if len(x.votes) < 2 {
 		return Effects{}, nil
 	}
-	// Only a local new-term noop is added. No replication, matchIndex, commit or
-	// applier path is present in M05. Leadership is published after its Sync.
+	// Publish leadership after the local new-term noop Sync. M06 may replicate
+	// it; neither mode commits or applies it.
 	return x.persist(true, func() (Effects, error) {
+		i := x.state.LastIndex + 1
+		raw, _ := json.Marshal(map[string]any{"index": fmt.Sprint(i), "term": fmt.Sprint(x.state.Term), "kind": "noop"})
+		x.entries = append(x.entries, storageformat.LogEntry{Index: i, Term: x.state.Term, Raw: raw})
 		x.terms = append(x.terms, x.state.Term)
 		x.state.LastIndex++
 		x.state.LastTerm = x.state.Term
 		x.state.Role = Leader
 		x.state.Leader = x.cfg.NodeID()
+		if x.batchSize > 0 {
+			x.initProgress()
+		}
 		return x.broadcast()
 	})
 }

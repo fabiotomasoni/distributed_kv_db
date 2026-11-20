@@ -40,3 +40,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## Implemented M05 election faults
 
 [M05 evidence](milestone-m05.md) exercises split votes, message loss/delay/duplicates/reordering, partition/heal with an isolated old leader, model crash after vote Sync/before reply, restart and incompatible second-vote rejection. Storage failures stop voting, including when discovered during shutdown; workers/LOCK are not abandoned to hide a failed wait. Higher terms from old valid replies are still persisted. Healthy heartbeat progress and same-term Election Safety are finite observations. The broad GET/write/replication scenarios above remain later work; no OS/power fault or physical availability guarantee is added.
+
+## M06 replication failure evidence
+
+[M06 tests](milestone-m06.md) cover loss/delay/duplication/reordering, divergent tails, restart after suffix Sync before acknowledgment and real WAL frame cuts. The oracle checks durable disk prefixes, not merely messages sent. Old-generation progress is ignored but valid higher terms persist. Sync/uncertain storage failure is fatal without a replica ack; known pre-write proposal quota rejection is retriable. Complete unacknowledged surviving frames can recover, with no inferred commit or application. OS/power faults remain outside this evidence.

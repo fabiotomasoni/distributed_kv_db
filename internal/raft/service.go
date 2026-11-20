@@ -1,9 +1,11 @@
 package raft
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"math/big"
 	"sync"
@@ -12,6 +14,7 @@ import (
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/peerprotocol"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/storageformat"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/wal"
 )
 
@@ -35,18 +38,25 @@ type Clock interface {
 	Stop()
 }
 type Options struct {
-	Epoch string
-	Draw  Draw
-	Clock Clock
+	Epoch     string
+	Draw      Draw
+	Clock     Clock
+	BatchSize int // 0: M05 compatibility; 1..16: M06 replication.
 }
 type requestEvent struct {
 	ctx   context.Context
 	msg   peerprotocol.Message
 	reply chan outcome
+	local *localProposal
+}
+type localProposal struct {
+	kind    string
+	command json.RawMessage
 }
 type outcome struct {
-	msg peerprotocol.Message
-	err error
+	msg   peerprotocol.Message
+	err   error
+	local LocalAppend
 }
 type result struct {
 	peer              string
@@ -144,6 +154,16 @@ func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	if opt.BatchSize != 0 {
+		if _, ok := s.(interface {
+			AppendProposal([]byte) (wal.Token, error)
+		}); !ok {
+			return nil, ErrInput
+		}
+		if err = core.EnableReplication(opt.BatchSize); err != nil {
+			return nil, err
+		}
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	x := &Service{cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
 	for _, m := range c.Members() {
@@ -212,7 +232,7 @@ func (x *Service) Handle(ctx context.Context, msg peerprotocol.Message) (peerpro
 	if err := ctx.Err(); err != nil {
 		return peerprotocol.Message{}, err
 	}
-	e := requestEvent{ctx, msg, make(chan outcome, 1)}
+	e := requestEvent{ctx: ctx, msg: msg, reply: make(chan outcome, 1)}
 	x.mu.Lock()
 	if x.closed || !x.started {
 		x.mu.Unlock()
@@ -234,6 +254,41 @@ func (x *Service) Handle(ctx context.Context, msg peerprotocol.Message) (peerpro
 		return peerprotocol.Message{}, x.terminal()
 	}
 }
+
+// AppendLocal waits only for local Sync. Cancellation after admission may leave
+// an entry present: this is not a client commit/deduplication interface.
+func (x *Service) AppendLocal(ctx context.Context, kind string, command json.RawMessage) (LocalAppend, error) {
+	if len(command) > storageformat.MaxEntry || len(kind) > 6 {
+		return LocalAppend{}, ErrInput
+	}
+	if ctx == nil {
+		return LocalAppend{}, ErrInput
+	}
+	if err := ctx.Err(); err != nil {
+		return LocalAppend{}, err
+	}
+	e := requestEvent{ctx: ctx, reply: make(chan outcome, 1), local: &localProposal{kind: kind, command: bytes.Clone(command)}}
+	x.mu.Lock()
+	if x.closed || !x.started {
+		x.mu.Unlock()
+		return LocalAppend{}, ErrClosed
+	}
+	select {
+	case x.events <- e:
+		x.mu.Unlock()
+	default:
+		x.mu.Unlock()
+		return LocalAppend{}, ErrFull
+	}
+	select {
+	case r := <-e.reply:
+		return r.local, r.err
+	case <-ctx.Done():
+		return LocalAppend{}, ctx.Err()
+	case <-x.done:
+		return LocalAppend{}, x.terminal()
+	}
+}
 func (x *Service) terminal() error {
 	if err := x.Status().Failure; err != nil {
 		return err
@@ -245,7 +300,15 @@ func (x *Service) effects(e Effects, err error) (Effects, error) {
 		x.published.Store(x.core.Status())
 		// This adapter is the single serial disk worker. Core advancement pauses,
 		// but there is no core/global mutex held across the blocking filesystem call.
-		token, writeErr := x.storage.Append(e.Persist.Bytes)
+		var token wal.Token
+		var writeErr error
+		if e.Persist.Proposal {
+			token, writeErr = x.storage.(interface {
+				AppendProposal([]byte) (wal.Token, error)
+			}).AppendProposal(e.Persist.Bytes)
+		} else {
+			token, writeErr = x.storage.Append(e.Persist.Bytes)
+		}
 		e, err = x.core.Durable(e.Persist.ID, token, writeErr)
 		if x.ctx.Err() != nil {
 			x.core.Stop()
@@ -262,6 +325,10 @@ func (x *Service) effects(e Effects, err error) (Effects, error) {
 		now := x.clock.Now()
 		if p == nil || !p.admit(now) {
 			continue
+		}
+		if err := x.core.Sent(msg); err != nil {
+			p.busy = false
+			return Effects{}, err
 		}
 		p.jobs <- msg
 	}
@@ -303,26 +370,41 @@ func (x *Service) run() {
 			p.complete(now, r.err)
 			if r.err == nil {
 				e, err := x.core.Response(now, r.request, r.response)
+				if err != nil {
+					x.core.Failed(r.request)
+				}
 				_, _ = x.effects(e, err)
+			} else {
+				x.core.Failed(r.request)
 			}
 		case r := <-x.events:
 			if err := r.ctx.Err(); err != nil {
 				r.reply <- outcome{err: err}
 				continue
 			}
-			e, err := x.core.Request(x.clock.Now(), r.msg)
+			var e Effects
+			var err error
+			if r.local != nil {
+				e, err = x.core.AppendLocal(x.clock.Now(), r.local.kind, r.local.command)
+			} else {
+				e, err = x.core.Request(x.clock.Now(), r.msg)
+			}
 			e, err = x.effects(e, err)
 			if err == nil {
 				err = e.Rejected
 			}
-			if err == nil && e.Reply == nil {
+			if err == nil && e.Reply == nil && e.Local == nil {
 				err = ErrUnsupported
 			}
 			var msg peerprotocol.Message
 			if e.Reply != nil {
 				msg = *e.Reply
 			}
-			r.reply <- outcome{msg, err}
+			result := outcome{msg: msg, err: err}
+			if e.Local != nil {
+				result.local = *e.Local
+			}
+			r.reply <- result
 		}
 		if x.core.Status().Failure != nil {
 			return

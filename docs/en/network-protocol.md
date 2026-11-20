@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/network-protocol.md)
 
-**20 November 2026 — M04 transport/envelopes and M05 voting/empty heartbeats implemented and checked; replication and snapshot effects remain design work.**
+**20 November 2026 — M04 transport, M05 elections and M06 replication implemented and checked; commit and snapshot effects remain design work.**
 
 ## Transport and addresses
 
@@ -75,3 +75,7 @@ The previously proposed transport/envelope layer is now implemented: [M04 report
 ## M05 election processor
 
 StartElection now attaches Service.Handle: RequestVote implements durable voting, empty AppendEntries handles election heartbeat/prev validation. New-term noop is local only and is not transmitted as replication. Recognized nonobsolete heartbeat resets election time even if prev mismatches; stale heartbeat/denied vote does not. Valid higher terms, including old correlated replies or unsupported append/snapshot requests, are persisted before dependent output. Nonempty append/snapshot effects return 503/unavailable; no commit advancement or progress accounting. Core retries occur on later ticks with 50..400 ms peer error backoff, never parallel with the same peer. Existing envelope/body/socket/deadline contracts are unchanged. [Tests and limits](milestone-m05.md).
+
+## M06 actual AppendEntries semantics
+
+[M06](milestone-m06.md) handles nonempty AppendEntries, identical-entry retries, bounded conflict index/term hints and prefix match acknowledgments after Sync. Outgoing batches cap canonical entry bytes at 256 KiB as well as configured 1..16 entries. Legal incoming batches exceeding the WAL entry-byte cap split into bounded sequential durable transactions, one final reply; complete wire validation precedes the first effect. Sent/Failed register actual transport attempts; stale/duplicate replies cannot change current progress, while a valid higher term still demotes. leaderCommit is preserved in the schema but operational commit advancement waits for M07. Snapshot installation remains unavailable.

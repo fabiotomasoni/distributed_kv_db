@@ -90,3 +90,11 @@ Budget **0 € aggiuntivi**; solo libreria standard e toolchain esistente. Tutti
 **Stato finale: M05 COMPLETED.** M06 può iniziare la propria revisione con viste termine/log recuperate, trasporto rigoroso e ruoli elettorali testati; deve ancora realizzare sostituzione log, gestione conflitti e progresso replica correlato. Commit/apply resta M07, funzioni client/server successive. Nessuna implementazione M06, nessun commit Git. Stop a M05.
 
 Verifica documentazione: controllati 118 file Markdown, 58 coppie lingua, 1.445 link relativi, 106 tabelle e 23 coppie esempi tecnici non-Mermaid identici senza errori strutturali. Verificati link reciproci lingua, titoli/ID, JSON e fence; traduzioni riviste localmente.
+
+## Addendum regressione pre-M06
+
+La [revisione preliminare](milestone-m06.md) ha rieseguito M01–M05 e race mirate, confermato tracce elettorali salvate e 100 round heartbeat, aggiunto due test rilascio risorse nodo (bind/listener divergente e termine indipendente servizio). Nessuna modifica produzione o blocco M05 noto; copertura aggregata nodo ora 81,4%, raft 92,3%. Il 74,3% sopra registra la consegna M05. Chiarimento perimetro M06 in attesa; nessuna replica o commit implementati.
+
+## Aggiornamento consegna M06 finale
+
+Il gate preliminare di perimetro sopra è ora risolto dall’incarico successivo: [M06 completata](milestone-m06.md) con replica/tracking conflitti, conservando comportamento/fixture M05 originali e test preliminari. Commit/apply M07 resta non iniziato. Copertura storica M05 ed evidenze preliminari sopra restano specifiche della fase.

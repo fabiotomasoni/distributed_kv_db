@@ -76,3 +76,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Evidenze accettazione M05
 
 [M05 COMPLETED](milestone-m05.md): AC-004/T-004/FR-004 superati con tutte le 20 storie seed salvate e fingerprint tracce riprodotti due volte, split vote forzato e crash modello subito dopo Sync voto; nessun voto durevole o leader per termine duplicato. AC-005/T-005/FR-005 superati con 100 round virtuali sani, 200 heartbeat peer e leader/termine invariati. Integrazione loopback/WAL reali, riapertura termine/voto, errore/shutdown e race mirate superati. Non chiude AC-006/AC-007/AC-008 o criteri safety/client/durabilità distribuiti.
+
+## Esito accettazione M06
+
+[M06 COMPLETED](milestone-m06.md): FR-006/AC-006/T-006 superati con log ordinari/in ritardo/divergenti, prefisso committed noto immutabile, nextIndex/matchIndex correlati, retry/risposte vecchie, errori storage e riavvio. Cinque tracce replica con seed riprodotte due volte contro oracolo Log Matching/append-only; riavvio follower loopback reale recupera. Checkpoint resta fisso; AC-007/AC-008 e regola commit quorum termine corrente restano M07. Tutti i test/fixture precedenti conservati.

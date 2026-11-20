@@ -69,10 +69,11 @@ func (d *memoryStorage) Append(raw []byte) (wal.Token, error) {
 		d.s.HardState = *tx.HardState
 	}
 	if tx.Replace != nil {
-		d.s.Entries = append(d.s.Entries, tx.Replace.Entries...)
+		d.s.Entries = append(d.s.Entries[:tx.Replace.From-d.s.BaseIndex-1], tx.Replace.Entries...)
 	}
 	return wal.Token{Generation: "gen-1", Sequence: d.s.Sequence}, nil
 }
+func (d *memoryStorage) AppendProposal(b []byte) (wal.Token, error) { return d.Append(b) }
 func deadline(t *testing.T) context.Context {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -102,7 +103,7 @@ func TestServicePersistenceBarrierAdmissionAndShutdown(t *testing.T) {
 			}
 			req := voteRequest(t, s.cfg, "n2", 1, 0, 0)
 			done := make(chan outcome, 1)
-			go func() { m, err := s.Handle(deadline(t), req); done <- outcome{m, err} }()
+			go func() { m, err := s.Handle(deadline(t), req); done <- outcome{msg: m, err: err} }()
 			select {
 			case <-d.entered:
 			case <-deadline(t).Done():

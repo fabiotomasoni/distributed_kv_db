@@ -276,3 +276,7 @@ La [fase M03 limitata](milestone-m03-preliminary.md) registra GATE C-02 VERIFIED
 ## Follow-up M05 attuale — 20 novembre 2026
 
 [M05 COMPLETED](milestone-m05.md) verifica voto persistente, transizioni termine/ruolo/timer ed evidenze elettorali richieste 20 seed/100 heartbeat con adattatori limitati. Perimetro originale C-01/C-02 conservato; C-03 resta a M07/M10/M11/M13/M14. Nessuna modifica byte storage, ipotesi guasti fisici o gate accettazione successivi. L’esito attuale supera dichiarazioni storiche non iniziata su M05; M06 resta non iniziata.
+
+## Follow-up M06 attuale
+
+[M06 COMPLETED](milestone-m06.md), dopo risoluzione esplicita perimetro che conferma roadmap. Replica log/conflitti/tracking hanno ora evidenze T-006; byte storage e limiti C-01/C-02 invariati. Gate C-03 commit/apply e accettazioni successive aperti alle fasi originali. Nessuna implementazione M07 o nuovo modello durabilità.

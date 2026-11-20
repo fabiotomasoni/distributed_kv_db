@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/development-guide.md)
 
-**Aggiornamento: 20 novembre 2026 — componenti locali/elezioni M01–M05 implementati e verificati; replica e commit distribuito restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — componenti locali/elezioni M01–M06 implementati e verificati; commit distribuito resta progettuale.**
 
 ## Prerequisiti gratuiti
 
@@ -64,3 +64,7 @@ Lo schema configurazione è ora implementato in [config.Parse](configuration.md)
 ## Integrazione libreria e riproduzione M05
 
 node.StartElection(config,bootstrap) valida storage, apre endpoint peer ed esegue worker elettorali; ElectionStatus restituisce metadati separati. Chiamare Shutdown con contesto limitato e conservare ownership finché termina effettivamente; attesa cancellata ripetibile. Nessun qkv-node/CLI o comando client implementato. La [relazione M05](milestone-m05.md) registra comandi test/build/race offline e [tracce 20 seed salvate](../fixtures/election-v1-results.json); test ordinari verificano la fixture senza rigenerarla. Clock personalizzati partono dai millisecondi correnti forniti e trasferiscono durata a Service; riavvio simulatore fornisce l’istante virtuale corrente, produzione usa clock locale monotono. M06 resta non iniziata.
+
+## Entry point libreria M06
+
+Usare node.StartReplication(config,bootstrap) per M06. StartElection esistente resta harness solo M05; nessuna negoziazione feature. node.AppendLocal(ctx,kind,command) dà solo metadati Sync locale, con esito locale incerto se chiamante cancella dopo admission; nessuna garanzia dedup/commit client. Service Options.BatchSize accetta 1..16 prima degli eventi. Ispezionare ElectionStatus.Progress copiato o metadati log recuperato; mai applicare direttamente. [Comandi/evidenze M06](milestone-m06.md) includono fixture riproducibili, riavvio locale e race mirate. Ancora nessuna CLI nodo/API client.

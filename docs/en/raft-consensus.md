@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/raft-consensus.md)
 
-**20 November 2026 — M05 election/timers/persistent votes implemented and checked; replication, commit and apply below remain design work.**
+**20 November 2026 — M05 elections and M06 replication implemented and checked; commit and apply below remain design work.**
 
 ## State, indices and properties
 
@@ -93,3 +93,7 @@ The system favors safety over availability. It uses no time leases, requires no 
 ## Implemented M05 election boundary
 
 [M05](milestone-m05.md) implements New/Tick/Request/Response/Durable/Stop with explicit current milliseconds, injected draws and one pending synchronized effect. Recover follower/term/vote and copied term boundaries; count self only after exact generation/sequence completion, quorum 2 then synchronize a local new-term noop before publishing leader. Empty heartbeats recognize leadership/reset timers and check prev without deleting log, advancing commit or applying. Nonempty append/snapshot effects remain unavailable, although valid higher terms are persisted. Late replies still convey higher terms; old votes cannot elect a new term. Status.Pending marks tentative fields, Failure makes them unusable as acknowledgment. The 20-seed saved vote/term/leader oracle and 100 healthy heartbeat rounds pass. Log replication, nextIndex/matchIndex, commit/apply, sessions and snapshot state machines remain future phases; the broad algorithm above is not all implemented.
+
+## Implemented M06 replication boundary
+
+[M06](milestone-m06.md) adds startup EnableReplication(1..16), canonical owned entries, AppendLocal with local-Sync-only receipt, first-conflict replace_suffix and exact durable-prefix acknowledgments. Status.Progress copies next/match values; Sent/Failed distinguish actual dispatch from skipped offers, and correlated current-generation responses alone update progress. Conflict hints are bounded and match never regresses. Recovered committed prefixes cannot be overwritten. The general commit/apply algorithm above remains M07: leaderCommit is carried but never advances a checkpoint here. Original M05 mode/fixtures remain supported; StartReplication enables the complete M06 layer.

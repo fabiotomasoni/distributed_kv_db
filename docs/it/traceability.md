@@ -74,3 +74,7 @@ FR-001 → internal/node + identità/LOCK wal → AC-001/T-001. FR-002 → inter
 ## Mappatura implementazione M05
 
 FR-004 → internal/raft Core + barriera M03 Append/Durable → AC-004/T-004. FR-005 → Tick/Draw iniettati e AppendEntries vuote + Service/trasporto → AC-005/T-005. Evidenze elettorali INV-01/INV-05/INV-06 → oracolo indipendente voto persistente/quorum/leader; replay finito NFR-008 → election-v1-results.json. La [relazione M05](milestone-m05.md) conserva gate safety completa successivo NFR-001 e tutti gli obblighi M06+; nessun requisito app/client chiuso.
+
+## Mappatura implementazione M06
+
+FR-006 → internal/raft/replication.go + replace_suffix WAL esistente + trasporto/servizio → AC-006/T-006. Sent/Failed/Response e progresso copiato stabiliscono correlazione richiesta effettiva; tagli frame WAL e oracolo vista disco con seed coprono conservazione prefisso noto/recovery. Le [evidenze M06](milestone-m06.md) conservano tutti i gate FR-007/FR-008 successivi: nessun commit quorum, avanzamento checkpoint o apply.

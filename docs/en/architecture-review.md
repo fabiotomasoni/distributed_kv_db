@@ -276,3 +276,7 @@ The [limited M03 phase](milestone-m03-preliminary.md) records GATE C-02 VERIFIED
 ## Current M05 follow-up — 20 November 2026
 
 [M05 COMPLETED](milestone-m05.md) verifies persistent voting, term/role/timer transitions and the required 20-seed/100-heartbeat election evidence with bounded adapters. Original C-01/C-02 scope retained; C-03 remains at M07/M10/M11/M13/M14. No change to storage bytes, physical-fault assumptions or later acceptance gates. The current result supersedes historical not-started statements about M05; M06 remains not started.
+
+## M06 current follow-up
+
+[M06 COMPLETED](milestone-m06.md), after explicit scope resolution confirming the roadmap. Log replication/conflicts/tracking now have T-006 evidence; storage bytes and C-01/C-02 limits unchanged. C-03 commit/apply and later acceptance gates remain open at their original phases. No M07 implementation or new durability model.

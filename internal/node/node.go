@@ -4,6 +4,7 @@ package node
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net"
 	"sync"
@@ -33,10 +34,22 @@ func Start(c config.Config, bootstrap bool, p transport.Processor) (*Node, error
 func StartElection(c config.Config, bootstrap bool) (*Node, error) {
 	return startConfigured(c, bootstrap, nil, net.Listen, true)
 }
+func StartReplication(c config.Config, bootstrap bool) (*Node, error) {
+	return startMode(c, bootstrap, nil, net.Listen, true, 16)
+}
+func (n *Node) AppendLocal(ctx context.Context, kind string, command json.RawMessage) (raft.LocalAppend, error) {
+	if n.election == nil {
+		return raft.LocalAppend{}, raft.ErrUnsupported
+	}
+	return n.election.AppendLocal(ctx, kind, command)
+}
 func start(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error)) (*Node, error) {
 	return startConfigured(c, bootstrap, p, listen, false)
 }
 func startConfigured(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool) (*Node, error) {
+	return startMode(c, bootstrap, p, listen, elections, 0)
+}
+func startMode(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int) (*Node, error) {
 	if !c.Valid() {
 		return nil, config.ErrConfig
 	}
@@ -53,7 +66,7 @@ func startConfigured(c config.Config, bootstrap bool, p transport.Processor, lis
 	}
 	var election *raft.Service
 	if elections {
-		election, err = raft.NewService(c, s, raft.Options{})
+		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch})
 		if err != nil {
 			return nil, errors.Join(err, s.Close())
 		}

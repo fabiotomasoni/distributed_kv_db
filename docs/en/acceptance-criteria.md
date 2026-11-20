@@ -76,3 +76,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## M05 acceptance evidence
 
 [M05 COMPLETED](milestone-m05.md): AC-004/T-004/FR-004 passed with all 20 saved seed histories and twice-replayed trace fingerprints, forced split vote and model crash immediately after vote Sync; no duplicate durable votes or leaders per term. AC-005/T-005/FR-005 passed through 100 healthy virtual rounds, 200 peer heartbeats and unchanged leader/term. Real loopback/WAL integration, term/vote reopening, error/shutdown and targeted race pass. This does not close AC-006/AC-007/AC-008 or distributed safety/client/durability criteria.
+
+## M06 acceptance result
+
+[M06 COMPLETED](milestone-m06.md): FR-006/AC-006/T-006 passed with ordinary/lagging/divergent logs, immutable known committed prefix, correlated nextIndex/matchIndex, retries/old responses, storage failure and restart. Five seeded replication traces replay twice against a Log Matching/append-only oracle; real loopback follower restart catches up. Checkpoint stays fixed; AC-007/AC-008 and the current-term quorum commit rule remain M07. All prior tests/fixtures retained.
