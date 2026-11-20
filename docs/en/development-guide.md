@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 19 November 2026 — local M01/M02 implemented and checked; distributed specifications remain design work.**
+**Updated: 20 November 2026 — M01–M05 local components/elections implemented and checked; replication and distributed commit remain design work.**
 
 ## Free prerequisites
 
@@ -60,3 +60,7 @@ go.mod, internal/statemachine and internal/applier now exist; Go 1.27.4 darwin/a
 ## M04 configuration and local verification
 
 The configuration schema is now implemented in [config.Parse](configuration.md), with canonical fixtures and bounded loopback tests. Node Start is a library, not the future qkv-node CLI; client listeners/commands above remain proposals. Reproduce M04 with the [report commands](milestone-m04.md), offline caches and temporary OS-assigned loopback ports. Loopback access must be allowed by the local execution policy; external access is unnecessary. M01–M04 are completed locally, M05 not started.
+
+## M05 library integration and reproduction
+
+node.StartElection(config,bootstrap) validates storage, binds the peer endpoint and runs election workers; ElectionStatus returns detached metadata. Call Shutdown with a bounded context and retain ownership until it actually completes; a canceled wait can be repeated. No qkv-node/CLI or client commands are implemented. [M05 report](milestone-m05.md) records offline test/build/race commands and [saved 20-seed traces](../fixtures/election-v1-results.json); ordinary tests verify the fixture without regenerating it. Custom clocks start from their supplied current milliseconds and transfer lifetime to Service; simulator restart supplies its current virtual instant, production uses a monotonic local clock. M06 remains not started.

@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/network-protocol.md)
 
-**20 November 2026 — transport, envelopes and schema validation implemented/checked in M04; consensus and snapshot effects remain design work.**
+**20 November 2026 — M04 transport/envelopes and M05 voting/empty heartbeats implemented and checked; replication and snapshot effects remain design work.**
 
 ## Transport and addresses
 
@@ -71,3 +71,7 @@ The [storage format](canonical-formats.md) fixes exact nested kind/command field
 ## M04 implementation boundary and fixtures
 
 The previously proposed transport/envelope layer is now implemented: [M04 report](milestone-m04.md), [static configuration](configuration.md), [exact RPC fixtures](../fixtures/peer-v1.json). All three schemas are checked, but no voting, replication or snapshot staging/installation is implemented. One attempt, caller-owned same-peer admission, 100 ms dial/300 ms total outgoing deadline, 500 ms headers, 1 s incoming handler/read/write/idle, two pooled sockets per peer and 16 accepted sockets. nil processor gives 503; callbacks must honor cancellation. rpc_id is 1–128 ASCII letters/digits or -_.:, unique by caller/process responsibility. Configured Host/HTTP1.1/POST/JSON are required; invalid schema 400, identity 409, size 413, media 415, route 404, method 405. Strict parsing and all fixture byte checks pass. Retries/backoff, term/leader-generation effects, snapshot offsets/retransmission state and durable positive decisions remain future core/integration work.
+
+## M05 election processor
+
+StartElection now attaches Service.Handle: RequestVote implements durable voting, empty AppendEntries handles election heartbeat/prev validation. New-term noop is local only and is not transmitted as replication. Recognized nonobsolete heartbeat resets election time even if prev mismatches; stale heartbeat/denied vote does not. Valid higher terms, including old correlated replies or unsupported append/snapshot requests, are persisted before dependent output. Nonempty append/snapshot effects return 503/unavailable; no commit advancement or progress accounting. Core retries occur on later ticks with 50..400 ms peer error backoff, never parallel with the same peer. Existing envelope/body/socket/deadline contracts are unchanged. [Tests and limits](milestone-m05.md).

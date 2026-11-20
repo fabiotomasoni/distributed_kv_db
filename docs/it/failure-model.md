@@ -36,3 +36,7 @@ Un nodo può credersi leader durante una partizione, ma non può confermare nuov
 ## Evidenze implementate di guasto storage locale
 
 [M03](milestone-m03.md) verifica write parziali, errori Sync/lettura/close/ispezione, frame finali interrotti, corruzione completa, pubblicazione bootstrap fallita e terminazione processo attorno a write/Sync. Esiti append ignoti restano ignoti; byte completi sopravvissuti recuperabili senza provare acknowledgment precedente. Nessun recovery locale applica entry speculative o usa fallback su corruzione. Osservazioni crash processo/OS vivo, non test crash OS o power loss; scenari distribuiti completi aperti.
+
+## Guasti elettorali M05 implementati
+
+Le [evidenze M05](milestone-m05.md) esercitano split vote, perdita/ritardo/duplicati/riordino messaggi, partizione/heal con vecchio leader isolato, crash modello dopo Sync voto/prima risposta, riavvio e rifiuto secondo voto incompatibile. Errori storage fermano il voto, inclusi quelli scoperti durante shutdown; worker/LOCK non vengono abbandonati per nascondere attesa fallita. Termini maggiori da risposte vecchie valide vengono ancora persistiti. Progresso heartbeat sano ed Election Safety stesso termine sono osservazioni finite. Scenari generali GET/write/replica sopra restano successivi; nessuna garanzia guasti OS/alimentazione o disponibilità fisica aggiunta.

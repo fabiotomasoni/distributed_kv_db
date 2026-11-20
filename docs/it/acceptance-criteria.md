@@ -72,3 +72,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Evidenze accettazione M04
 
 [M04 COMPLETED](milestone-m04.md): AC-001/AC-002/AC-003/AC-029 superati per FR-001/FR-002/FR-003/NFR-009 nel sottoinsieme ufficiale di fase. Evidenze: tre avvii libreria isolati, errore lock/manifest prima del bind, hash configurazione/fixture protocollo esatti, messaggi malformati/eccessivi senza consegna processor, scambio locale limitato e build/test ARM64. UX exit code CLI runtime e successivi criteri consenso/client/durabilità non dichiarati. Corretta regressione corruzione coda M03 e superati test componenti precedenti.
+
+## Evidenze accettazione M05
+
+[M05 COMPLETED](milestone-m05.md): AC-004/T-004/FR-004 superati con tutte le 20 storie seed salvate e fingerprint tracce riprodotti due volte, split vote forzato e crash modello subito dopo Sync voto; nessun voto durevole o leader per termine duplicato. AC-005/T-005/FR-005 superati con 100 round virtuali sani, 200 heartbeat peer e leader/termine invariati. Integrazione loopback/WAL reali, riapertura termine/voto, errore/shutdown e race mirate superati. Non chiude AC-006/AC-007/AC-008 o criteri safety/client/durabilità distribuiti.

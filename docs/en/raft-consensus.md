@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/raft-consensus.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**20 November 2026 — M05 election/timers/persistent votes implemented and checked; replication, commit and apply below remain design work.**
 
 ## State, indices and properties
 
@@ -89,3 +89,7 @@ The system favors safety over availability. It uses no time leases, requires no 
 ## Persistent schema boundary
 
 [Canonical formats](canonical-formats.md) fixes log kinds, typed commands, transaction semantics and snapshot/control metadata. Decoding a valid commit checkpoint does not establish that a runtime Raft transition was legal; consensus must supply that proof. No Raft or noop/session adapter is implemented by this specification.
+
+## Implemented M05 election boundary
+
+[M05](milestone-m05.md) implements New/Tick/Request/Response/Durable/Stop with explicit current milliseconds, injected draws and one pending synchronized effect. Recover follower/term/vote and copied term boundaries; count self only after exact generation/sequence completion, quorum 2 then synchronize a local new-term noop before publishing leader. Empty heartbeats recognize leadership/reset timers and check prev without deleting log, advancing commit or applying. Nonempty append/snapshot effects remain unavailable, although valid higher terms are persisted. Late replies still convey higher terms; old votes cannot elect a new term. Status.Pending marks tentative fields, Failure makes them unusable as acknowledgment. The 20-seed saved vote/term/leader oracle and 100 healthy heartbeat rounds pass. Log replication, nextIndex/matchIndex, commit/apply, sessions and snapshot state machines remain future phases; the broad algorithm above is not all implemented.

@@ -50,3 +50,7 @@ The [matrix](traceability.md) maps every requirement to a module, ADR, milestone
 ## Pre-M03 contract refinement
 
 [Review](pre-m03-review.md) fixes the [canonical storage schema](canonical-formats.md) and [conditional macOS adapter contract](macos-storage-contract.md) for FR-013/FR-014/FR-015/FR-016, NFR-003/NFR-006. No requirement/ID is removed or weakened: process-crash durability remains the target; OS crash and power-loss guarantees are not added. Format-fixture arithmetic is design evidence, not satisfaction of AC-013/AC-023.
+
+## M05 requirement evidence
+
+FR-004/FR-005 have implemented election/heartbeat evidence in [M05](milestone-m05.md): AC-004/T-004 over 20 reproducible split-vote/crash-after-Sync seeds, AC-005/T-005 over 100 healthy heartbeat rounds. NFR-001 and NFR-008 gain finite election oracles/injected clocks/storage/network, not closure of all Raft safety or future replay requirements. NFR-009 native ARM64 checks pass again. No requirement is removed or weakened; no distributed API/durability claim follows from election alone.

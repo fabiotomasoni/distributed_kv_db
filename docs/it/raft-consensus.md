@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/raft-consensus.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**20 novembre 2026 — elezioni/timer/voti persistenti M05 implementati e verificati; replica, commit e apply sotto restano progettuali.**
 
 ## Stato, indici e proprietà
 
@@ -89,3 +89,7 @@ Il sistema privilegia safety alla disponibilità. Non usa lease temporali, non r
 ## Confine dello schema persistente
 
 I [formati canonici](canonical-formats.md) fissano kind log, comandi tipizzati, semantica transazioni e metadati snapshot/controllo. Decodificare un checkpoint commit valido non stabilisce che una transizione Raft runtime fosse legale; il consenso deve fornirne prova. Questa specifica non implementa Raft o adattatore noop/sessioni.
+
+## Confine elettorale M05 implementato
+
+[M05](milestone-m05.md) implementa New/Tick/Request/Response/Durable/Stop con millisecondi correnti espliciti, estrazioni iniettate e un effetto sincronizzato pendente. Recovery follower/termine/voto e confini termini copiati; conta sé solo dopo completamento esatto generazione/sequenza, quorum 2 poi sincronizza noop locale nuovo termine prima di pubblicare leader. Heartbeat vuoti riconoscono leadership/resettano timer e verificano prev senza eliminare log, avanzare commit o applicare. Effetti append non vuote/snapshot restano indisponibili, pur persistendo termini maggiori validi. Risposte tardive comunicano ancora termini maggiori; voti vecchi non eleggono un nuovo termine. Status.Pending marca campi provvisori, Failure li rende inutilizzabili come acknowledgment. Superati oracolo voto/termine/leader salvato su 20 seed e 100 round heartbeat sani. Replica log, nextIndex/matchIndex, commit/apply, sessioni e macchine stati snapshot restano fasi future; l’algoritmo generale sopra non è tutto implementato.

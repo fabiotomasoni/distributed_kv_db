@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/architecture.md)
 
-**Aggiornamento: 20 novembre 2026 — M01/M02/M03 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — componenti locali/elezioni M01–M05 implementati e verificati; replica e commit distribuito restano progettuali.**
 
 ## Confini dei componenti
 
@@ -64,3 +64,7 @@ Shutdown chiude l’ammissione e drena; la cancellazione termina soltanto l’at
 ## Confine componenti M04
 
 Implementate [interfacce e ownership](milestone-m04.md): node → config/transport/wal, transport → peerprotocol/config, peerprotocol → config/strictjson/storageformat. Configurazione immutabile e byte messaggio posseduti; identità storage e LOCK precedono bind, lavoro peer cancellato/drenato precede chiusura WAL. Nessuna dipendenza da statemachine/applier negli handler peer; nessuna entry recuperata applicata automaticamente. Il core Raft futuro possiede decisioni termine/voto/log e pianifica storage bloccante fuori dalla propria sezione critica.
+
+## Ownership core e adattatore M05
+
+Le [interfacce M05](milestone-m05.md) aggiungono internal/raft: core eventi puro con owner singolo, completamento persistente esplicito, Status copiato. Service serializza eventi ed esegue l’unica operazione WAL sincrona come adattatore disco fuori da mutex core/globali; avanzamento core sospeso con code peer limitate. Un owner più due worker rete fissi, 256 eventi peer in coda, due risultati, un job/chiamata attiva per peer. Snapshot atomici permettono lettura stato durante attese disco. Shutdown cancella admission/rete, attende disco e worker/handler, poi node rilascia storage. StartElection aggiunge l’integrazione mentre Start conserva injection M04. Nessun percorso applier o client collegato.

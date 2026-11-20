@@ -70,3 +70,7 @@ C-01/OQ-05: [fixed schemas and static vectors](canonical-formats.md), design pre
 ## M04 implementation mapping
 
 FR-001 → internal/node + wal identity/LOCK → AC-001/T-001. FR-002 → internal/config + configuration-v1.json + peer envelope → AC-002/T-002. FR-003 → internal/strictjson + peerprotocol + transport + peer-v1.json → AC-003/T-003. NFR-009 → native darwin/arm64 build and bounded suite → AC-029/T-029. [M04 evidence](milestone-m04.md) records results/limits; no later requirement is closed by these tests.
+
+## M05 implementation mapping
+
+FR-004 → internal/raft Core + M03 Append/Durable barrier → AC-004/T-004. FR-005 → injected Tick/Draw and empty AppendEntries + Service/transport → AC-005/T-005. INV-01/INV-05/INV-06 election evidence → independent persistent vote/quorum/leader oracle; NFR-008 finite replay → election-v1-results.json. [M05 report](milestone-m05.md) preserves NFR-001 later full safety gate and all M06+ obligations; no app/client requirement is closed.

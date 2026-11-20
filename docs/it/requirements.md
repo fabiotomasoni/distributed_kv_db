@@ -50,3 +50,7 @@ La [matrice](traceability.md) associa ogni requisito a modulo, ADR, milestone e 
 ## Precisazione dei contratti pre-M03
 
 La [revisione](pre-m03-review.md) fissa [schema storage canonico](canonical-formats.md) e [contratto adattatore macOS condizionato](macos-storage-contract.md) per FR-013/FR-014/FR-015/FR-016, NFR-003/NFR-006. Nessun requisito/ID rimosso o indebolito: durabilità crash processo resta obiettivo; niente nuove garanzie crash OS o power loss. Aritmetica fixture formato è evidenza progettuale, non soddisfacimento AC-013/AC-023.
+
+## Evidenze requisiti M05
+
+FR-004/FR-005 dispongono di evidenze elezioni/heartbeat implementate in [M05](milestone-m05.md): AC-004/T-004 su 20 seed riproducibili split-vote/crash-dopo-Sync, AC-005/T-005 su 100 round heartbeat sani. NFR-001 e NFR-008 acquisiscono oracoli elettorali finiti/clock-storage-rete iniettati, senza chiudere tutta la safety Raft o requisiti replay futuri. NFR-009 build ARM64 nativa nuovamente superata. Nessun requisito eliminato o indebolito; elezione da sola non implica API/durabilità distribuita.

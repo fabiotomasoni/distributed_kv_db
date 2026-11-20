@@ -65,3 +65,7 @@ C-02 is CONDITIONALLY RESOLVED for documented choices and OPEN for implementatio
 ## Local M03 implementation decision — 20 November 2026
 
 [M03 local WAL](../milestone-m03.md) adopts this ADR for initial-generation framed append, hard-state/log/commit recovery, lock and explicit bootstrap. Local T-013 evidence passes; generation/sequence tokens follow the existing contract. The same File.Sync/directory barriers and PublishCurrent are reused. The complete snapshot/rotation portion remains Proposed until M13, end-to-end durability until M09; no OS/power-loss guarantee is accepted. No new persistence format or redundant applied cursor added.
+
+## M05 election implementation — 20 November 2026
+
+[M05](../milestone-m05.md) adopts this decision for deterministic roles/timers, one persistent vote per term, exact generation/sequence completion and the local election noop. One serial synchronous storage adapter suspends core advancement without holding a global mutex; no positive dependent output before Sync. Shutdown preserves I/O failures and ownership until drain. The 20-seed election oracle, 100 healthy heartbeat rounds and targeted race pass. Full replication/commit/apply/snapshot and physical-fault claims remain at their original gates; this does not mark all Raft or generation rotation Accepted.

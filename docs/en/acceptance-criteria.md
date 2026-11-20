@@ -72,3 +72,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## M04 acceptance evidence
 
 [M04 COMPLETED](milestone-m04.md): AC-001/AC-002/AC-003/AC-029 pass for FR-001/FR-002/FR-003/NFR-009 within the official phase subset. Evidence: three isolated library startups, lock/manifest failure before bind, exact configuration hash/protocol fixtures, malformed/oversized messages without processor delivery, bounded local exchange and ARM64 build/tests. Runtime CLI exit-code UX and later consensus/client/durability criteria remain unclaimed. M03 tail corruption regression is fixed and prior-component tests pass.
+
+## M05 acceptance evidence
+
+[M05 COMPLETED](milestone-m05.md): AC-004/T-004/FR-004 passed with all 20 saved seed histories and twice-replayed trace fingerprints, forced split vote and model crash immediately after vote Sync; no duplicate durable votes or leaders per term. AC-005/T-005/FR-005 passed through 100 healthy virtual rounds, 200 peer heartbeats and unchanged leader/term. Real loopback/WAL integration, term/vote reopening, error/shutdown and targeted race pass. This does not close AC-006/AC-007/AC-008 or distributed safety/client/durability criteria.

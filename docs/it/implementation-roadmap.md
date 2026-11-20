@@ -2,13 +2,13 @@
 
 [Indice](README.md) · [English](../en/implementation-roadmap.md)
 
-**Aggiornamento: 20 novembre 2026 — M01/M02/M03/M04 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 20 novembre 2026 — M01/M02/M03/M04/M05 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Capacità e dipendenze
 
 Piano indicativo 24 settimane (~6 mesi), 6–8 ore/settimana per uno studente individuale, capacità disponibile di 144–192 ore, che non è una stima validata dello sforzo necessario; è una stima incerta, non un impegno. Quattro mesi richiedono più ore o riduzione degli obiettivi opzionali, mai eliminazione dei gate di correttezza. Recuperare ritardi prima tagliando ottimizzazioni, poi estendendo calendario. Nessuna data di completamento è garantita.
 
-M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04 è **COMPLETED**: [relazione RPC/configurazione](milestone-m04.md). M05–M16 sono **Not started**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
+M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04 è **COMPLETED**: [relazione RPC/configurazione](milestone-m04.md). M05 è **COMPLETED**: [relazione leader election](milestone-m05.md). M06–M16 sono **Not started**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
 
 | ID / obiettivo | Prerequisiti | Settimane | Progettazione, implementazione e deliverable | Test / completamento | Rischio | Complessità |
 |---|---|---|---|---|---|---|
@@ -16,7 +16,7 @@ M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relaz
 | M02 — Ownership e concorrenza (**COMPLETED**) | M01 | 3 | Eventi, applier e backpressure; contratto di ownership. | T-008/T-018 nel sottoinsieme di fase sotto definito; evidenze salvate. | Data race | Media |
 | M03 — Persistenza locale (**COMPLETED**) | M01 | 4–5 | Frame, hard state e lock; specifica binaria e cutpoint. | T-013 nel sottoinsieme di fase sotto definito; evidenze salvate. | Sync macOS | Alta |
 | M04 — RPC e configurazione (**COMPLETED**) | M02,M03 | 6 | Envelope e validazione; fixture configurazione canonica. | T-001/T-002/T-003/T-029 nel sottoinsieme di fase sotto definito; evidenze salvate. | Parsing e identità | Media |
-| M05 — Leader election | M03,M04 | 7–8 | Timer e voto persistente; simulatore elettorale. | T-004/T-005 nel sottoinsieme di fase sotto definito; evidenze salvate. | Timer resettati male | Alta |
+| M05 — Leader election (**COMPLETED**) | M03,M04 | 7–8 | Timer e voto persistente; simulatore elettorale. | T-004/T-005 nel sottoinsieme di fase sotto definito; evidenze salvate. | Timer resettati male | Alta |
 | M06 — Replica log | M05 | 9 | AppendEntries e conflitti; tracce log divergenti. | T-006 nel sottoinsieme di fase sotto definito; evidenze salvate. | Troncamento errato | Alta |
 | M07 — Commit distribuito | M06 | 10 | Regola termine corrente e apply; trace commit. | T-007/T-008 nel sottoinsieme di fase sotto definito; evidenze salvate. | Commit vecchi termini | Alta |
 | M08 — API e client di test | M07 | 11 | PUT/DELETE, deadline, derive OpenAPI; fixture HTTP. | T-009/T-012 nel sottoinsieme di fase sotto definito; evidenze salvate. | Contratto instabile | Media |
@@ -66,4 +66,8 @@ M12 completa fault injection, non ne avvia le fondamenta: introdurre fake clock 
 
 ## Esito M04 locale finale — 20 novembre 2026
 
-[M04 COMPLETED](milestone-m04.md): configurazione statica/hash immutabili e fixture, envelope/tre schemi RPC rigorosi, trasporto HTTP loopback limitato e lifecycle storage prima del listener. T-001/T-002/T-003/T-029 superati nel confine di fase M04. Corretta regressione integrità sequenza coda M03; fixture configurazione/protocollo C-01 soddisfatte, limiti locali C-02 conservati. Nessuna elezione Raft, replica o installazione snapshot. M05 è NOT STARTED; la sua revisione preliminare può consumare queste interfacce con nuovo incarico.
+[M04 COMPLETED](milestone-m04.md): configurazione statica/hash immutabili e fixture, envelope/tre schemi RPC rigorosi, trasporto HTTP loopback limitato e lifecycle storage prima del listener. T-001/T-002/T-003/T-029 superati nel confine di fase M04. Corretta regressione integrità sequenza coda M03; fixture configurazione/protocollo C-01 soddisfatte, limiti locali C-02 conservati. Nessuna elezione Raft, replica o installazione snapshot. Alla consegna M04 M05 era NOT STARTED; il nuovo incarico ha rivisto e consumato queste interfacce.
+
+## Esito M05 finale — 20 novembre 2026
+
+[M05 COMPLETED](milestone-m05.md): elezioni follower/candidate/leader deterministiche, termine/voto sincronizzati, noop elettorale locale, heartbeat vuoti, integrazione servizio/nodo limitata. T-004: 20 seed salvati riprodotti due volte con split vote e crash dopo Sync voto; oracolo indipendente voto/quorum/leader superato. T-005: 100 round heartbeat sani senza elezioni spurie. Regressioni M01–M04 e race mirate superate; limiti C-01/C-02 conservati, gate successivi C-03 invariati. Nessuna replica/commit/apply o implementazione M06. M06 NOT STARTED.

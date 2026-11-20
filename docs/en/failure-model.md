@@ -36,3 +36,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## Implemented local storage fault evidence
 
 [M03](milestone-m03.md) verifies partial writes, Sync/read/close/inspection errors, torn final frames, complete corruption, failed bootstrap publication and process termination around write/Sync. Unknown append outcomes remain unknown; complete surviving bytes can be recovered without proving prior acknowledgment. No local recovery applies speculative entries or falls back on corruption. These are process-crash/live-OS observations, not OS crash or power-loss tests; full distributed scenarios stay open.
+
+## Implemented M05 election faults
+
+[M05 evidence](milestone-m05.md) exercises split votes, message loss/delay/duplicates/reordering, partition/heal with an isolated old leader, model crash after vote Sync/before reply, restart and incompatible second-vote rejection. Storage failures stop voting, including when discovered during shutdown; workers/LOCK are not abandoned to hide a failed wait. Higher terms from old valid replies are still persisted. Healthy heartbeat progress and same-term Election Safety are finite observations. The broad GET/write/replication scenarios above remain later work; no OS/power fault or physical availability guarantee is added.

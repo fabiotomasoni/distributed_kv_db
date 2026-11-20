@@ -70,3 +70,7 @@ C-01/OQ-05: [schemi fissati e vettori statici](canonical-formats.md), prerequisi
 ## Mappatura implementazione M04
 
 FR-001 → internal/node + identità/LOCK wal → AC-001/T-001. FR-002 → internal/config + configuration-v1.json + envelope peer → AC-002/T-002. FR-003 → internal/strictjson + peerprotocol + transport + peer-v1.json → AC-003/T-003. NFR-009 → build darwin/arm64 nativa e suite limitata → AC-029/T-029. Le [evidenze M04](milestone-m04.md) registrano risultati/limiti; nessun requisito successivo chiuso da questi test.
+
+## Mappatura implementazione M05
+
+FR-004 → internal/raft Core + barriera M03 Append/Durable → AC-004/T-004. FR-005 → Tick/Draw iniettati e AppendEntries vuote + Service/trasporto → AC-005/T-005. Evidenze elettorali INV-01/INV-05/INV-06 → oracolo indipendente voto persistente/quorum/leader; replay finito NFR-008 → election-v1-results.json. La [relazione M05](milestone-m05.md) conserva gate safety completa successivo NFR-001 e tutti gli obblighi M06+; nessun requisito app/client chiuso.

@@ -91,3 +91,7 @@ Budget **€0 additional**, local standard-library work only, no paid/cloud/API/
 **Final M04 status: COMPLETED.** M05 has usable typed/configuration/transport/storage boundaries for its own preliminary review, but election tests, persistent voting integration and its acceptance gates must still be implemented under a new assignment. M05 NOT STARTED. No Git commit performed.
 
 Documentation checks: 116 Markdown files, 57 language pairs, relative links, table/fence structure, technical example parity and reciprocal language links checked without structural errors. Semantic equivalence reviewed locally; no external certification or visual Mermaid rendering.
+
+## M05 handoff follow-up — 20 November 2026
+
+The M04 report above records its handoff. [M05 is now completed](milestone-m05.md) using the existing configuration/protocol/transport/storage interfaces; only node lifecycle gains the optional election integration. M04 implementations/fixtures and the WAL sequence-tail regression are unchanged and pass again. M06 not started.

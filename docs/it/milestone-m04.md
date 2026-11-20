@@ -91,3 +91,7 @@ Budget **0 € aggiuntivi**, solo lavoro locale con libreria standard, nessun pa
 **Stato finale M04: COMPLETED.** M05 dispone di confini tipizzati/configurazione/trasporto/storage utilizzabili nella propria revisione preliminare, ma test elettorali, integrazione voto persistente e gate di accettazione devono ancora essere implementati con nuovo incarico. M05 NOT STARTED. Nessun commit Git eseguito.
 
 Verifiche documentazione: controllati 116 file Markdown, 57 coppie lingua, collegamenti relativi, struttura tabelle/fence, parità esempi tecnici e link reciproci lingua senza errori strutturali. Equivalenza semantica rivista localmente; nessuna certificazione esterna o rendering visivo Mermaid.
+
+## Follow-up consegna M05 — 20 novembre 2026
+
+La relazione M04 sopra registra la propria consegna. [M05 ora completata](milestone-m05.md) usa interfacce configurazione/protocollo/trasporto/storage esistenti; solo il lifecycle nodo acquisisce integrazione elettorale opzionale. Implementazioni/fixture M04 e regressione sequenza-coda WAL invariate e nuovamente superate. M06 non iniziata.

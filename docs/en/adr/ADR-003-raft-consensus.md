@@ -55,3 +55,7 @@ Confirmed current-term commit and persistent voting. Corrected apply scheduling:
 ## M02 implementation evidence
 
 19 November 2026: [M02](../milestone-m02.md) implements only the local owner/applier boundary: contiguous caller-supplied indices, distinct Scheduled/LastApplied, bounded admission and single-worker execution. T-008/M02 Passed, including apply backlog. Raft, commit proof, applyEpoch/snapshot replacement and T-021 remain future gates; this addendum does not mark Raft Accepted or erase the audit.
+
+## M05 election implementation — 20 November 2026
+
+[M05](../milestone-m05.md) adopts this decision for deterministic roles/timers, one persistent vote per term, exact generation/sequence completion and the local election noop. One serial synchronous storage adapter suspends core advancement without holding a global mutex; no positive dependent output before Sync. Shutdown preserves I/O failures and ownership until drain. The 20-seed election oracle, 100 healthy heartbeat rounds and targeted race pass. Full replication/commit/apply/snapshot and physical-fault claims remain at their original gates; this does not mark all Raft or generation rotation Accepted.

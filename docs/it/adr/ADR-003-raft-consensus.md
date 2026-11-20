@@ -55,3 +55,7 @@ Confermata la regola di commit del termine corrente e il voto persistente. Corre
 ## Evidenze implementative M02
 
 19 novembre 2026: [M02](../milestone-m02.md) implementa soltanto il confine owner/applier locale: indici contigui forniti dal chiamante, Scheduled/LastApplied distinti, ammissione limitata ed esecuzione a worker singolo. T-008/M02 Passed, incluso backlog apply. Raft, prova del commit, applyEpoch/sostituzione snapshot e T-021 restano gate futuri; questa appendice non rende Raft Accepted né cancella l’audit.
+
+## Implementazione elettorale M05 — 20 novembre 2026
+
+[M05](../milestone-m05.md) adotta la decisione per ruoli/timer deterministici, un voto persistente per termine, completamento esatto generazione/sequenza e noop elettorale locale. Un adattatore storage sincrono seriale sospende avanzamento core senza mutex globale; nessun output dipendente positivo prima di Sync. Shutdown conserva errori I/O e ownership fino al drain. Superati oracolo elettorale 20 seed, 100 round heartbeat sani e race mirate. Replica/commit/apply/snapshot completi e garanzie guasti fisici restano ai gate originali; non rende tutto Raft o rotazione generazioni Accepted.

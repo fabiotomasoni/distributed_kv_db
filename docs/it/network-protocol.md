@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/network-protocol.md)
 
-**20 novembre 2026 — trasporto, envelope e validazione schemi implementati/verificati in M04; effetti consenso e snapshot restano progettuali.**
+**20 novembre 2026 — trasporto/envelope M04 e voto/heartbeat vuoti M05 implementati e verificati; effetti replica e snapshot restano progettuali.**
 
 ## Trasporto e indirizzi
 
@@ -71,3 +71,7 @@ Il [formato storage](canonical-formats.md) fissa campi kind/command annidati esa
 ## Confine implementativo M04 e fixture
 
 Il livello trasporto/envelope prima proposto è ora implementato: [relazione M04](milestone-m04.md), [configurazione statica](configuration.md), [fixture RPC esatte](../fixtures/peer-v1.json). Tutti e tre gli schemi vengono controllati, senza implementare voto, replica o staging/installazione snapshot. Un tentativo, admission stesso peer posseduta dal chiamante, dial 100 ms/totale uscita 300 ms, header 500 ms, handler/read/write/idle ingresso 1 s, due socket nel pool per peer e 16 socket accettati. Processor nil dà 503; le callback devono rispettare cancellazione. rpc_id usa 1–128 lettere/cifre ASCII o -_.:, unico per responsabilità chiamante/processo. Richiesti Host configurato/HTTP1.1/POST/JSON; schema invalido 400, identità 409, dimensione 413, media 415, percorso 404, metodo 405. Parsing rigoroso e verifiche byte fixture superati. Retry/backoff, effetti termine/generazione leader, stato offset/ritrasmissione snapshot e decisioni positive durevoli restano al core/integrazione futuri.
+
+## Processor elettorale M05
+
+StartElection collega ora Service.Handle: RequestVote implementa voto durevole, AppendEntries vuota gestisce heartbeat elettorale/validazione prev. Il noop nuovo termine è solo locale e non viene trasmesso come replica. Heartbeat riconosciuto non obsoleto resetta il timeout anche con prev divergente; heartbeat obsoleto/voto negato no. Termini maggiori validi, incluse risposte vecchie correlate o richieste append/snapshot non supportate, vengono persistiti prima di output dipendente. Effetti append non vuote/snapshot danno 503/indisponibile; nessun avanzamento commit o conteggio progresso. Retry core su tick successivi con backoff errori peer 50..400 ms, mai paralleli verso stesso peer. Contratti envelope/body/socket/deadline esistenti invariati. [Test e limiti](milestone-m05.md).
