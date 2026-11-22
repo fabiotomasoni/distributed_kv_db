@@ -60,3 +60,7 @@ Noop/read non registrano o avanzano sessione. CAS fallito e rifiuto quota logica
 ## Cattura consistente progettata per M13
 
 Contratto futuro nella [revisione pre-M13](pre-m13-review.md): mappa, contatori e tutte le sessioni allo stesso prefisso S, copie difensive e ordinamento ASCII esplicito. Conservare fingerprint e ultimo risultato originale, anche CAS fallito/quota; niente TTL, eviction o risultati GET persistiti. Read/noop possono terminare uno snapshot con stato KV invariato ma indice avanzato. Restore ricostruisce coppia atomica e poi solo S+1..commit; non rinnova risultati per waiter precedenti. Nessuna API export/import o snapshot aggiunta ora.
+
+## Immagini in memoria M13 Fase A
+
+M01.CopyState restituisce record ordinati e valori copiati con contatore logico; FromState valida tutto prima di costruire una nuova macchina, senza Apply di comandi vecchi. Sessions.CopySessions copia i record latest in ordine client; SessionsFromState crea un wrapper nuovo con digest, sequenza, tipo, risultato e indice originario. Il risultato mutante non contiene buffer valore. Entrambe sono API owner-only, non letture concorrenti sicure di per sé: la cattura le invoca una volta nello stesso controllo M02 parcheggiato. Restore isolato ricostruisce KV/sessioni insieme e il punto S/termS; non importa nulla nel nodo. Retry riuscito/fallito/quota, stale/gap/conflict, DELETE, read/noop e cap 1024 verificati dopo restore più suffisso. Nessuna eviction o exactly-once generale. [Evidenze](milestone-m13-preliminary.md).

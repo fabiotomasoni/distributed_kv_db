@@ -131,3 +131,22 @@ For the ordinary server, optionally add -log-dir pointing to an existing 0700 fo
 ## Operational boundary after the pre-M13 review
 
 [CONDITIONALLY READY](pre-m13-review.md): no snapshot/compaction/install option or stateful recovery activated. V2 still requires separate directories and no automatic v1 migration. Never use real data directories for snapshot probes; an initial future assignment covers codecs/models/isolated barriers and must pass the matrix before integration. Optional log folder belongs to one instance only; arbitrarily blocking output I/O remains a known limitation. M13 not started.
+
+## M13 Phase A isolated usage
+
+No snapshot CLI/HTTP options exist. Internal isolated APIs: snapshot.NewMachine(v2 config), applier.New, commands from committed.ProjectWithSessions, Park after scheduling stop, coordinator consumption through B, snapshot.Capture with coherent Proof, Release then storageformat.EncodeSnapshot. Never call CopyState/CopySessions on a live machine from another goroutine. Error/cancellation never discards admitted work; always release the lease and await acknowledgment with an appropriate cleanup context. Snapshot.Restore returns a fresh instance/Point: use InitialIndex=Point.Index, currentTerm from validated hard state; never attach it to node bootstrap. [Phase A report](milestone-m13-preliminary.md). Separate next-phase authorization is needed for writer/switch/install/compaction/runtime recovery.
+
+Reproducible phase commands (use installed Go 1.27.4; this session used existing binaries and caches under `/tmp`, with a C compiler already available for race):
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13a.cover -timeout=75s ./...
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/applier ./internal/snapshot ./internal/storageformat ./internal/statemachine ./internal/committed
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

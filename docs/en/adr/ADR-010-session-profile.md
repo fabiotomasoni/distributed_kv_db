@@ -27,3 +27,7 @@ At most 1024 sessions, no TTL/eviction, one latest result <=512 bytes each; stal
 ## Pre-M13 design decision — 22 November 2026
 
 The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete sessions and v2 identity/config for future stateful runtime; no v1 migration or vector changes. Select capture after worker drain/parking and atomic KV/session copy, a separate final barrier with updated hard state, authoritative CURRENT without fallback, peak reservation and InstallSnapshot within M13. Design contract clarified; general writer/codec/install/snapshot recovery unimplemented and T-015/T-016/T-026 unvalidated. C-01 design RESOLVED, C-02 extension and C-03 snapshot CONDITIONALLY READY; no OS/power-durability acceptance. M13 NOT STARTED.
+
+## M13 Phase A isolated conformance — 22 November 2026
+
+[Phase A](../milestone-m13-preliminary.md) implements QSN1/payload v1 and owner-only KV/session copies with v2 binding and fresh/isolated-only restore. No added version/migration; earlier vectors unchanged. Confirm separate worker control rather than indexed commands, B drain/coherent proof before copy, encoding after Release. Isolated C-01 conformance verified; no acceptance of runtime generations, InstallSnapshot, compaction or crash consistency. Complete C-02/C-03 and T-015/T-016/T-026 remain open.

@@ -106,3 +106,7 @@ FR-007 → internal/raft/commit.go + M06 proof correlation + M03 checkpoint → 
 ## Pre-M13 traceability
 
 [Review](pre-m13-review.md): FR-015/AC-015/T-015, FR-016/AC-016/T-016 and NFR-006/AC-026/T-026 subset remain UNIMPLEMENTED M13 requirements; future matrix defined with FR-011/FR-013/FR-014 dependencies. C-01/OQ-05 closed in design only; new C-02/OQ-01 path and C-03 snapshot CONDITIONALLY READY. M14 T-021/T-022/T-024/T-030/T-031 unchanged.
+
+## M13 Phase A partial evidence
+
+[M13 Phase A report](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED, overall M13 PARTIALLY COMPLETED. T-015/AC-015: codec/atomic copy/isolated restore/sessions verified, not follower transfer or term change during install. T-016/AC-016: image integrity/rejection verified; no new publication/generation/switch/crash recovery, criterion open. T-026/AC-026: in-memory 4 MiB/10000-key/16 KiB-value/1024-session limits, <=8 MiB image and single-capacity copy control verified; directory peak, physical reserves, RAM/CPU/SSD not measured. C-01 design RESOLVED with verified isolated codec conformance; C-02/OQ-01 extension and C-03 snapshot CONDITIONALLY READY. No complete gate closed from a subset; M14 not started.

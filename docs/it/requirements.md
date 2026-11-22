@@ -70,3 +70,7 @@ FR-004/FR-005 dispongono di evidenze elezioni/heartbeat implementate in [M05](mi
 ## Tracciabilità pre-M13
 
 [Revisione](pre-m13-review.md): FR-015/AC-015/T-015, FR-016/AC-016/T-016 e sottoinsieme NFR-006/AC-026/T-026 restano requisiti M13 NON implementati; definita la matrice futura con dipendenze FR-011/FR-013/FR-014. C-01/OQ-05 chiuso soltanto nel design; nuovo percorso C-02/OQ-01 e C-03 snapshot CONDITIONALLY READY. M14 T-021/T-022/T-024/T-030/T-031 invariati.
+
+## Stato requisiti M13 dopo Fase A
+
+FR-015/AC-015/T-015 e FR-016/AC-016/T-016 restano parziali, NFR-006/AC-026/T-026 verificato soltanto per quote/copertura isolata della fase; nessun requisito rimosso. Copia e restore conservano FR-008/FR-011, ma non provano consenso o recovery end-to-end. [Relazione e limiti](milestone-m13-preliminary.md). M13 PARTIALLY COMPLETED; M14 non avviata.

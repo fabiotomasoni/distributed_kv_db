@@ -108,3 +108,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Gate snapshot prima di M13
 
 La [revisione pre-M13](pre-m13-review.md) classifica C-01/OQ-05 RESOLVED nel design, C-02/OQ-01 RESOLVED per il contratto/primitive esistenti e CONDITIONALLY READY per nuove generazioni, C-03 snapshot CONDITIONALLY READY. AC-015/T-015, AC-016/T-016 e sottoinsieme AC-026/T-026 non sono superati: richiedono la futura implementazione. AC-013/AC-023 storici non vengono estesi a snapshot o power loss. Nessun nuovo ID/gate, M13 e M14 non iniziate.
+
+## Evidenze parziali M13 Fase A
+
+[Relazione M13 Fase A](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED, M13 complessiva PARTIALLY COMPLETED. T-015/AC-015: codec, copia atomica e restore isolato/sessioni verificati, non trasferimento a follower o cambio termine durante install. T-016/AC-016: integrità immagini e rifiuti verificati; nessuna nuova pubblicazione, generazione, switch o crash recovery, criterio aperto. T-026/AC-026: limiti logici 4 MiB/10000 chiavi/16 KiB valori/1024 sessioni, immagine <=8 MiB e controllo copia a capacità uno verificati in memoria; picco directory, riserve fisiche, RAM/CPU/SSD non misurati. C-01 design RESOLVED e conformance codec isolata verificata; estensione C-02/OQ-01 e C-03 snapshot CONDITIONALLY READY. Nessun gate completo chiuso dal solo sottoinsieme; M14 non iniziata.

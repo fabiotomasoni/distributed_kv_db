@@ -134,3 +134,9 @@ Recovery does not apply KV commands; callers must later coordinate commit proof,
 ## Pre-M13 protocol and evidence status
 
 The [pre-M13 review](pre-m13-review.md) specifies capture S, final-fence hard state, generation WAL with initial S commit/full suffix/final C checkpoint, Sync+rename+directory-Sync publication and token handoff. CURRENT remains sole authority; no corruption fallback. Rotation preserves live state beyond S; InstallSnapshot requires drain and obsolete/matching revalidation before post-publication replacement. Reserve old/new/staging/control peak within 32 MiB, never pre-delete for space. C-01 design RESOLVED, existing C-02 primitives reconfirmed but new path CONDITIONALLY READY, C-03 snapshot CONDITIONALLY READY. M13 not started: writer, installation, compaction and stateful recovery absent; no snapshot crash-consistency validation.
+
+## Isolated restore, no runtime recovery
+
+[M13 Phase A](milestone-m13-preliminary.md) adds only codecs and snapshot.Restore into a fresh in-memory instance. Restore requires v2 config, exact cluster/hash and termS<=currentTerm from the caller's validated hard-state view; returns Point for the new applier InitialIndex. No <=S entry replay, file opening or listener. Proof/Capture rejects inconsistent applier bases. Caller separately supplies only a proven committed suffix; the isolated library does not decide commit.
+
+WAL.Open/OpenSessions still reject stateful/nonzero-base snapshots; bootstrap/M09 recovery unchanged. No new CURRENT, writer, generation switch, compaction or InstallSnapshot. Schemas/sessions/capture pass isolated tests, not crash recovery or C-02/C-03/T-016 closure. Publication protocol and [pre-M13 matrix](pre-m13-review.md) remain next-phase requirements rather than active code.

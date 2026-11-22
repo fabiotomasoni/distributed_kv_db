@@ -134,3 +134,7 @@ T-008/M02 e T-018/M02 Passed: 20 nuovi test; suite completa ripetuta tre volte, 
 ## Piano verificabile pre-M13
 
 La [revisione pre-M13](pre-m13-review.md) contiene la matrice futura T-015/T-016/T-026 e distingue design/prove mancanti. Test snapshot/compaction/install sono NOT RUN; simulatore M12 attuale non implementa quei cutpoint. Primi lavori proponibili in un futuro incarico: codec stateless e vettori, handshake capture in memoria, oracoli e prove isolate delle barriere, prima di integrare writer/recovery attivi. Conservare ghost committed anche dopo compaction, risultati sessioni originali e voto finale; nessuna modifica al gate checker M14. Questa revisione aggiunge solo regressioni dei due bug M12 documentati.
+
+## Evidenze parziali M13 Fase A
+
+[Relazione M13 Fase A](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED, M13 complessiva PARTIALLY COMPLETED. T-015/AC-015: codec, copia atomica e restore isolato/sessioni verificati, non trasferimento a follower o cambio termine durante install. T-016/AC-016: integrità immagini e rifiuti verificati; nessuna nuova pubblicazione, generazione, switch o crash recovery, criterio aperto. T-026/AC-026: limiti logici 4 MiB/10000 chiavi/16 KiB valori/1024 sessioni, immagine <=8 MiB e controllo copia a capacità uno verificati in memoria; picco directory, riserve fisiche, RAM/CPU/SSD non misurati. C-01 design RESOLVED e conformance codec isolata verificata; estensione C-02/OQ-01 e C-03 snapshot CONDITIONALLY READY. Nessun gate completo chiuso dal solo sottoinsieme; M14 non iniziata.

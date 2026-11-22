@@ -70,3 +70,7 @@ FR-004/FR-005 have implemented election/heartbeat evidence in [M05](milestone-m0
 ## Pre-M13 traceability
 
 [Review](pre-m13-review.md): FR-015/AC-015/T-015, FR-016/AC-016/T-016 and NFR-006/AC-026/T-026 subset remain UNIMPLEMENTED M13 requirements; future matrix defined with FR-011/FR-013/FR-014 dependencies. C-01/OQ-05 closed in design only; new C-02/OQ-01 path and C-03 snapshot CONDITIONALLY READY. M14 T-021/T-022/T-024/T-030/T-031 unchanged.
+
+## M13 requirements after Phase A
+
+FR-015/AC-015/T-015 and FR-016/AC-016/T-016 remain partial; NFR-006/AC-026/T-026 verified only for this phase's isolated quota subset; no requirement removed. Copy/restore preserve FR-008/FR-011 without proving consensus or end-to-end recovery. [Report and limits](milestone-m13-preliminary.md). M13 PARTIALLY COMPLETED; M14 not started.

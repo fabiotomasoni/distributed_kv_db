@@ -72,3 +72,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## Planned, unexecuted snapshot faults
 
 The [pre-M13 matrix](pre-m13-review.md) assigns capture errors, header/payload/Sync, bad digest/version, generation/CURRENT rename, directory fsync, RAM/writer handoff, cleanup, stale epochs, updated vote, lagging followers and dedup restart to T-015/T-016/T-026. All snapshot rows are NOT RUN. ProcessCrash/SystemCrashModel remain separate; no actual OS/power crash. If CURRENT rename succeeds but its barrier fails, retain both generations, no acknowledgment/rollback; corrupt authority fails explicitly. M12 remains a finite model rather than a general linearizability proof.
+
+## M13 Phase A isolated errors
+
+[Phase A](milestone-m13-preliminary.md) tests truncated/corrupt snapshot framing, invalid lengths/counts/versions, nonaliasing copies, inconsistent metadata, freeze before completion, copy cancellation/shutdown and control panic. No write/delete/install effect. Worker never interrupts accepted Apply/callback work to fake shutdown completion; expired waits do not transfer ownership. Trusted calls must terminate like Machine.Apply. Actual generation/CURRENT/cleanup crash and runtime token/epoch tests remain future T-015/T-016. No new OS/power guarantee.

@@ -108,3 +108,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## Snapshot gates before M13
 
 The [pre-M13 review](pre-m13-review.md) classifies C-01/OQ-05 RESOLVED in design, C-02/OQ-01 RESOLVED for existing contract/primitives and CONDITIONALLY READY for new generations, C-03 snapshot CONDITIONALLY READY. AC-015/T-015, AC-016/T-016 and the AC-026/T-026 subset are not passed: they require future implementation. Historical AC-013/AC-023 are not extended to snapshots or power loss. No new ID/gate, M13 and M14 not started.
+
+## M13 Phase A partial evidence
+
+[M13 Phase A report](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED, overall M13 PARTIALLY COMPLETED. T-015/AC-015: codec/atomic copy/isolated restore/sessions verified, not follower transfer or term change during install. T-016/AC-016: image integrity/rejection verified; no new publication/generation/switch/crash recovery, criterion open. T-026/AC-026: in-memory 4 MiB/10000-key/16 KiB-value/1024-session limits, <=8 MiB image and single-capacity copy control verified; directory peak, physical reserves, RAM/CPU/SSD not measured. C-01 design RESOLVED with verified isolated codec conformance; C-02/OQ-01 extension and C-03 snapshot CONDITIONALLY READY. No complete gate closed from a subset; M14 not started.

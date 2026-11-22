@@ -29,6 +29,7 @@ type Applier struct {
 	state       State
 	failure     error
 	changed     chan struct{}
+	barrier     *parkRequest
 	done        chan struct{}
 }
 
@@ -74,6 +75,9 @@ func (a *Applier) submit(ctx context.Context, entry Entry, wait bool) (*Future, 
 	for {
 		if a.state != Running {
 			return nil, ErrClosed
+		}
+		if a.barrier != nil {
+			return nil, ErrPaused
 		}
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -126,6 +130,10 @@ func (a *Applier) Shutdown(ctx context.Context) error {
 	a.mu.Lock()
 	if a.state == Running {
 		a.state = Draining
+		if a.barrier != nil {
+			a.barrier.releasing = true
+			a.barrier.once.Do(func() { close(a.barrier.release) })
+		}
 		a.notify()
 	}
 	a.mu.Unlock()
@@ -178,6 +186,16 @@ func (a *Applier) run() {
 	for {
 		a.mu.Lock()
 		if a.count == 0 {
+			if r := a.barrier; r != nil {
+				if a.state == Running && !r.releasing {
+					close(r.ready)
+				}
+				a.mu.Unlock()
+				if !a.park(r) {
+					return
+				}
+				continue
+			}
 			if a.state == Draining {
 				a.state = Stopped
 				a.notify()
@@ -199,6 +217,10 @@ func (a *Applier) run() {
 		a.active = false
 		if err != nil {
 			a.state, a.failure = Failed, err
+			if a.barrier != nil {
+				close(a.barrier.finished)
+				a.barrier = nil
+			}
 			for a.count > 0 {
 				a.pop().future.finish(statemachine.Result{}, ErrAborted)
 			}

@@ -131,3 +131,22 @@ Per il server ordinario, aggiungere facoltativamente -log-dir con una cartella e
 ## Limite operativo dopo la revisione pre-M13
 
 [Readiness CONDITIONALLY READY](pre-m13-review.md): nessuna opzione snapshot/compaction/install disponibile, nessun recovery stateful attivato. Il profilo v2 richiede ancora directory proprie e nessuna migrazione automatica v1. Non usare directory reali per prove snapshot; un futuro incarico iniziale riguarda codec/modelli/barriere isolate e deve superare la matrice prima dell'integrazione. Cartella log opzionale dedicata a una singola istanza; output I/O arbitrariamente bloccante resta limite noto. M13 non iniziata.
+
+## Uso isolato M13 Fase A
+
+Non esistono opzioni CLI/HTTP snapshot. Le API interne isolate sono: snapshot.NewMachine(config v2), applier.New, comandi da committed.ProjectWithSessions, Park dopo stop scheduling, consumo completion del coordinatore fino a B, snapshot.Capture con Proof coerente, Release e poi storageformat.EncodeSnapshot. Non chiamare CopyState/CopySessions su una macchina attiva da un altro goroutine. Un errore/cancel non elimina lavoro già ammesso; rilasciare sempre la lease e attendere ack con un context di cleanup adeguato. Snapshot.Restore restituisce istanza nuova e Point: usare InitialIndex=Point.Index, currentTerm da hard state validato; non collegarlo al bootstrap nodo. [Relazione Fase A](milestone-m13-preliminary.md). Autorizzazione successiva separata necessaria per writer/switch/install/compaction/recovery runtime.
+
+Comandi riproducibili della fase (usare Go 1.27.4 installato; in questa sessione binari e cache preesistenti sotto `/tmp`, compilatore C già disponibile per race):
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13a.cover -timeout=75s ./...
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/applier ./internal/snapshot ./internal/storageformat ./internal/statemachine ./internal/committed
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

@@ -60,3 +60,7 @@ Noop/read do not register or advance a session. Failed CAS and logical quota rej
 ## Consistent capture designed for M13
 
 Future contract in the [pre-M13 review](pre-m13-review.md): map, counters and every session at the same S prefix, defensive copies and explicit ASCII ordering. Retain fingerprint/latest original result, including failed CAS/quota; no TTL, eviction or persisted GET outputs. Read/noop may end a snapshot with unchanged KV but advanced index. Restore reconstructs the atomic pair and then only S+1..commit; never renews results for old waiters. No export/import or snapshot API added now.
+
+## M13 Phase A memory images
+
+M01.CopyState returns sorted records/copied values and logical count; FromState validates everything before constructing a fresh machine without applying old commands. Sessions.CopySessions copies latest records in client order; SessionsFromState constructs a new wrapper with digest, sequence, kind, original result/index. Mutation results contain no value buffer. Both are owner-only APIs, not independently safe concurrent reads: capture calls them once inside the same parked M02 control. Isolated restore reconstructs KV/sessions and point S/termS together without importing into a node. Successful/failed/quota retry, stale/gap/conflict, DELETE, read/noop and 1024 cap checked after restore plus suffix. No eviction/general exactly-once. [Evidence](milestone-m13-preliminary.md).

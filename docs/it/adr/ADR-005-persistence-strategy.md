@@ -85,3 +85,7 @@ C-02 è CONDITIONALLY RESOLVED per scelte documentate e OPEN per validazione imp
 ## Decisione progettuale pre-M13 — 22 novembre 2026
 
 La [revisione pre-M13](../pre-m13-review.md) conferma snapshot QSN1/payload v1 con sessioni complete e identità/config v2 per il runtime stateful futuro; nessuna migrazione v1 o modifica ai vettori. Scelti capture dopo drain/parking del worker e copia atomica KV/sessioni, barriera finale distinta con hard state aggiornato, CURRENT autorevole senza fallback, riserva picco e InstallSnapshot come parte M13. Contratto progettuale precisato; writer/codec generale/install/recovery snapshot non implementati e proprietà T-015/T-016/T-026 non validate. C-01 design RESOLVED, estensione C-02 e C-03 snapshot CONDITIONALLY READY; nessuna accettazione durabilità OS/alimentazione. M13 NON INIZIATA.
+
+## Conformità isolata M13 Fase A — 22 novembre 2026
+
+[Fase A](../milestone-m13-preliminary.md) implementa il formato QSN1/payload v1 e copie owner-only KV/sessioni, con v2 binding e restore esclusivamente nuovo/isolato. Nessuna versione o migrazione aggiunta; vettori precedenti immutati. Confermato controllo worker separato dai comandi indexed, drain B e proof coerente prima di copiare, encoding dopo Release. C-01 conformance isolata verificata; nessuna accettazione delle generazioni, InstallSnapshot, compaction o crash consistency runtime. C-02/C-03 e T-015/T-016/T-026 completi restano aperti.

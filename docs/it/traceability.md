@@ -106,3 +106,7 @@ FR-007 → internal/raft/commit.go + correlazione prove M06 + checkpoint M03 →
 ## Tracciabilità pre-M13
 
 [Revisione](pre-m13-review.md): FR-015/AC-015/T-015, FR-016/AC-016/T-016 e sottoinsieme NFR-006/AC-026/T-026 restano requisiti M13 NON implementati; definita la matrice futura con dipendenze FR-011/FR-013/FR-014. C-01/OQ-05 chiuso soltanto nel design; nuovo percorso C-02/OQ-01 e C-03 snapshot CONDITIONALLY READY. M14 T-021/T-022/T-024/T-030/T-031 invariati.
+
+## Evidenze parziali M13 Fase A
+
+[Relazione M13 Fase A](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED, M13 complessiva PARTIALLY COMPLETED. T-015/AC-015: codec, copia atomica e restore isolato/sessioni verificati, non trasferimento a follower o cambio termine durante install. T-016/AC-016: integrità immagini e rifiuti verificati; nessuna nuova pubblicazione, generazione, switch o crash recovery, criterio aperto. T-026/AC-026: limiti logici 4 MiB/10000 chiavi/16 KiB valori/1024 sessioni, immagine <=8 MiB e controllo copia a capacità uno verificati in memoria; picco directory, riserve fisiche, RAM/CPU/SSD non misurati. C-01 design RESOLVED e conformance codec isolata verificata; estensione C-02/OQ-01 e C-03 snapshot CONDITIONALLY READY. Nessun gate completo chiuso dal solo sottoinsieme; M14 non iniziata.

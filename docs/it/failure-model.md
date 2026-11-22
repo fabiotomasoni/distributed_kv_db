@@ -72,3 +72,7 @@ I [test M06](milestone-m06.md) coprono perdita/ritardo/duplicazione/riordino, co
 ## Fault snapshot pianificati, non eseguiti
 
 La [matrice pre-M13](pre-m13-review.md) assegna a T-015/T-016/T-026 errori cattura, header/payload/Sync, digest/versioni errati, rename generazione/CURRENT, fsync directory, switch RAM/writer, cleanup, epoche obsolete, voto aggiornato, follower arretrato e restart con dedup. Tutte le righe snapshot sono NOT RUN. ProcessCrash e SystemCrashModel restano distinti; nessun crash OS/alimentazione reale. Se CURRENT rename è riuscito ma la barriera fallisce, conservare entrambe le generazioni, nessun ack/rollback; corruzione dell'autorità è errore esplicito. M12 resta un modello finito, non prova di linearizzabilità generale.
+
+## Errori isolati M13 Fase A
+
+[Fase A](milestone-m13-preliminary.md) verifica frame snapshot troncati/corrotti, lunghezze/count/versioni invalide, copie senza alias, metadati incoerenti, freeze prima del completamento, cancellazione/chiusura durante copy e panic del controllo. Nessun effetto di scrittura, eliminazione o installazione. Il worker non interrompe Apply/callback già accettati per far sembrare concluso uno shutdown; attesa scaduta non trasferisce ownership. Le chiamate fidate devono terminare come Machine.Apply. Le prove reali di crash fra generazione/CURRENT/cleanup e token/epoche runtime sono ancora T-015/T-016 futuri. Nessuna garanzia nuova OS/alimentazione.
