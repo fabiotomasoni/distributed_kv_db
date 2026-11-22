@@ -76,3 +76,7 @@ La [matrice pre-M13](pre-m13-review.md) assegna a T-015/T-016/T-026 errori cattu
 ## Errori isolati M13 Fase A
 
 [Fase A](milestone-m13-preliminary.md) verifica frame snapshot troncati/corrotti, lunghezze/count/versioni invalide, copie senza alias, metadati incoerenti, freeze prima del completamento, cancellazione/chiusura durante copy e panic del controllo. Nessun effetto di scrittura, eliminazione o installazione. Il worker non interrompe Apply/callback già accettati per far sembrare concluso uno shutdown; attesa scaduta non trasferisce ownership. Le chiamate fidate devono terminare come Machine.Apply. Le prove reali di crash fra generazione/CURRENT/cleanup e token/epoche runtime sono ancora T-015/T-016 futuri. Nessuna garanzia nuova OS/alimentazione.
+
+## M13 Fase B — 23 novembre 2026
+
+Le [prove Fase B](milestone-m13-persistence.md) distinguono write parziali/errori, gen-N pronta e selezione CURRENT, errori incerti dopo tentativo rename e uscita processo con OS vivo. Un errore non produce successo; owner failed, candidati e generazioni precedenti conservati; recovery non usa fallback. Solo coda WAL finale strutturalmente incompleta riparabile dopo validazione, corruzione completa fatale. Cleanup/switch/installazione e crash OS/alimentazione non verificati. T-015/T-016/T-026 restano aperti.

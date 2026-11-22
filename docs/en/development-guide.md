@@ -150,3 +150,24 @@ python3 docs/fixtures/verify_canonical_v1.py
 go list -m all
 git diff --check
 ```
+
+## Isolated M13 Phase B
+
+OpenPersistence requires an M03-initialized temporary v2 directory and the previous owner closed. Publish uses only detached capture and current locked WAL; Recover returns a fresh machine at Point and separate validated log, without suffix application. Close completes I/O before releasing LOCK. No snapshot CLI/HTTP option; never use operational directories for experiments. Errors retain evidence: no automatic cleanup or CURRENT rollback. [Results and limitations](milestone-m13-persistence.md).
+
+Phase B commands executed with Go 1.27.4 darwin/arm64 and existing cached tools under `/tmp` (no downloads):
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13b.cover -timeout=75s ./...
+go test -p 1 -count=1 -coverprofile=/tmp/quorumkv-m13b-snapshot-final.cover -timeout=40s ./internal/snapshot
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/snapshot ./internal/storagefs ./internal/wal ./internal/applier ./internal/committed ./internal/storageformat
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/snapshot
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

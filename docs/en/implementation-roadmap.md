@@ -2,13 +2,13 @@
 
 [Index](README.md) · [Italiano](../it/implementation-roadmap.md)
 
-**Updated: 22 November 2026 — local M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 implemented and checked; distributed specifications remain design work.**
+**Updated: 23 November 2026 — local M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 implemented and checked; distributed specifications remain design work.**
 
 ## Capacity and dependencies
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07 is **COMPLETED**: [commit/application report](milestone-m07.md). M08 is **COMPLETED**: [API subset and evidence](milestone-m08.md). M09 is **COMPLETED**: [process recovery/MVP evidence](milestone-m09.md). M10 is **COMPLETED**: [logged GET and evidence](milestone-m10.md). M11 is **COMPLETED** in the explicit v2 session profile: [CAS/dedup evidence](milestone-m11.md). M12 is **COMPLETED**: [fault/replay and diagnostics](milestone-m12.md). M13 is **PARTIALLY COMPLETED**: [Phase A completed](milestone-m13-preliminary.md). M14–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07 is **COMPLETED**: [commit/application report](milestone-m07.md). M08 is **COMPLETED**: [API subset and evidence](milestone-m08.md). M09 is **COMPLETED**: [process recovery/MVP evidence](milestone-m09.md). M10 is **COMPLETED**: [logged GET and evidence](milestone-m10.md). M11 is **COMPLETED** in the explicit v2 session profile: [CAS/dedup evidence](milestone-m11.md). M12 is **COMPLETED**: [fault/replay and diagnostics](milestone-m12.md). M13 is **PARTIALLY COMPLETED**: [Phase A completed](milestone-m13-preliminary.md) and [isolated Phase B completed](milestone-m13-persistence.md). M14–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
@@ -111,3 +111,7 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 ## M13 Phase A — 22 November 2026
 
 [Report](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED; codec, atomic capture and isolated restore verified. M13 PARTIALLY COMPLETED. C-01/OQ-05 isolated conformance verified; C-02/OQ-01 new generations and C-03 CONDITIONALLY READY. T-015/T-016/T-026 open. Runtime snapshot/compaction/install/recovery require a new assignment and their respective evidence; M14 NOT STARTED.
+
+## M13 Phase B — 23 November 2026
+
+The [Phase B](milestone-m13-persistence.md) adds isolated evidence for writing/rereading, CURRENT, retained generations, fresh recovery without suffix replay, 16 cutpoints and two process exits before/after rename. T-015/AC-015/FR-015: persistence and dedup, not transfer/installation. T-016/AC-016/FR-016: isolated publication, not cleanup/compaction/live switch. T-026/AC-026/NFR-006: old+new+staging reservation and simulated quotas, not RSS/CPU report or runtime admission. C-01/OQ-05 RESOLVED; isolated C-02/OQ-01 VERIFIED but integration and C-03 CONDITIONALLY READY. M13 PARTIALLY COMPLETED, full criteria open, M14 not started.

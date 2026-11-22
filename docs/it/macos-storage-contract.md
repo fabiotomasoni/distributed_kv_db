@@ -74,3 +74,7 @@ Non è implementazione generazionale completa o accettazione recovery/durabilit�
 ## Riconferma dell’incarico ripetuto
 
 20 novembre 2026: [nuove verifiche nel perimetro preliminare](milestone-m03-preliminary.md) riconfermano C-02 VERIFIED sullo stesso profilo APFS locale. Sorgenti/fixture invariati; superati test limitati codec/adattatore/M01/M02 e race mirato. Il prompt preliminare ripetuto non annulla M03 completata separatamente né autorizza M04.
+
+## M13 Fase B — 23 novembre 2026
+
+La [Fase B](milestone-m13-persistence.md) riusa le primitive APFS/Darwin senza downgrade: LOCK stabile, file esclusivi privati, write complete, File.Sync e Close controllati, fsync directory separato e rename nello stesso parent. Test isolati su generazioni reali, 16 cutpoint, errori file/namespace e due uscite figlio pre/post CURRENT passano; C-02 estensione isolata VERIFIED, integrazione runtime CONDITIONALLY READY. Nessun cleanup attivato, nessun claim reboot/OS/alimentazione. File.Sync non equivale da solo a pubblicazione completa.

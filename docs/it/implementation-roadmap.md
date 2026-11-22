@@ -2,13 +2,13 @@
 
 [Indice](README.md) · [English](../en/implementation-roadmap.md)
 
-**Aggiornamento: 22 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 23 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Capacità e dipendenze
 
 Piano indicativo 24 settimane (~6 mesi), 6–8 ore/settimana per uno studente individuale, capacità disponibile di 144–192 ore, che non è una stima validata dello sforzo necessario; è una stima incerta, non un impegno. Quattro mesi richiedono più ore o riduzione degli obiettivi opzionali, mai eliminazione dei gate di correttezza. Recuperare ritardi prima tagliando ottimizzazioni, poi estendendo calendario. Nessuna data di completamento è garantita.
 
-M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04 è **COMPLETED**: [relazione RPC/configurazione](milestone-m04.md). M05 è **COMPLETED**: [relazione leader election](milestone-m05.md). M06 è **COMPLETED**: [relazione replica](milestone-m06.md). M07 è **COMPLETED**: [relazione commit/applicazione](milestone-m07.md). M08 è **COMPLETATA**: [sottoinsieme API ed evidenze](milestone-m08.md). M09 è **COMPLETATA**: [evidenze recovery processi/MVP](milestone-m09.md). M10 è **COMPLETATA**: [GET nel log ed evidenze](milestone-m10.md). M11 è **COMPLETATA** nel profilo sessioni v2 esplicito: [evidenze CAS/dedup](milestone-m11.md). M12 è **COMPLETATA**: [fault/replay e diagnostica](milestone-m12.md). M13 è **PARTIALLY COMPLETED**: [Fase A completata](milestone-m13-preliminary.md). M14–M16 sono **Non iniziate**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
+M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04 è **COMPLETED**: [relazione RPC/configurazione](milestone-m04.md). M05 è **COMPLETED**: [relazione leader election](milestone-m05.md). M06 è **COMPLETED**: [relazione replica](milestone-m06.md). M07 è **COMPLETED**: [relazione commit/applicazione](milestone-m07.md). M08 è **COMPLETATA**: [sottoinsieme API ed evidenze](milestone-m08.md). M09 è **COMPLETATA**: [evidenze recovery processi/MVP](milestone-m09.md). M10 è **COMPLETATA**: [GET nel log ed evidenze](milestone-m10.md). M11 è **COMPLETATA** nel profilo sessioni v2 esplicito: [evidenze CAS/dedup](milestone-m11.md). M12 è **COMPLETATA**: [fault/replay e diagnostica](milestone-m12.md). M13 è **PARTIALLY COMPLETED**: [Fase A completata](milestone-m13-preliminary.md) e [Fase B isolata completata](milestone-m13-persistence.md). M14–M16 sono **Non iniziate**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
 
 | ID / obiettivo | Prerequisiti | Settimane | Progettazione, implementazione e deliverable | Test / completamento | Rischio | Complessità |
 |---|---|---|---|---|---|---|
@@ -111,3 +111,7 @@ M12 completa fault injection, non ne avvia le fondamenta: introdurre fake clock 
 ## M13 Fase A — 22 novembre 2026
 
 [Relazione](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED; codec, cattura atomica e restore isolato verificati. M13 PARTIALLY COMPLETED. C-01/OQ-05 conformità isolata verificata; C-02/OQ-01 nuove generazioni e C-03 CONDITIONALLY READY. T-015/T-016/T-026 aperti. Runtime snapshot/compaction/install/recovery richiedono nuovo incarico e le rispettive evidenze; M14 NON INIZIATA.
+
+## M13 Fase B — 23 novembre 2026
+
+La [Fase B](milestone-m13-persistence.md) aggiunge evidenze isolate su scrittura/rilettura, CURRENT, generazioni conservate, recovery nuovo senza replay del suffisso, 16 cutpoint e due uscite processo pre/post rename. T-015/AC-015/FR-015: persistenza e dedup, non trasferimento/installazione. T-016/AC-016/FR-016: pubblicazione isolata, non cleanup/compaction/switch live. T-026/AC-026/NFR-006: riserva old+new+staging e quote simulate, non report RSS/CPU o ammissione runtime. C-01/OQ-05 RESOLVED; C-02/OQ-01 isolato VERIFIED ma integrazione e C-03 CONDITIONALLY READY. M13 PARTIALLY COMPLETED, criteri completi aperti, M14 non iniziata.

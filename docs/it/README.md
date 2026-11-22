@@ -2,16 +2,17 @@
 
 [Indice](README.md) · [English](../en/README.md)
 
-**Aggiornamento: 22 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 23 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Come leggere il progetto
 
-M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 è completata: [evidenze RPC/configurazione](milestone-m04.md). M05 è completata: [evidenze leader election](milestone-m05.md). M06 è completata: [evidenze replica](milestone-m06.md). M07 è completata: [evidenze commit/applicazione](milestone-m07.md). M08 è completata: [API PUT/DELETE e test client](milestone-m08.md). M09 è completata: [recovery processi/MVP interno](milestone-m09.md). M10 è completata: [evidenze GET nel log](milestone-m10.md). M11 è completata nel profilo v2 esplicito: [evidenze CAS/dedup](milestone-m11.md). M12 è completata: [fault/replay e osservabilità](milestone-m12.md). M13 è PARTIALLY COMPLETED: [Fase A](milestone-m13-preliminary.md) completata; integrazione snapshot ancora aperta. M14 e successive non iniziate. Specifiche client distribuite complete restano proposte; avvio MVP eseguibile nella guida sviluppo; i rapporti datati 18 novembre documentano la fase precedente.
+M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 è completata: [evidenze RPC/configurazione](milestone-m04.md). M05 è completata: [evidenze leader election](milestone-m05.md). M06 è completata: [evidenze replica](milestone-m06.md). M07 è completata: [evidenze commit/applicazione](milestone-m07.md). M08 è completata: [API PUT/DELETE e test client](milestone-m08.md). M09 è completata: [recovery processi/MVP interno](milestone-m09.md). M10 è completata: [evidenze GET nel log](milestone-m10.md). M11 è completata nel profilo v2 esplicito: [evidenze CAS/dedup](milestone-m11.md). M12 è completata: [fault/replay e osservabilità](milestone-m12.md). M13 è PARTIALLY COMPLETED: [Fase A](milestone-m13-preliminary.md) e [Fase B isolata](milestone-m13-persistence.md) completate; integrazione snapshot ancora aperta. M14 e successive non iniziate. Specifiche client distribuite complete restano proposte; avvio MVP eseguibile nella guida sviluppo; i rapporti datati 18 novembre documentano la fase precedente.
 
 Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 completate localmente; La prosecuzione M13 richiede un nuovo incarico e i propri gate.
 
 ## Specifiche complete
 
+- [M13 Fase B: persistenza e recovery isolato](milestone-m13-persistence.md)
 - [M13 Fase A: codec e cattura isolata completati](milestone-m13-preliminary.md)
 - [Pre-M13: revisione M12 e readiness condizionata](pre-m13-review.md)
 - [M12 completata: fault injection, replay e osservabilità](milestone-m12.md)

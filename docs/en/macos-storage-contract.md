@@ -74,3 +74,7 @@ This is not a full generation implementation or recovery/durability acceptance. 
 ## Repeated-assignment reconfirmation
 
 20 November 2026: [fresh preliminary-scope checks](milestone-m03-preliminary.md) reconfirm C-02 VERIFIED on the same local APFS profile. Source/fixtures unchanged; bounded codec/adapter/M01/M02 and targeted race checks passed. The repeated preliminary prompt does not undo the separately completed M03 or authorize M04.
+
+## M13 Phase B — 23 November 2026
+
+The [Phase B](milestone-m13-persistence.md) reuses APFS/Darwin primitives without downgrade: stable LOCK, exclusive private files, complete writes, checked File.Sync and Close, separate directory fsync and same-parent rename. Isolated real-generation tests, 16 cutpoints, file/namespace errors and two child exits before/after CURRENT pass; isolated C-02 extension VERIFIED, runtime integration CONDITIONALLY READY. No active cleanup or reboot/OS/power claim. File.Sync alone never equals complete publication.

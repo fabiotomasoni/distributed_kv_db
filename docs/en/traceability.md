@@ -110,3 +110,7 @@ FR-007 → internal/raft/commit.go + M06 proof correlation + M03 checkpoint → 
 ## M13 Phase A partial evidence
 
 [M13 Phase A report](milestone-m13-preliminary.md): PRELIMINARY PHASE COMPLETED, overall M13 PARTIALLY COMPLETED. T-015/AC-015: codec/atomic copy/isolated restore/sessions verified, not follower transfer or term change during install. T-016/AC-016: image integrity/rejection verified; no new publication/generation/switch/crash recovery, criterion open. T-026/AC-026: in-memory 4 MiB/10000-key/16 KiB-value/1024-session limits, <=8 MiB image and single-capacity copy control verified; directory peak, physical reserves, RAM/CPU/SSD not measured. C-01 design RESOLVED with verified isolated codec conformance; C-02/OQ-01 extension and C-03 snapshot CONDITIONALLY READY. No complete gate closed from a subset; M14 not started.
+
+## M13 Phase B — 23 November 2026
+
+The [Phase B](milestone-m13-persistence.md) adds isolated evidence for writing/rereading, CURRENT, retained generations, fresh recovery without suffix replay, 16 cutpoints and two process exits before/after rename. T-015/AC-015/FR-015: persistence and dedup, not transfer/installation. T-016/AC-016/FR-016: isolated publication, not cleanup/compaction/live switch. T-026/AC-026/NFR-006: old+new+staging reservation and simulated quotas, not RSS/CPU report or runtime admission. C-01/OQ-05 RESOLVED; isolated C-02/OQ-01 VERIFIED but integration and C-03 CONDITIONALLY READY. M13 PARTIALLY COMPLETED, full criteria open, M14 not started.

@@ -31,3 +31,7 @@ The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete
 ## M13 Phase A isolated conformance — 22 November 2026
 
 [Phase A](../milestone-m13-preliminary.md) implements QSN1/payload v1 and owner-only KV/session copies with v2 binding and fresh/isolated-only restore. No added version/migration; earlier vectors unchanged. Confirm separate worker control rather than indexed commands, B drain/coherent proof before copy, encoding after Release. Isolated C-01 conformance verified; no acceptance of runtime generations, InstallSnapshot, compaction or crash consistency. Complete C-02/C-03 and T-015/T-016/T-026 remain open.
+
+## M13 Phase B isolated persistence — 23 November 2026
+
+[Phase B](../milestone-m13-persistence.md) verifies isolated QSN1/CURRENT build/publication/recovery, updated final vote and complete v2 sessions. Existing format/protocol retained without third manifest or migration. New isolated C-02 evidence VERIFIED; integration C-02/C-03 CONDITIONALLY READY. Cleanup, runtime switch, suffix replay, compaction and InstallSnapshot unimplemented; full T-015/T-016/T-026 open, no OS/power claim.

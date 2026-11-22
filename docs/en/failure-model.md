@@ -76,3 +76,7 @@ The [pre-M13 matrix](pre-m13-review.md) assigns capture errors, header/payload/S
 ## M13 Phase A isolated errors
 
 [Phase A](milestone-m13-preliminary.md) tests truncated/corrupt snapshot framing, invalid lengths/counts/versions, nonaliasing copies, inconsistent metadata, freeze before completion, copy cancellation/shutdown and control panic. No write/delete/install effect. Worker never interrupts accepted Apply/callback work to fake shutdown completion; expired waits do not transfer ownership. Trusted calls must terminate like Machine.Apply. Actual generation/CURRENT/cleanup crash and runtime token/epoch tests remain future T-015/T-016. No new OS/power guarantee.
+
+## M13 Phase B — 23 November 2026
+
+The [Phase B checks](milestone-m13-persistence.md) distinguish partial writes/errors, ready gen-N and CURRENT selection, uncertainty after rename attempt and process exit with OS alive. Errors never return success; failed owner, candidates and previous generations retained; no recovery fallback. Only a structurally incomplete final WAL tail is repairable after validation; complete corruption is fatal. Cleanup/switch/installation and OS/power crashes unverified. T-015/T-016/T-026 remain open.
