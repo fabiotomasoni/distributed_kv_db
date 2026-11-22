@@ -127,3 +127,7 @@ curl --max-time 2 http://127.0.0.1:7601/v1/metrics
 ```
 
 For the ordinary server, optionally add -log-dir pointing to an existing 0700 folder separate from the data directory; four 0600 files, at most 1 MiB total. Otherwise JSON logs go to stderr. No external services. Metrics are local and do not prove quorum; poll at most every 2 s for 30 s. Manually retain failures within 10 MiB and remove only your successful files. New v2 directories and absence of v1 migration remain required. [M12 report](milestone-m12.md), [faults](fault-injection.md), [metrics](observability.md).
+
+## Operational boundary after the pre-M13 review
+
+[CONDITIONALLY READY](pre-m13-review.md): no snapshot/compaction/install option or stateful recovery activated. V2 still requires separate directories and no automatic v1 migration. Never use real data directories for snapshot probes; an initial future assignment covers codecs/models/isolated barriers and must pass the matrix before integration. Optional log folder belongs to one instance only; arbitrarily blocking output I/O remains a known limitation. M13 not started.

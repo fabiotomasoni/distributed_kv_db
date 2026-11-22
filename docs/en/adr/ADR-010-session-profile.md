@@ -23,3 +23,7 @@ A private committed-command envelope carries bounded canonical entry metadata th
 ## Limits and validation
 
 At most 1024 sessions, no TTL/eviction, one latest result <=512 bytes each; stale sequences never reapply. The compact result contains no old values. Unknown outcomes remain possible and every retry goes through a fresh leader/quorum/apply attempt. Test old/new rejection without file changes, canonical v2 identity/configuration vectors, concurrent duplicate CAS, payload conflicts, ordered errors, failover and all-process recovery. Preserve all original fixtures. No universal exactly-once, OS/power-loss or M12/M13 claim.
+
+## Pre-M13 design decision — 22 November 2026
+
+The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete sessions and v2 identity/config for future stateful runtime; no v1 migration or vector changes. Select capture after worker drain/parking and atomic KV/session copy, a separate final barrier with updated hard state, authoritative CURRENT without fallback, peak reservation and InstallSnapshot within M13. Design contract clarified; general writer/codec/install/snapshot recovery unimplemented and T-015/T-016/T-026 unvalidated. C-01 design RESOLVED, C-02 extension and C-03 snapshot CONDITIONALLY READY; no OS/power-durability acceptance. M13 NOT STARTED.

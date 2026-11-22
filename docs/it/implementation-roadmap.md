@@ -103,3 +103,7 @@ M12 completa fault injection, non ne avvia le fondamenta: introdurre fake clock 
 ## Esito finale M12 — 22 novembre 2026
 
 [M12 COMPLETATA](milestone-m12.md): simulatore esplicito con core/M02 reali, scenario/manifest versionati e replay senza nuove scelte con prima divergenza, modelli crash separati e fault rete/storage limitati; log JSON redatti, metriche locali e rotazione opzionale separata dai dati. FR-017/AC-017/T-017, FR-020/AC-020/T-020 e NFR-008/AC-028/T-028 soddisfatti. Revisione M11 conferma sessioni/CAS/v2; corretta finestra di pubblicazione progresso prima della notifica, senza cambiare algoritmi o fixture. M13 NON INIZIATA: handoff snapshot/sessioni, generazioni e installazione richiedono il prossimo gate; checker M14 e misure M15 invariati.
+
+## Readiness pre-M13 — 22 novembre 2026
+
+[Revisione M12 e gate snapshot](pre-m13-review.md): CONDITIONALLY READY. C-01/OQ-05 RESOLVED nel design; contratto/primitive C-02/OQ-01 precedenti confermati, nuovo percorso generazioni CONDITIONALLY READY; C-03 snapshot CONDITIONALLY READY, con T-015/T-016/T-026 ancora NOT RUN. Due bug M12 metriche/replay riprodotti e corretti; ordine di pubblicazione progresso conservato. Un futuro incarico può avviare codec/vettori, capture in memoria e prove isolate delle barriere; integrazione/attivazione writer, compaction, install e recovery stateful richiedono le evidenze elencate. Questa revisione non avvia M13 né chiude le sue prove. M13 e M14 NON INIZIATE.

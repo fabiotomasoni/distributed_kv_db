@@ -12,6 +12,7 @@ Quick path: overview → requirements → architecture → API. Safety review: R
 
 ## Complete specifications
 
+- [Pre-M13: M12 review and conditional readiness](pre-m13-review.md)
 - [M12 completed: fault injection, replay and observability](milestone-m12.md)
 - [M11 completed: CAS HTTP and bounded replicated sessions](milestone-m11.md)
 - [M10 completed: logged GET and stale-leader evidence](milestone-m10.md)

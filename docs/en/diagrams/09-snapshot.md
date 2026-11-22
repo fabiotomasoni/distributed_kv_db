@@ -24,3 +24,5 @@ flowchart TD
 Concurrent appends are serialized by the worker during final rotation. Nothing is deleted before durable publication; intermediate crashes select the generation referenced by CURRENT.
 
 [Normative specification](../storage-and-recovery.md). Labels are localized; identifiers, order and conditions match the Italian version.
+
+Capture requires worker drain/parking and A=W=L=S, never a concurrent map read. Final storage fencing is distinct from capture fencing and includes updated hard state. [Pre-M13 contract](../pre-m13-review.md); design view, M13 not started.

@@ -103,3 +103,7 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 ## M12 final outcome — 22 November 2026
 
 [M12 COMPLETED](milestone-m12.md): explicit simulator with actual core/M02, versioned scenario/manifest and replay without fresh choices plus first-divergence detection, separate crash models and bounded network/storage faults; redacted JSON logs, local metrics and optional rotation separate from data. FR-017/AC-017/T-017, FR-020/AC-020/T-020 and NFR-008/AC-028/T-028 satisfied. M11 review confirms sessions/CAS/v2; progress-publication-before-notification window corrected without algorithm or fixture changes. M13 NOT STARTED: snapshot/session handoff, generations and installation require the next gate; M14 checker and M15 measurements unchanged.
+
+## Pre-M13 readiness — 22 November 2026
+
+[M12 review and snapshot gates](pre-m13-review.md): CONDITIONALLY READY. C-01/OQ-05 RESOLVED in design; existing C-02/OQ-01 contract/primitives confirmed, new generation path CONDITIONALLY READY; C-03 snapshot CONDITIONALLY READY, T-015/T-016/T-026 still NOT RUN. Two M12 metrics/replay bugs reproduced/fixed; progress-publication order retained. A future assignment may start codec/vectors, in-memory capture and isolated barrier checks; active writer/compaction/install/stateful-recovery integration requires the listed evidence. This review neither starts M13 nor closes its tests. M13 and M14 NOT STARTED.

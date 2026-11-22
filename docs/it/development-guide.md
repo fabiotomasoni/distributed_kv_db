@@ -127,3 +127,7 @@ curl --max-time 2 http://127.0.0.1:7601/v1/metrics
 ```
 
 Per il server ordinario, aggiungere facoltativamente -log-dir con una cartella esistente 0700 separata dalla directory dati; quattro file 0600, totale massimo 1 MiB. Altrimenti log JSON su stderr. Non servono servizi esterni. Metriche sono locali e non dimostrano quorum; massimo polling ogni 2 s per 30 s. Conservare fallimenti manualmente entro 10 MiB, rimuovere soltanto i propri file di successo. Restano necessarie nuove directory per v2 e assenza di migrazione v1. [Relazione M12](milestone-m12.md), [fault](fault-injection.md), [metriche](observability.md).
+
+## Limite operativo dopo la revisione pre-M13
+
+[Readiness CONDITIONALLY READY](pre-m13-review.md): nessuna opzione snapshot/compaction/install disponibile, nessun recovery stateful attivato. Il profilo v2 richiede ancora directory proprie e nessuna migrazione automatica v1. Non usare directory reali per prove snapshot; un futuro incarico iniziale riguarda codec/modelli/barriere isolate e deve superare la matrice prima dell'integrazione. Cartella log opzionale dedicata a una singola istanza; output I/O arbitrariamente bloccante resta limite noto. M13 non iniziata.

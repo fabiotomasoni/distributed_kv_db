@@ -104,3 +104,7 @@ M02 local T-008/T-018 subsets Passed, reviewed from source with 21 tests and tar
 ## M12 evidence and M11 review
 
 [M12](milestone-m12.md) satisfies FR-017/AC-017/T-017, FR-020/AC-020/T-020 and NFR-008/AC-028/T-028: redacted logs correlate election and HTTP timeout, local metrics remain available without quorum, saved-manifest replay is identical and detects the first divergence. Seeds 7/42/117, partition/heal, delay/drop/duplicate, crash/restart, short write/ENOSPC/Sync failure, separate models and inconclusive budgets are tested. M11 review checks sequences 12/11/13, gap/conflict, 1024 cap and fresh-machine replay. V1/v2/failover/recovery/GET/CAS regressions retained; M13 snapshots and M14 general checker remain open.
+
+## Snapshot gates before M13
+
+The [pre-M13 review](pre-m13-review.md) classifies C-01/OQ-05 RESOLVED in design, C-02/OQ-01 RESOLVED for existing contract/primitives and CONDITIONALLY READY for new generations, C-03 snapshot CONDITIONALLY READY. AC-015/T-015, AC-016/T-016 and the AC-026/T-026 subset are not passed: they require future implementation. Historical AC-013/AC-023 are not extended to snapshots or power loss. No new ID/gate, M13 and M14 not started.

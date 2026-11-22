@@ -31,3 +31,5 @@ Two equivalent paths with specifications, requirements, ADRs, diagrams, planned 
 [M11 completata: CAS e sessioni](it/milestone-m11.md) · [M11 completed: CAS and sessions](en/milestone-m11.md)
 
 [M12 completata: fault/replay e diagnostica](it/milestone-m12.md) · [M12 completed: fault/replay and diagnostics](en/milestone-m12.md)
+
+[Revisione pre-M13: CONDITIONALLY READY](it/pre-m13-review.md) · [Pre-M13 review: CONDITIONALLY READY](en/pre-m13-review.md)

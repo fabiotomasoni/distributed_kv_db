@@ -81,3 +81,7 @@ C-02 is CONDITIONALLY RESOLVED for documented choices and OPEN for implementatio
 ## M09 conditional process durability — 22 November 2026
 
 [M09](../milestone-m09.md) supplies actual single/all-process kill/restart evidence for the internal MVP, with acknowledged-history bytes and fresh applied-state inspection. Retain the existing synchronous WAL/checkpoint protocol; no new applied cursor or storage format. Tests require intact directories and a recoverable majority. This accepts only the roadmap's process-crash subset: HTTP GET evidence remains after M10 and general snapshots at M13. No OS/power-loss acceptance or complete fault proof.
+
+## Pre-M13 design decision — 22 November 2026
+
+The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete sessions and v2 identity/config for future stateful runtime; no v1 migration or vector changes. Select capture after worker drain/parking and atomic KV/session copy, a separate final barrier with updated hard state, authoritative CURRENT without fallback, peak reservation and InstallSnapshot within M13. Design contract clarified; general writer/codec/install/snapshot recovery unimplemented and T-015/T-016/T-026 unvalidated. C-01 design RESOLVED, C-02 extension and C-03 snapshot CONDITIONALLY READY; no OS/power-durability acceptance. M13 NOT STARTED.

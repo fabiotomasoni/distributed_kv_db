@@ -100,3 +100,7 @@ The service unwraps the result into its existing current-index/current-term resu
 ## M12 observation boundary
 
 [M12](milestone-m12.md) adds local diagnostics and an explicit simulator separate from the server. Observations/logs never authorize commit, apply or client responses and do not change the algorithms. V2 sessions, exact-slot GET, atomic CAS and fresh-quorum retry remain unchanged; no v1 migration. Simulation uses actual core/M02/WAL codecs, a permanent committed ghost and per-index result comparison; replay checks every event against saved choices. ProcessCrash retains completed unsynchronized writes; SystemCrashModel explores all/synced survival only in memory. Incomplete traces are inconclusive. No actual OS/power crash, snapshots or compaction; M13/M14 gates retained. Operational specifications are in [faults](fault-injection.md) and [diagnostics](observability.md).
+
+## Pre-M13 design barriers
+
+The [pre-M13 review](pre-m13-review.md) selects scheduling stop at B=ScheduledApplyIndex, completion drain and worker parking before one KV/session copy: S=LastApplied=B only after handshake. M02 metadata mutex is not a machine lock. Future capture control is not a Raft entry and does not carry megabytes through the 48 KiB M02 command. Serialize the copy after release; a separate final storage barrier captures updated hard state. Local rotation never resets live map/apply; installation replaces KV/sessions after publication and invalidates old epochs. Interfaces unimplemented, C-03 snapshot CONDITIONALLY READY; M13 NOT STARTED.

@@ -23,3 +23,7 @@ Envelope comando committed privato porta metadati entry canonica limitati attrav
 ## Limiti e validazione
 
 Massimo 1024 sessioni, niente TTL/eviction, solo ultimo risultato <=512 byte ciascuno; sequenze vecchie mai riapplicate. Risultato compatto senza valori precedenti. Esiti unknown ancora possibili e ogni retry attraversa nuovo tentativo leader/quorum/apply. Testare rifiuto vecchio/nuovo senza modifiche file, vettori canonici identità/configurazione v2, CAS duplicati concorrenti, conflitti payload, errori ordinati, failover e recovery tutti processi. Preservare fixture originali. Nessuna garanzia universale exactly-once, OS/alimentazione o M12/M13.
+
+## Decisione progettuale pre-M13 — 22 novembre 2026
+
+La [revisione pre-M13](../pre-m13-review.md) conferma snapshot QSN1/payload v1 con sessioni complete e identità/config v2 per il runtime stateful futuro; nessuna migrazione v1 o modifica ai vettori. Scelti capture dopo drain/parking del worker e copia atomica KV/sessioni, barriera finale distinta con hard state aggiornato, CURRENT autorevole senza fallback, riserva picco e InstallSnapshot come parte M13. Contratto progettuale precisato; writer/codec generale/install/recovery snapshot non implementati e proprietà T-015/T-016/T-026 non validate. C-01 design RESOLVED, estensione C-02 e C-03 snapshot CONDITIONALLY READY; nessuna accettazione durabilità OS/alimentazione. M13 NON INIZIATA.

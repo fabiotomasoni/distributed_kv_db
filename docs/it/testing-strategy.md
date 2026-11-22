@@ -130,3 +130,7 @@ T-008/M02 e T-018/M02 Passed: 20 nuovi test; suite completa ripetuta tre volte, 
 ## Evidenze M12 e revisione M11
 
 [M12](milestone-m12.md) soddisfa FR-017/AC-017/T-017, FR-020/AC-020/T-020 e NFR-008/AC-028/T-028: log redatti correlano elezione e timeout HTTP, metriche locali restano disponibili senza quorum, replay da manifest salvato è identico e rileva prima divergenza. Seed 7/42/117, partizione/heal, delay/drop/duplicate, crash/restart, short write/ENOSPC/Sync failure, modelli distinti e limiti inconclusive verificati. Revisione M11 controlla sequenze 12/11/13, gap/conflitto, cap 1024 e replay su macchina nuova. Regressioni profilo v1/v2/failover/recovery/GET/CAS mantenute; M13 snapshot e M14 checker generale restano aperti.
+
+## Piano verificabile pre-M13
+
+La [revisione pre-M13](pre-m13-review.md) contiene la matrice futura T-015/T-016/T-026 e distingue design/prove mancanti. Test snapshot/compaction/install sono NOT RUN; simulatore M12 attuale non implementa quei cutpoint. Primi lavori proponibili in un futuro incarico: codec stateless e vettori, handshake capture in memoria, oracoli e prove isolate delle barriere, prima di integrare writer/recovery attivi. Conservare ghost committed anche dopo compaction, risultati sessioni originali e voto finale; nessuna modifica al gate checker M14. Questa revisione aggiunge solo regressioni dei due bug M12 documentati.

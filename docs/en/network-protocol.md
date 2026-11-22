@@ -83,3 +83,7 @@ StartElection now attaches Service.Handle: RequestVote implements durable voting
 ## M07 leaderCommit behavior
 
 StartCommitted enables [M07](milestone-m07.md): outgoing AppendEntries carries the synchronized checkpoint; a follower advances only through the verified request boundary after suffix/checkpoint Sync. Rejected/stale traffic does not propagate commit. Positive replication reply proves durable prefix/checkpoint, not application or client success. Future read entries and InstallSnapshot effects remain unavailable; original schema/body/socket/deadline limits unchanged. All cluster nodes must select compatible capability at startup, no rolling feature negotiation.
+
+## InstallSnapshot contract clarified before M13
+
+The [pre-M13 review](pre-m13-review.md) retains peer schemas/bounds and specifies the final fence: drain apply, recheck S against LastApplied and term/leader, retain suffix only on (S,termS) matching, never destroy committed data, preserve updated local vote. installed_index follows durable publication and atomic KV/session replacement; chunk acknowledgment never proves replication. If S becomes obsolete during transfer use resume plus verified AppendEntries rather than fabricated matchIndex. No InstallSnapshot handler or transfer manager implemented here.

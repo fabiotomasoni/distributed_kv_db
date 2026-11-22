@@ -83,3 +83,7 @@ StartElection collega ora Service.Handle: RequestVote implementa voto durevole, 
 ## Comportamento leaderCommit M07
 
 StartCommitted abilita [M07](milestone-m07.md): AppendEntries uscente trasporta checkpoint sincronizzato; follower avanza solo fino al confine richiesta verificato dopo Sync suffisso/checkpoint. Traffico rifiutato/obsoleto non propaga commit. Risposta replica positiva prova prefisso/checkpoint durevoli, non applicazione o successo client. Entry read future ed effetti InstallSnapshot restano indisponibili; limiti schema/body/socket/deadline originali invariati. Tutti i nodi devono selezionare capacità compatibile all’avvio, nessuna negoziazione rolling feature.
+
+## Contratto InstallSnapshot precisato prima di M13
+
+La [revisione pre-M13](pre-m13-review.md) mantiene schema/limiti peer esistenti e precisa il fence finale: drain apply, nuova verifica S contro LastApplied e termine/leader, conservazione del suffisso soltanto con match (S,termS), nessuna distruzione del committed e voto locale aggiornato. installed_index segue pubblicazione durevole e sostituzione atomica KV/sessioni; chunk ack non prova replica. Se S diventa obsolete durante transfer usare resume e successiva AppendEntries verificata, senza inventare matchIndex. Nessun handler InstallSnapshot o transfer manager implementato qui.

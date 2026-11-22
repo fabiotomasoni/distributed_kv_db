@@ -284,3 +284,7 @@ La [fase M03 limitata](milestone-m03-preliminary.md) registra GATE C-02 VERIFIED
 ## Follow-up gate M07 attuale
 
 [M07 COMPLETED](milestone-m07.md): commit legale corrente e cursori applicazione schedulato/completato separati verificati con backlog C-03 5→7 e oracolo ghost committed/stato. M01/M02/byte-primitive storage invariati, C-01/OpenAPI resta M08, limiti locali C-02 conservati. C-03 handoff/epoch snapshot, dedup, stale-read e checker finale indipendente non chiusi anticipatamente. Nessuna linearizzabilità client completa o garanzia OS/alimentazione.
+
+## Stato pre-M13 — 22 novembre 2026
+
+La [revisione dedicata](pre-m13-review.md) riconferma gli identificatori originali C-01/OQ-05, C-02/OQ-01, C-03. Contratto snapshot canonico/sessioni v2 e pubblicazione sono precisati senza nuovi formati. Design C-01 RESOLVED; primitive/contratto C-02 esistenti restano verificati, estensione generazioni CONDITIONALLY READY; C-03 snapshot CONDITIONALLY READY con prove T-015/T-016/T-026 ancora NOT RUN. Nessuna chiusura delle prove M13/M14 dal solo documento. Revisione M12 con due bug diagnostica/replay riprodotti e corretti, senza cambiare la correzione di pubblicazione progresso. M13 NON INIZIATA.

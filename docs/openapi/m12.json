@@ -2796,6 +2796,14 @@
                         }
                       },
                       "additionalProperties": false
+                    },
+                    "storage_error": {
+                      "type": "boolean",
+                      "description": "This node observed a fatal local storage I/O failure; excludes proven pre-write quota refusal and application/protocol failures."
+                    },
+                    "node_error": {
+                      "type": "boolean",
+                      "description": "Any fatal node failure, including an applier failure. Local observation, not a quorum decision."
                     }
                   },
                   "additionalProperties": true

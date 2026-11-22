@@ -130,3 +130,7 @@ T-008/M02 and T-018/M02 Passed: 20 new tests; full suite repeated three times, t
 ## M12 evidence and M11 review
 
 [M12](milestone-m12.md) satisfies FR-017/AC-017/T-017, FR-020/AC-020/T-020 and NFR-008/AC-028/T-028: redacted logs correlate election and HTTP timeout, local metrics remain available without quorum, saved-manifest replay is identical and detects the first divergence. Seeds 7/42/117, partition/heal, delay/drop/duplicate, crash/restart, short write/ENOSPC/Sync failure, separate models and inconclusive budgets are tested. M11 review checks sequences 12/11/13, gap/conflict, 1024 cap and fresh-machine replay. V1/v2/failover/recovery/GET/CAS regressions retained; M13 snapshots and M14 general checker remain open.
+
+## Verifiable pre-M13 plan
+
+The [pre-M13 review](pre-m13-review.md) contains the future T-015/T-016/T-026 matrix and separates design from missing evidence. Snapshot/compaction/install tests are NOT RUN; current M12 simulation does not implement those cutpoints. First work eligible for a future assignment: stateless codec/vectors, in-memory capture handshake, oracles and isolated barrier checks before integrating active writer/recovery. Preserve the committed ghost across compaction, original session results and final vote; M14 checker gate unchanged. This review adds only regressions for the two documented M12 defects.

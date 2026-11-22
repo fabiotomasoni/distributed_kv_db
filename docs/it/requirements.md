@@ -66,3 +66,7 @@ FR-004/FR-005 dispongono di evidenze elezioni/heartbeat implementate in [M05](mi
 ## Evidenze M12 e revisione M11
 
 [M12](milestone-m12.md) soddisfa FR-017/AC-017/T-017, FR-020/AC-020/T-020 e NFR-008/AC-028/T-028: log redatti correlano elezione e timeout HTTP, metriche locali restano disponibili senza quorum, replay da manifest salvato è identico e rileva prima divergenza. Seed 7/42/117, partizione/heal, delay/drop/duplicate, crash/restart, short write/ENOSPC/Sync failure, modelli distinti e limiti inconclusive verificati. Revisione M11 controlla sequenze 12/11/13, gap/conflitto, cap 1024 e replay su macchina nuova. Regressioni profilo v1/v2/failover/recovery/GET/CAS mantenute; M13 snapshot e M14 checker generale restano aperti.
+
+## Tracciabilità pre-M13
+
+[Revisione](pre-m13-review.md): FR-015/AC-015/T-015, FR-016/AC-016/T-016 e sottoinsieme NFR-006/AC-026/T-026 restano requisiti M13 NON implementati; definita la matrice futura con dipendenze FR-011/FR-013/FR-014. C-01/OQ-05 chiuso soltanto nel design; nuovo percorso C-02/OQ-01 e C-03 snapshot CONDITIONALLY READY. M14 T-021/T-022/T-024/T-030/T-031 invariati.

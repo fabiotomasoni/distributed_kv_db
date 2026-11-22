@@ -104,3 +104,7 @@ Sottoinsiemi locali T-008/T-018 M02 Passed, riesaminati dal sorgente con 21 test
 ## Evidenze M12 e revisione M11
 
 [M12](milestone-m12.md) soddisfa FR-017/AC-017/T-017, FR-020/AC-020/T-020 e NFR-008/AC-028/T-028: log redatti correlano elezione e timeout HTTP, metriche locali restano disponibili senza quorum, replay da manifest salvato è identico e rileva prima divergenza. Seed 7/42/117, partizione/heal, delay/drop/duplicate, crash/restart, short write/ENOSPC/Sync failure, modelli distinti e limiti inconclusive verificati. Revisione M11 controlla sequenze 12/11/13, gap/conflitto, cap 1024 e replay su macchina nuova. Regressioni profilo v1/v2/failover/recovery/GET/CAS mantenute; M13 snapshot e M14 checker generale restano aperti.
+
+## Gate snapshot prima di M13
+
+La [revisione pre-M13](pre-m13-review.md) classifica C-01/OQ-05 RESOLVED nel design, C-02/OQ-01 RESOLVED per il contratto/primitive esistenti e CONDITIONALLY READY per nuove generazioni, C-03 snapshot CONDITIONALLY READY. AC-015/T-015, AC-016/T-016 e sottoinsieme AC-026/T-026 non sono superati: richiedono la futura implementazione. AC-013/AC-023 storici non vengono estesi a snapshot o power loss. Nessun nuovo ID/gate, M13 e M14 non iniziate.

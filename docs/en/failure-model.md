@@ -68,3 +68,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## M12 fault evidence
 
 [M12](milestone-m12.md) adds local diagnostics and an explicit simulator separate from the server. Observations/logs never authorize commit, apply or client responses and do not change the algorithms. V2 sessions, exact-slot GET, atomic CAS and fresh-quorum retry remain unchanged; no v1 migration. Simulation uses actual core/M02/WAL codecs, a permanent committed ghost and per-index result comparison; replay checks every event against saved choices. ProcessCrash retains completed unsynchronized writes; SystemCrashModel explores all/synced survival only in memory. Incomplete traces are inconclusive. No actual OS/power crash, snapshots or compaction; M13/M14 gates retained. Operational specifications are in [faults](fault-injection.md) and [diagnostics](observability.md).
+
+## Planned, unexecuted snapshot faults
+
+The [pre-M13 matrix](pre-m13-review.md) assigns capture errors, header/payload/Sync, bad digest/version, generation/CURRENT rename, directory fsync, RAM/writer handoff, cleanup, stale epochs, updated vote, lagging followers and dedup restart to T-015/T-016/T-026. All snapshot rows are NOT RUN. ProcessCrash/SystemCrashModel remain separate; no actual OS/power crash. If CURRENT rename succeeds but its barrier fails, retain both generations, no acknowledgment/rollback; corrupt authority fails explicitly. M12 remains a finite model rather than a general linearizability proof.

@@ -12,6 +12,7 @@ Percorso rapido: panoramica → requisiti → architettura → API. Revisione sa
 
 ## Specifiche complete
 
+- [Pre-M13: revisione M12 e readiness condizionata](pre-m13-review.md)
 - [M12 completata: fault injection, replay e osservabilità](milestone-m12.md)
 - [M11 completata: CAS HTTP e sessioni replicate limitate](milestone-m11.md)
 - [M10 completata: GET nel log ed evidenze vecchio leader](milestone-m10.md)

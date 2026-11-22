@@ -24,3 +24,5 @@ flowchart TD
 Append concorrenti sono serializzati dal worker durante rotazione finale. Nessuna cancellazione precede la pubblicazione durevole; crash intermedi scelgono la generazione referenziata da CURRENT.
 
 [Specifica normativa](../storage-and-recovery.md). Le etichette sono tradotte; identificatori, ordine e condizioni corrispondono alla versione inglese.
+
+Il nodo Capture presuppone il drain/parking del worker e A=W=L=S; non è una lettura concorrente della mappa. La barriera finale storage è distinta dalla barriera di cattura e include hard state aggiornato. [Contratto pre-M13](../pre-m13-review.md); vista progettuale, M13 non iniziata.
