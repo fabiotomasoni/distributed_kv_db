@@ -145,3 +145,47 @@ func TestSessionMaximumCASFitsUnchangedM02Bound(t *testing.T) {
 		t.Fatal("transport leaked")
 	}
 }
+
+func TestM12ReviewSequenceTwelveAndCapacityReplay(t *testing.T) {
+	client := fmt.Sprintf("%032x", 1)
+	var entries []storageformat.LogEntry
+	for seq := uint64(1); seq <= 12; seq++ {
+		entries = append(entries, sessionEntry(uint64(len(entries)+1), client, seq, "put", "x", fmt.Sprint(seq), nil))
+	}
+	entries = append(entries, sessionEntry(13, client, 12, "put", "x", "12", nil), sessionEntry(14, client, 11, "put", "x", "11", nil), sessionEntry(15, client, 14, "put", "x", "14", nil), sessionEntry(16, client, 12, "put", "x", "other", nil), sessionEntry(17, client, 13, "cas", "x", "next", map[string]any{"exists": false}))
+	for id := 2; id <= 1024; id++ {
+		entries = append(entries, sessionEntry(uint64(len(entries)+1), fmt.Sprintf("%032x", id), 1, "put", "x", "last", nil))
+	}
+	entries = append(entries, sessionEntry(uint64(len(entries)+1), fmt.Sprintf("%032x", 1025), 1, "put", "x", "overflow", nil))
+	entries = append(entries, sessionEntry(uint64(len(entries)+1), client, 13, "cas", "x", "next", map[string]any{"exists": false}))
+	var original []string
+	for run := 0; run < 2; run++ {
+		s := NewSessions(statemachine.New())
+		for i, e := range entries {
+			c, err := ProjectWithSessions(e)
+			if err != nil {
+				t.Fatal(err)
+			}
+			v, index, err := DecodeSessionResult(s.Apply(c), e.Index)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := fmt.Sprintf("%s/%d/%t", v.Code, index, v.Applied)
+			if run == 0 {
+				original = append(original, got)
+			} else if got != original[i] {
+				t.Fatal("replay divergence", i, got, original[i])
+			}
+			expected := map[int]statemachine.Code{12: statemachine.OK, 13: StaleSequence, 14: SequenceGap, 15: RequestConflict, 16: statemachine.CompareFailed, len(entries) - 2: SessionLimit, len(entries) - 1: statemachine.CompareFailed}
+			if code, ok := expected[i]; ok && v.Code != code {
+				t.Fatal(i, v.Code, code)
+			}
+			if (i == 12 && index != 12) || (i == len(entries)-1 && index != 17) {
+				t.Fatal("original result index lost", i, index)
+			}
+		}
+		if len(s.clients) != 1024 || s.clients[client].sequence != 13 {
+			t.Fatal("session retention")
+		}
+	}
+}

@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/fault-injection.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**22 November 2026 — M12 profile implemented and checked; historical design sections are qualified by the M12 contract below.**
 
 ## Adapters and authority
 
@@ -43,3 +43,15 @@ A useful fault causes an observable transition and checks a property: drop befor
 **SystemCrashModel**: separate abstract exploration, not a hardware promise; preserve synchronized dependencies under the modeled contract and vary survival of unsynchronized effects, including namespace operations. “Last Sync only” is one possible case, not the only one. Never attribute these outcomes to an actual macOS crash or power loss.
 
 T-013 and T-016 cover both logical image models within finite cutpoints; T-023 checks real process crashes only. Record model_kind, survival choice and I/O order in the replay manifest. Installing a corrupt image remains separate from an incomplete crash. The network kernel is not an oracle: include responses delayed across restart and never use simulator incarnation to hide messages from the core that the real protocol could receive.
+
+## Implemented M12 profile and manifest contract
+
+[M12](milestone-m12.md) implements internal/faultsim and the separate quorumkv-sim binary; no fault API in the ordinary server. Three actual Raft cores, actual M02 and fresh v2 machines/sessions per instance, priority scheduler (at_ms,event_id), 25 ms virtual ticks. Each persistence is an ordered synchronous completion, matching the current storage driver; trace records send/delivery, Sync, faults and transitions through a digest after each event. No sleeps, sockets or data-directory access in simulation.
+
+Scenario_version=1: lowercase ASCII/digit/hyphen ID up to 64 characters, nonzero uint64 seed, model_kind ProcessCrash or SystemCrashModel, three coherent v2 configurations ordered n1/n2/n3, virtual deadline 1..5000 ms, max_events 1..10000, at most 128 ordered actions. Strict JSON rejects duplicate/unknown names. Actions: network (random delay bounded by delay_ms+1, delay_ms<=200; drop_every/duplicate_every 0..32), directional pair partition/heal with optional both, node crash/restart, storage and PUT/DELETE/CAS/read propose. Node leader is a selector requiring exactly one local leader, never a role override. Every RPC has a 250 ms virtual timeout: Failed releases only the correlated attempt. Delayed/duplicated messages retain RPC IDs; already-networked responses cross restart and are evaluated by the protocol. Requests addressed to the previous dead instance are discarded. Heal changes future rules without canceling already-scheduled delivery.
+
+Storage uses original frames/transactions and wal.Replay to validate every image: short_write at wal.header retains 12 bytes, at wal.payload retains all but the last frame byte; enospc at wal.header writes nothing (proven proposal refusal, fatal control failure); sync_fail at wal.sync/commit.sync retains the complete frame without a success token. ProcessCrash retains all completed writes, including unsynchronized ones. SystemCrashModel requires survival=all or synced, retaining all bytes or only the synchronized prefix respectively. This is abstract exploration, not a real Mac crash. Restart truncates only a valid incomplete tail and reconstructs only the committed checkpoint. No M13 snapshot/generation cutpoint is enabled.
+
+Manifest_version=1 retains scenario/config/hash, core/harness/Go/platform versions, build revision and modified status when available (otherwise unversioned-worktree/unknown), xorshift64-v1 PRNG, draw tape with bounds/values, fault plan, ordered trace with state SHA-256 and synthetic per-attempt history. The manifest checksum excludes its own sha256 field; integrity, not authentication. Replay does not consult the PRNG: it reconstructs the scheduler using saved choices and compares every event/digest, stopping at the first divergence. Incompatible versions are rejected. Actual fixture: [saved manifest](../fixtures/m12-session-retry.json), [scenario](../../examples/m12/session-retry.json). History distinguishes invocation, completed, unknown, not_admitted and original index; simulated completion retains current term/role, commit and apply, without substitute local caching.
+
+Bounds: 10 MiB input/evidence, 10000 queued events, 128 attempts, 10 s real command deadline, cancellation and M02 cleanup. Exhausted budgets mean inconclusive, never passed. Unsampled invariant trace. Output is created 0600 with existing-file exclusion; no automatic directory deletion. Minimize removes at most the 128 explicit actions only when the supplied predicate preserves preconditions and the violation; it is not the M14 checker. Manually retain failures within quota and remove only successful files owned by the run. Snapshot/rename specifications above remain M13.

@@ -17,7 +17,7 @@ Tutte le decisioni sono Proposed: forniscono una baseline concreta senza fingere
 | ADR-005 | [WAL sincrono e generazioni snapshot](ADR-005-persistence-strategy.md) | Proposed |
 | ADR-006 | [Letture con barriera nel log](ADR-006-linearizable-reads.md) | Proposed |
 | ADR-007 | [Sequenze client e deduplicazione limitata](ADR-007-client-retry-semantics.md) | Proposed |
-| ADR-008 | [Fault injection locale deterministica](ADR-008-fault-injection.md) | Proposed |
+| ADR-008 | [Fault injection locale deterministica](ADR-008-fault-injection.md) | Accepted M12 |
 | ADR-009 | [Sviluppo offline e zero spese](ADR-009-offline-first-development.md) | Proposed |
 
 - [ADR-010: profilo applicativo sessioni versionato](ADR-010-session-profile.md)

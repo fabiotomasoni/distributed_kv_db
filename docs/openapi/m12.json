@@ -1,0 +1,2976 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "QuorumKV M11 CAS and replicated sessions",
+    "version": "m12",
+    "description": "Application profile v2 only: config_version=2, application_version=2, IDENTITY v2, empty-origin bootstrap; no automatic v1 migration. Mutation identity=(client_id,sequence), not generated request_id. Latest result/original index retained per client, 1024 sessions without TTL/eviction. Every retry still requires a new leader/quorum/apply attempt. No exactly-once delivery, automatic client retry, snapshots or rolling negotiation. GET contract unchanged. M12 adds read-only local diagnostics. Metrics never establish quorum or authorize client completion."
+  },
+  "paths": {
+    "/v1/kv/put": {
+      "post": {
+        "operationId": "put",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/putRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "INVALID_ARGUMENT,INVALID_SEQUENCE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_ARGUMENT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "REQUEST_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "REQUEST_TOO_LARGE"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "OVERLOADED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OVERLOADED"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "NOT_LEADER,NO_LEADER,UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NOT_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        },
+                        "leader_id": {
+                          "enum": [
+                            "n1",
+                            "n2",
+                            "n3"
+                          ]
+                        },
+                        "leader_url": {
+                          "type": "string",
+                          "minLength": 8,
+                          "x-configured-leader-url": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "leader_id",
+                        "leader_url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NO_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "TIMEOUT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "STORAGE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Committed current-term quorum, applied result and valid completion fence. Independent attempt; no deduplication.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OK"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "applied": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "applied"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Deterministic completed session/domain error. No mutation for protocol errors; valid session cache is retained.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "SESSION_LIMIT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "REQUEST_CONFLICT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STALE_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "SEQUENCE_GAP"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "RESOURCE_LIMIT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        },
+                        "applied": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index",
+                        "applied"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-QuorumKV-Application-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "2"
+            },
+            "description": "Versioned application contract; absent/wrong is INVALID_ARGUMENT/not_admitted before append."
+          }
+        ]
+      }
+    },
+    "/v1/kv/delete": {
+      "post": {
+        "operationId": "delete",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "INVALID_ARGUMENT,INVALID_SEQUENCE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_ARGUMENT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "REQUEST_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "REQUEST_TOO_LARGE"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "OVERLOADED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OVERLOADED"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "NOT_LEADER,NO_LEADER,UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NOT_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        },
+                        "leader_id": {
+                          "enum": [
+                            "n1",
+                            "n2",
+                            "n3"
+                          ]
+                        },
+                        "leader_url": {
+                          "type": "string",
+                          "minLength": 8,
+                          "x-configured-leader-url": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "leader_id",
+                        "leader_url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NO_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "TIMEOUT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "STORAGE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Committed current-term quorum, applied result and valid completion fence. Independent attempt; no deduplication.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OK"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "deleted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "deleted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Deterministic completed session/domain error. No mutation for protocol errors; valid session cache is retained.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "SESSION_LIMIT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "REQUEST_CONFLICT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STALE_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "SEQUENCE_GAP"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-QuorumKV-Application-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "2"
+            },
+            "description": "Versioned application contract; absent/wrong is INVALID_ARGUMENT/not_admitted before append."
+          }
+        ]
+      }
+    },
+    "/v1/status": {
+      "get": {
+        "operationId": "localStatus",
+        "responses": {
+          "200": {
+            "description": "Local stale diagnostics; no quorum or linearizability proof.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "enum": [
+                        "n1",
+                        "n2",
+                        "n3"
+                      ]
+                    },
+                    "role": {
+                      "enum": [
+                        "follower",
+                        "candidate",
+                        "leader"
+                      ]
+                    },
+                    "term": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,19})$"
+                    },
+                    "commit_index": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,19})$"
+                    },
+                    "last_applied": {
+                      "type": "string",
+                      "pattern": "^(0|[1-9][0-9]{0,19})$"
+                    }
+                  },
+                  "required": [
+                    "node_id",
+                    "role",
+                    "term",
+                    "commit_index",
+                    "last_applied"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/kv/get": {
+      "post": {
+        "operationId": "loggedGet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "INVALID_ARGUMENT,INVALID_SEQUENCE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_ARGUMENT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "REQUEST_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "REQUEST_TOO_LARGE"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "OVERLOADED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OVERLOADED"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "NOT_LEADER,NO_LEADER,UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NOT_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        },
+                        "leader_id": {
+                          "enum": [
+                            "n1",
+                            "n2",
+                            "n3"
+                          ]
+                        },
+                        "leader_url": {
+                          "type": "string",
+                          "minLength": 8,
+                          "x-configured-leader-url": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "leader_id",
+                        "leader_url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NO_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "TIMEOUT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "STORAGE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Exact-slot logged read result, after legal durable quorum commit/application and completion fence. Empty is present.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "exists",
+                    "value_b64"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": "OK"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "exists": {
+                      "const": true
+                    },
+                    "value_b64": {
+                      "type": "string",
+                      "maxLength": 21848,
+                      "contentEncoding": "base64",
+                      "x-canonical-base64-max-decoded-bytes": 16384
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Missing key observed at the exact committed read slot.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "exists"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": "KEY_NOT_FOUND"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "exists": {
+                      "const": false
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/kv/cas": {
+      "post": {
+        "operationId": "compareAndSwap",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/casRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "INVALID_ARGUMENT,INVALID_SEQUENCE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_ARGUMENT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "INVALID_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "REQUEST_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "REQUEST_TOO_LARGE"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "OVERLOADED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OVERLOADED"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "NOT_LEADER,NO_LEADER,UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NOT_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        },
+                        "leader_id": {
+                          "enum": [
+                            "n1",
+                            "n2",
+                            "n3"
+                          ]
+                        },
+                        "leader_url": {
+                          "type": "string",
+                          "minLength": 8,
+                          "x-configured-leader-url": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "leader_id",
+                        "leader_url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "NO_LEADER"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "TIMEOUT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "TIMEOUT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "507": {
+            "description": "STORAGE_UNAVAILABLE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "not_admitted"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STORAGE_UNAVAILABLE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "unknown"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Atomic M01 CAS through ordered committed application; a latest identical retry returns its original applied=true/index.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "OK"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "completed"
+                    },
+                    "index": {
+                      "type": "string",
+                      "pattern": "^[1-9][0-9]{0,19}$",
+                      "x-canonical-uint64": true
+                    },
+                    "applied": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome",
+                    "index",
+                    "applied"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Deterministic completed session/domain error. No mutation for protocol errors; valid session cache is retained.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "SESSION_LIMIT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "REQUEST_CONFLICT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "STALE_SEQUENCE"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "SEQUENCE_GAP"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "RESOURCE_LIMIT"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        },
+                        "applied": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index",
+                        "applied"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "const": "COMPARE_FAILED"
+                        },
+                        "request_id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "outcome": {
+                          "const": "completed"
+                        },
+                        "index": {
+                          "type": "string",
+                          "pattern": "^[1-9][0-9]{0,19}$",
+                          "x-canonical-uint64": true
+                        },
+                        "applied": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "request_id",
+                        "outcome",
+                        "index",
+                        "applied"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported route/method/media; no proposal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "const": "INVALID_ARGUMENT"
+                    },
+                    "request_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "outcome": {
+                      "const": "not_admitted"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "request_id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "X-QuorumKV-Application-Version": {
+                "description": "Required version acknowledgment for a trusted M11 mutation response. Missing/mismatched is unknown to the M11 client.",
+                "schema": {
+                  "type": "string",
+                  "const": "2"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "X-QuorumKV-Application-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "const": "2"
+            },
+            "description": "Versioned application contract; absent/wrong is INVALID_ARGUMENT/not_admitted before append."
+          }
+        ]
+      }
+    },
+    "/v1/metrics": {
+      "get": {
+        "operationId": "localMetrics",
+        "summary": "Read local observations without a quorum claim",
+        "responses": {
+          "200": {
+            "description": "Bounded local observations, potentially stale and available without quorum. No user keys or values.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "metrics_version",
+                    "local_only",
+                    "node_id",
+                    "role",
+                    "term",
+                    "commit_index",
+                    "applied_index",
+                    "observations"
+                  ],
+                  "properties": {
+                    "metrics_version": {
+                      "const": 1
+                    },
+                    "local_only": {
+                      "const": true
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "enum": [
+                        "n1",
+                        "n2",
+                        "n3"
+                      ]
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": [
+                        "follower",
+                        "candidate",
+                        "leader"
+                      ]
+                    },
+                    "term": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "commit_index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "applied_index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "observations": {
+                      "type": "object",
+                      "required": [
+                        "counters",
+                        "durations",
+                        "dropped_logs"
+                      ],
+                      "properties": {
+                        "counters": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "durations": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "object",
+                            "required": [
+                              "count",
+                              "samples_us"
+                            ],
+                            "properties": {
+                              "count": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "samples_us": {
+                                "type": "array",
+                                "maxItems": 2048,
+                                "items": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "dropped_logs": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Use GET; Allow: GET"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "putRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "default": 2000
+          },
+          "value_b64": {
+            "type": "string",
+            "maxLength": 21848,
+            "contentEncoding": "base64",
+            "x-canonical-base64-max-decoded-bytes": 16384
+          }
+        },
+        "required": [
+          "key",
+          "client_id",
+          "sequence",
+          "value_b64"
+        ],
+        "additionalProperties": false
+      },
+      "deleteRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "default": 2000
+          }
+        },
+        "required": [
+          "key",
+          "client_id",
+          "sequence"
+        ],
+        "additionalProperties": false
+      },
+      "getRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "default": 2000
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "casRequest": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$"
+          },
+          "client_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{32}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "timeout_ms": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000,
+            "default": 2000
+          },
+          "new_value_b64": {
+            "type": "string",
+            "maxLength": 21848,
+            "contentEncoding": "base64",
+            "x-canonical-base64-max-decoded-bytes": 16384
+          },
+          "expected": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "exists": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "exists"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "exists": {
+                    "const": true
+                  },
+                  "value_b64": {
+                    "type": "string",
+                    "maxLength": 21848,
+                    "contentEncoding": "base64",
+                    "x-canonical-base64-max-decoded-bytes": 16384
+                  }
+                },
+                "required": [
+                  "exists",
+                  "value_b64"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "client_id",
+          "sequence",
+          "expected",
+          "new_value_b64"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # QuorumKV — Documentation / Documentazione
 
-**M01–M11 COMPLETED — 22 November / novembre 2026. M12 not started / non iniziata.**
+**M01–M12 COMPLETED — 22 November / novembre 2026. M13 not started / non iniziata.**
 
 [Italiano: documentazione completa](it/README.md) · [English: complete documentation](en/README.md)
 
@@ -29,3 +29,5 @@ Two equivalent paths with specifications, requirements, ADRs, diagrams, planned 
 [M07 completata: commit e applicazione](it/milestone-m07.md) · [M07 completed: commit and application](en/milestone-m07.md)
 
 [M11 completata: CAS e sessioni](it/milestone-m11.md) · [M11 completed: CAS and sessions](en/milestone-m11.md)
+
+[M12 completata: fault/replay e diagnostica](it/milestone-m12.md) · [M12 completed: fault/replay and diagnostics](en/milestone-m12.md)

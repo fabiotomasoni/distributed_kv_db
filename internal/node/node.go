@@ -11,6 +11,7 @@ import (
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/clientapi"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/diagnostics"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/raft"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/transport"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/wal"
@@ -226,3 +227,10 @@ func (n *Node) Shutdown(ctx context.Context) error {
 // Done closes only after listener/worker drain, storage close and LOCK release.
 // It also exposes automatic fatal shutdown to the owning server process.
 func (n *Node) Done() <-chan struct{} { return n.done }
+
+func (n *Node) Diagnostics() *diagnostics.Recorder {
+	if n.election == nil {
+		return nil
+	}
+	return n.election.Diagnostics()
+}

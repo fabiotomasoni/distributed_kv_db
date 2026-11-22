@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/diagnostics"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/peerprotocol"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/storageformat"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/wal"
@@ -104,6 +105,10 @@ func (p *peerState) complete(now uint64, err error) {
 
 type Service struct {
 	core            *Core
+	diagnostic      *diagnostics.Recorder
+	observed        Status
+	electionStart   time.Time
+	walBytes        atomic.Int64
 	sessions        bool
 	storage         Storage
 	clock           Clock
@@ -193,18 +198,23 @@ func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
 		}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	x := &Service{sessions: opt.Sessions, writes: make(chan *writeTicket, 64), fences: make(chan writeFence, 64), writeSlots: make(chan struct{}, 64), cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
+	recoveryStart := time.Now()
+	x := &Service{diagnostic: diagnostics.New(c.NodeID(), c.ClusterID()), sessions: opt.Sessions, writes: make(chan *writeTicket, 64), fences: make(chan writeFence, 64), writeSlots: make(chan struct{}, 64), cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
 	for _, m := range c.Members() {
 		if m.ID != c.NodeID() {
 			x.peers[m.ID] = &peerState{jobs: make(chan peerprotocol.Message, 1)}
 		}
 	}
-	x.published.Store(core.Status())
+	x.publish()
 	if err = x.initApplication(opt); err != nil {
 		x.cancel()
 		return nil, err
 	}
-	x.published.Store(core.Status())
+	x.publish()
+	x.walBytes.Store(s.Status().WALBytes)
+	x.diagnostic.Inc("recovered")
+	x.diagnostic.Observe("recovery", time.Since(recoveryStart).Microseconds())
+	x.diagnostic.Log(diagnostics.Record{Event: diagnostics.Recovery, Term: core.Status().Term, Role: string(core.Status().Role), Commit: core.Status().CommitIndex, Applied: core.Status().LastApplied})
 	return x, nil
 }
 func (x *Service) Status() Status { return x.published.Load().(Status) }
@@ -250,7 +260,13 @@ func (x *Service) sendWorker(sender Sender, id string, p *peerState) {
 			if !ok {
 				return
 			}
+			rpcStart := time.Now()
+			x.diagnostic.Inc("rpc_sent")
 			res, err := sender.Send(x.ctx, req)
+			x.diagnostic.Observe("rpc", time.Since(rpcStart).Microseconds())
+			if err != nil {
+				x.diagnostic.Inc("rpc_failed")
+			}
 			select {
 			case x.results <- result{id, req, res, err}:
 			case <-x.ctx.Done():
@@ -342,9 +358,10 @@ func (x *Service) terminal() error {
 }
 func (x *Service) effects(e Effects, err error) (Effects, error) {
 	for err == nil && e.Persist != nil {
-		x.published.Store(x.core.Status())
+		x.publish()
 		// This adapter is the single serial disk worker. Core advancement pauses,
 		// but there is no core/global mutex held across the blocking filesystem call.
+		syncStart := time.Now()
 		var token wal.Token
 		var writeErr error
 		if e.Persist.Proposal {
@@ -354,14 +371,22 @@ func (x *Service) effects(e Effects, err error) (Effects, error) {
 		} else {
 			token, writeErr = x.storage.Append(e.Persist.Bytes)
 		}
+		x.diagnostic.Observe("sync", time.Since(syncStart).Microseconds())
+		x.walBytes.Store(x.storage.Status().WALBytes)
+		if writeErr != nil {
+			x.diagnostic.Inc("storage_errors")
+			if !errors.Is(writeErr, wal.ErrLimit) || errors.Is(writeErr, wal.ErrFailed) {
+				x.diagnostic.Log(diagnostics.Record{Event: diagnostics.StorageError, Code: "STORAGE_UNAVAILABLE", Term: x.core.Status().Term})
+			}
+		}
 		e, err = x.core.Durable(e.Persist.ID, token, writeErr)
 		if x.ctx.Err() != nil {
 			x.core.Stop()
-			x.published.Store(x.core.Status())
+			x.publish()
 			return Effects{}, errors.Join(ErrClosed, err)
 		}
 	}
-	x.published.Store(x.core.Status())
+	x.publish()
 	if err != nil {
 		return e, err
 	}
@@ -392,7 +417,7 @@ func (x *Service) run() {
 		x.workers.Wait()
 		x.finishApplication()
 		x.core.Stop()
-		x.published.Store(x.core.Status())
+		x.publish()
 		x.mu.Lock()
 		x.closed = true
 		x.mu.Unlock()
@@ -414,7 +439,7 @@ func (x *Service) run() {
 		case _, ok := <-x.clock.Ticks():
 			if !ok {
 				_, _ = x.core.fail(ErrInput)
-				x.published.Store(x.core.Status())
+				x.publish()
 				return
 			}
 			e, err := x.core.Tick(x.clock.Now())
@@ -462,7 +487,7 @@ func (x *Service) run() {
 			r.reply <- result
 		}
 		_ = x.scheduleApply()
-		x.published.Store(x.core.Status())
+		x.publish()
 		if x.core.Status().Failure != nil {
 			return
 		}
@@ -482,7 +507,7 @@ func (x *Service) Shutdown(ctx context.Context) error {
 			}
 			x.finishApplication()
 			x.core.Stop()
-			x.published.Store(x.core.Status())
+			x.publish()
 			close(x.done)
 		}
 	}

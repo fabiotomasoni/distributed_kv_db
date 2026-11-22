@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/development-guide.md)
 
-**Aggiornamento: 22 novembre 2026 — M01–M11 implementate nei perimetri di fase; MVP processi PUT/DELETE disponibile.**
+**Aggiornamento: 22 novembre 2026 — M01–M12 implementate nei perimetri di fase; MVP processi PUT/DELETE disponibile.**
 
 ## Prerequisiti gratuiti
 
@@ -114,3 +114,16 @@ curl --max-time 3 -H 'Content-Type: application/json' -H 'X-QuorumKV-Application
 ```
 
 PUT/DELETE in questo profilo richiedono anch’esse header versione; Client.Write/CAS lo imposta da config v2 analizzata e valida conferma risposta. Libreria esegue singolo tentativo, non backoff automatico o persistenza disco identità pendenti. Chiamanti conservano identità/payload pendenti attraverso propri restart. Niente TTL/eviction: recuperabile solo ultimo risultato; sequenze precedenti rifiutate e tabella sessioni piena blocca nuovi ID. Retry conservati richiedono comunque quorum e spazio WAL. [Relazione M11](milestone-m11.md) dettaglia garanzie testate; niente upgrade in-place, snapshot/compaction, consegna exactly-once o metriche M12. Fermare ogni nodo dopo uso.
+
+## Uso esplicito M12 e diagnostica locale
+
+Il simulatore è un binario distinto: usa solo dati sintetici e memoria, non avvia tre server né apre directory dati. Output deve essere un file nuovo; se esiste scegliere un nuovo nome. Replay richiede versioni compatibili e non genera nuove scelte casuali.
+
+```sh
+go build -o /tmp/quorumkv-sim ./cmd/quorumkv-sim
+/tmp/quorumkv-sim -scenario examples/m12/session-retry.json -output /tmp/quorumkv-m12-evidence.json
+/tmp/quorumkv-sim -replay /tmp/quorumkv-m12-evidence.json
+curl --max-time 2 http://127.0.0.1:7601/v1/metrics
+```
+
+Per il server ordinario, aggiungere facoltativamente -log-dir con una cartella esistente 0700 separata dalla directory dati; quattro file 0600, totale massimo 1 MiB. Altrimenti log JSON su stderr. Non servono servizi esterni. Metriche sono locali e non dimostrano quorum; massimo polling ogni 2 s per 30 s. Conservare fallimenti manualmente entro 10 MiB, rimuovere soltanto i propri file di successo. Restano necessarie nuove directory per v2 e assenza di migrazione v1. [Relazione M12](milestone-m12.md), [fault](fault-injection.md), [metriche](observability.md).

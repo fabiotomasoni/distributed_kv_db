@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/diagnostics"
 	"sync"
+	"time"
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/applier"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/committed"
@@ -78,6 +80,7 @@ func (x *Service) initApplication(opt Options) error {
 	if opt.Sessions {
 		machine = committed.NewSessions(machine)
 	}
+	machine = diagnosticMachine{machine, x.diagnostic}
 	a, err := applier.New(committed.Wrap(machine), applier.Config{Capacity: capacity})
 	if err != nil {
 		return err
@@ -181,6 +184,14 @@ func (x *Service) applyCompleted(c applyCompletion) {
 			c.err = decodeErr
 		}
 		if err := x.core.Applied(c.epoch, c.outcome.Index, c.err); err == nil {
+			// Publish progress before notifying result waiters. Diagnostics may
+			// run between these events without exposing an older applied cursor.
+			x.publish()
+			x.diagnostic.Inc("applied")
+			if original < c.outcome.Index {
+				x.diagnostic.Inc("dedup_hits")
+			}
+			x.diagnostic.Log(diagnostics.Record{Event: diagnostics.Applied, Term: c.term, Index: c.outcome.Index, Commit: x.core.Status().CommitIndex, Applied: c.outcome.Index, Code: string(result.Code)})
 			a.recordIndex(AppliedResult{c.outcome.Index, c.term, result}, original)
 		}
 	}
@@ -285,4 +296,15 @@ func (x *Service) resultIndex(r LocalAppend) (uint64, error) {
 		return 0, ErrSuperseded
 	}
 	return a.resultIndices[r.Index%64], nil
+}
+
+type diagnosticMachine struct {
+	machine  applier.Machine
+	recorder *diagnostics.Recorder
+}
+
+func (m diagnosticMachine) Apply(c statemachine.Command) statemachine.Result {
+	start := time.Now()
+	defer func() { m.recorder.Observe("apply", time.Since(start).Microseconds()) }()
+	return m.machine.Apply(c)
 }

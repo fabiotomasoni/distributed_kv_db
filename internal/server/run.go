@@ -12,7 +12,10 @@ import (
 	"time"
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/diagnostics"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/node"
+	"path/filepath"
+	"strings"
 )
 
 const ShutdownTimeout = 5 * time.Second
@@ -32,6 +35,7 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 	// Flag's default errors can echo arbitrary arguments. Emit fixed diagnostics.
 	fs.SetOutput(io.Discard)
 	path := fs.String("config", "", "path to static configuration JSON")
+	logDir := fs.String("log-dir", "", "optional separate private log directory")
 	bootstrap := fs.Bool("bootstrap", false, "initialize a pre-existing private empty data directory")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -53,6 +57,27 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 	if ctx.Err() != nil {
 		return 0
 	}
+	var rotation *diagnostics.Rotation
+	if *logDir != "" {
+		logAbs, e1 := filepath.EvalSymlinks(*logDir)
+		dataAbs, e2 := filepath.EvalSymlinks(c.DataDir())
+		if e1 == nil {
+			logAbs, e1 = filepath.Abs(logAbs)
+		}
+		if e2 == nil {
+			dataAbs, e2 = filepath.Abs(dataAbs)
+		}
+		if e1 != nil || e2 != nil || logAbs == dataAbs || within(dataAbs, logAbs) || within(logAbs, dataAbs) {
+			fmt.Fprintln(errOut, "invalid_log_directory")
+			return 2
+		}
+		rotation, err = diagnostics.OpenRotation(logAbs)
+		if err != nil {
+			fmt.Fprintln(errOut, "invalid_log_directory")
+			return 2
+		}
+		defer rotation.Close()
+	}
 	n, err := node.StartAPI(c, *bootstrap)
 	if err != nil {
 		fmt.Fprintln(errOut, "startup_failed")
@@ -64,10 +89,37 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 		_ = n.Shutdown(shutdown)
 		return 1
 	}
-	select {
-	case <-ctx.Done():
-	case <-n.Done():
+	d := n.Diagnostics()
+	d.Log(diagnostics.Record{Event: diagnostics.Startup})
+	flush := func() {
+		for _, record := range d.Drain() {
+			line := diagnostics.Encode(record)
+			if rotation != nil {
+				if _, e := rotation.Write(line); e != nil {
+					fmt.Fprintln(errOut, "diagnostic_write_failed")
+				}
+			} else {
+				_, _ = errOut.Write(line)
+			}
+			if record.Event == diagnostics.StorageError && rotation != nil {
+				_, _ = errOut.Write(line)
+			}
+		}
 	}
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+waiting:
+	for {
+		select {
+		case <-ctx.Done():
+			break waiting
+		case <-n.Done():
+			break waiting
+		case <-ticker.C:
+			flush()
+		}
+	}
+	defer func() { d.Log(diagnostics.Record{Event: diagnostics.Shutdown}); flush() }()
 	shutdown, cancel := context.WithTimeout(context.Background(), ShutdownTimeout)
 	defer cancel()
 	if err = n.Shutdown(shutdown); err != nil {
@@ -92,4 +144,9 @@ func readConfig(path string) (config.Config, error) {
 		return config.Config{}, err
 	}
 	return config.Parse(raw)
+}
+
+func within(parent, child string) bool {
+	rel, e := filepath.Rel(parent, child)
+	return e == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }

@@ -1,0 +1,23 @@
+{
+  "metrics_version": 1,
+  "local_only": true,
+  "node_id": "n1",
+  "role": "leader",
+  "term": 6,
+  "commit_index": 8,
+  "applied_index": 8,
+  "observations": {
+    "counters": {
+      "client_completed": 1
+    },
+    "durations": {
+      "request": {
+        "count": 1,
+        "samples_us": [
+          3
+        ]
+      }
+    },
+    "dropped_logs": 0
+  }
+}

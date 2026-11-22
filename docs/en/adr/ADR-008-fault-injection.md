@@ -2,7 +2,7 @@
 
 [Index](../README.md) · [Italiano](../../it/adr/ADR-008-fault-injection.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**22 November 2026 — M12 profile implemented and checked; historical design sections are qualified by the M12 contract below.**
 
 ## Identifier and status
 
@@ -59,3 +59,7 @@ Separated ProcessCrash and SystemCrashModel: unsynchronized writes may survive, 
 ## M07 implementation evidence
 
 [M07](../milestone-m07.md) retains this decision for current-term quorum proof, synchronized commit_index, fresh volatile-state replay through unchanged M02 and explicit completion cursors. Independent committed/result oracles, gated backlog, checkpoint cuts and complementary loopback tests pass. No extra checkpoint, new persistence bytes or per-entry goroutine. C-03 M07 evidence does not close later snapshots/sessions/read/checker gates or physical-fault guarantees.
+
+## Accepted M12 decision and evidence
+
+22 November 2026: decision Accepted within the bounded [M12](../milestone-m12.md) profile. Unchanged core, explicit scheduler, versioned draw tape and complete manifest, replay without fresh choices and first-divergence detection, WAL wrapper with separate ProcessCrash/SystemCrashModel and actual M02. Synchronous storage I/O matches the current driver; no M13 snapshot/generation simulation. A separate binary prevents faults in the ordinary server. Bounded operational logs/metrics are not oracles; invariant traces are unsampled. Local action reduction preserves only the supplied predicate/preconditions and does not replace the M14 checker. Regressions and complementary real cases pass; no OS/power proof.

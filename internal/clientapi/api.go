@@ -20,6 +20,7 @@ import (
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/committed"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/diagnostics"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/raft"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/statemachine"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/storageformat"
@@ -131,6 +132,19 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	out := Response{RequestID: fmt.Sprintf("%s-%d", x.prefix, x.counter.Add(1)), Outcome: raft.NotAdmitted}
 	send := func(status int, code string) {
 		out.Code = code
+		if b, ok := x.backend.(interface{ Diagnostics() *diagnostics.Recorder }); ok {
+			d := b.Diagnostics()
+			d.Observe("request", time.Since(started).Microseconds())
+			name := "client_rejected"
+			if out.Outcome == raft.Completed {
+				name = "client_completed"
+			} else if out.Outcome == raft.Unknown {
+				name = "client_unknown"
+			}
+			d.Inc(name)
+			state := x.backend.Status()
+			d.Log(diagnostics.Record{Event: diagnostics.Request, Term: state.Term, Role: string(state.Role), Commit: state.CommitIndex, Applied: state.LastApplied, RequestID: out.RequestID, Code: code, Outcome: out.Outcome, DurationUS: time.Since(started).Microseconds()})
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "no-store")
 		w.WriteHeader(status)
@@ -150,6 +164,19 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Host != x.cfg.Local().Client || r.URL.RawQuery != "" || r.URL.ForceQuery || r.ProtoMajor != 1 || r.ProtoMinor != 1 {
 		send(400, "INVALID_ARGUMENT")
 		return
+	}
+	if r.URL.Path == "/v1/metrics" {
+		if r.Method != "GET" {
+			w.Header().Set("Allow", "GET")
+			send(405, "INVALID_ARGUMENT")
+			return
+		}
+		if b, ok := x.backend.(interface{ Metrics() map[string]any }); ok {
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Cache-Control", "no-store")
+			_ = json.NewEncoder(w).Encode(b.Metrics())
+			return
+		}
 	}
 	if r.URL.Path == "/v1/status" && r.Method == "GET" {
 		s := x.backend.Status()

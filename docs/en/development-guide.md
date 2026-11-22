@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 22 November 2026 — M01–M11 implemented within their phase scopes; PUT/DELETE process MVP available.**
+**Updated: 22 November 2026 — M01–M12 implemented within their phase scopes; PUT/DELETE process MVP available.**
 
 ## Free prerequisites
 
@@ -114,3 +114,16 @@ curl --max-time 3 -H 'Content-Type: application/json' -H 'X-QuorumKV-Application
 ```
 
 PUT/DELETE in this profile also require the version header; Client.Write/CAS sets it from a parsed v2 config and validates the response acknowledgment. The library performs one attempt, not automatic backoff or disk persistence of pending identities. Callers must retain pending identity/payload across their own restarts. No TTL/eviction: only the latest result is recoverable; older sequences are rejected, and a full session table blocks new IDs. Cached retries still require quorum and WAL space. [M11 report](milestone-m11.md) details tested guarantees; no in-place upgrade, snapshots/compaction, exactly-once delivery or M12 metrics. Stop every node after use.
+
+## Explicit M12 usage and local diagnostics
+
+The simulator is a separate binary: synthetic data and memory only, without starting three servers or opening data directories. Output must be a new file; choose a new name if it exists. Replay requires compatible versions and generates no new random choices.
+
+```sh
+go build -o /tmp/quorumkv-sim ./cmd/quorumkv-sim
+/tmp/quorumkv-sim -scenario examples/m12/session-retry.json -output /tmp/quorumkv-m12-evidence.json
+/tmp/quorumkv-sim -replay /tmp/quorumkv-m12-evidence.json
+curl --max-time 2 http://127.0.0.1:7601/v1/metrics
+```
+
+For the ordinary server, optionally add -log-dir pointing to an existing 0700 folder separate from the data directory; four 0600 files, at most 1 MiB total. Otherwise JSON logs go to stderr. No external services. Metrics are local and do not prove quorum; poll at most every 2 s for 30 s. Manually retain failures within 10 MiB and remove only your successful files. New v2 directories and absence of v1 migration remain required. [M12 report](milestone-m12.md), [faults](fault-injection.md), [metrics](observability.md).

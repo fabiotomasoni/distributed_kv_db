@@ -2,13 +2,13 @@
 
 [Indice](README.md) · [English](../en/implementation-roadmap.md)
 
-**Aggiornamento: 22 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 22 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11/M12 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Capacità e dipendenze
 
 Piano indicativo 24 settimane (~6 mesi), 6–8 ore/settimana per uno studente individuale, capacità disponibile di 144–192 ore, che non è una stima validata dello sforzo necessario; è una stima incerta, non un impegno. Quattro mesi richiedono più ore o riduzione degli obiettivi opzionali, mai eliminazione dei gate di correttezza. Recuperare ritardi prima tagliando ottimizzazioni, poi estendendo calendario. Nessuna data di completamento è garantita.
 
-M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04 è **COMPLETED**: [relazione RPC/configurazione](milestone-m04.md). M05 è **COMPLETED**: [relazione leader election](milestone-m05.md). M06 è **COMPLETED**: [relazione replica](milestone-m06.md). M07 è **COMPLETED**: [relazione commit/applicazione](milestone-m07.md). M08 è **COMPLETATA**: [sottoinsieme API ed evidenze](milestone-m08.md). M09 è **COMPLETATA**: [evidenze recovery processi/MVP](milestone-m09.md). M10 è **COMPLETATA**: [GET nel log ed evidenze](milestone-m10.md). M11 è **COMPLETATA** nel profilo sessioni v2 esplicito: [evidenze CAS/dedup](milestone-m11.md). M12–M16 sono **Non iniziate**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
+M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relazione ed evidenze](milestone-m01.md). M02 è **COMPLETED**: [relazione ed evidenze](milestone-m02.md). M03 è **COMPLETED** nel perimetro storage locale: [relazione WAL/recovery](milestone-m03.md). M04 è **COMPLETED**: [relazione RPC/configurazione](milestone-m04.md). M05 è **COMPLETED**: [relazione leader election](milestone-m05.md). M06 è **COMPLETED**: [relazione replica](milestone-m06.md). M07 è **COMPLETED**: [relazione commit/applicazione](milestone-m07.md). M08 è **COMPLETATA**: [sottoinsieme API ed evidenze](milestone-m08.md). M09 è **COMPLETATA**: [evidenze recovery processi/MVP](milestone-m09.md). M10 è **COMPLETATA**: [GET nel log ed evidenze](milestone-m10.md). M11 è **COMPLETATA** nel profilo sessioni v2 esplicito: [evidenze CAS/dedup](milestone-m11.md). M12 è **COMPLETATA**: [fault/replay e diagnostica](milestone-m12.md). M13–M16 sono **Non iniziate**. Nella tabella attività progettuali significano rivedere il relativo contratto prima di scrivere il modulo; deliverable significa artefatto futuro.
 
 | ID / obiettivo | Prerequisiti | Settimane | Progettazione, implementazione e deliverable | Test / completamento | Rischio | Complessità |
 |---|---|---|---|---|---|---|
@@ -23,7 +23,7 @@ M01 è **COMPLETED** dal 19 novembre 2026, dopo autorizzazione esplicita: [relaz
 | M09 — Crash recovery / MVP interno (**COMPLETATA**) | M08,M03 | 12–13 | Replay committed e restart; report MVP limitato. | T-014/T-018/T-023 nel sottoinsieme di fase sotto definito; evidenze salvate. | Replay speculativo | Alta |
 | M10 — GET linearizzabile (**COMPLETATA**) | M09 | 14 | Barriera read nel log; storia stale-leader. | T-019 nel sottoinsieme di fase sotto definito; evidenze salvate. | Lettura fuori slot | Alta |
 | M11 — CAS e deduplicazione (**COMPLETED**) | M10 | 15–16 | CAS e sessioni persistite; matrice retry. | T-010/T-011/T-012 nel sottoinsieme di fase sotto definito; evidenze salvate. | ABA e sessioni | Alta |
-| M12 — Fault injection e osservabilità | M11 | 17–18 | Scenari e replay, log/metriche; manifest riproducibile. | T-017/T-020/T-028 nel sottoinsieme di fase sotto definito; evidenze salvate. | Non determinismo | Alta |
+| M12 — Fault injection e osservabilità (**COMPLETED**) | M11 | 17–18 | Scenari e replay, log/metriche; manifest riproducibile. | T-017/T-020/T-028 nel sottoinsieme di fase sotto definito; evidenze salvate. | Non determinismo | Alta |
 | M13 — Snapshot e compaction | M12 | 19–20 | Generazioni atomiche e install; fixture crash snapshot. | T-015/T-016/T-026 nel sottoinsieme di fase sotto definito; evidenze salvate. | Picco spazio e dedup persa | Alta |
 | M14 — Verifica delle proprietà | M13 | 21–22 | Checker indipendente e suite safety; report AC. | T-021/T-022/T-024/T-030/T-031 nel sottoinsieme di fase sotto definito; evidenze salvate. | Checker incompleto | Alta |
 | M15 — Misure limitate | M14 | 23 | Baseline latenza/risorse; report campioni e limiti. | T-025/T-026 nel sottoinsieme di fase sotto definito; evidenze salvate. | Ottimizzazione prematura | Media |
@@ -99,3 +99,7 @@ M12 completa fault injection, non ne avvia le fondamenta: introdurre fake clock 
 ## Esito finale M11 — 22 novembre 2026
 
 [M11 COMPLETATA](milestone-m11.md): CAS HTTP atomico e sessioni limitate possedute da M02, replay deterministico del prefisso committed, retry con risultato originario tramite nuovo quorum/controllo, risposta persa/failover/concorrenza/recovery di tutti i processi verificati. Superati FR-010/AC-010/T-010, FR-011/AC-011/T-011 e FR-012/AC-012/T-012. Configurazione/identity/header applicazione v2 espliciti preservano il significato v1 storico; nuove directory obbligatorie, nessuna migrazione. Fixture originali e GET M10 restano valide. Revisione M10 senza blocchi. Gate successivi C-03 snapshot/checker aperti. M12 NON INIZIATA; verificata soltanto readiness preliminare degli ingressi.
+
+## Esito finale M12 — 22 novembre 2026
+
+[M12 COMPLETATA](milestone-m12.md): simulatore esplicito con core/M02 reali, scenario/manifest versionati e replay senza nuove scelte con prima divergenza, modelli crash separati e fault rete/storage limitati; log JSON redatti, metriche locali e rotazione opzionale separata dai dati. FR-017/AC-017/T-017, FR-020/AC-020/T-020 e NFR-008/AC-028/T-028 soddisfatti. Revisione M11 conferma sessioni/CAS/v2; corretta finestra di pubblicazione progresso prima della notifica, senza cambiare algoritmi o fixture. M13 NON INIZIATA: handoff snapshot/sessioni, generazioni e installazione richiedono il prossimo gate; checker M14 e misure M15 invariati.
