@@ -105,3 +105,7 @@ The system favors safety over availability. It uses no time leases, requires no 
 ## M08 completion authorization
 
 [Service.Write](../../internal/raft/write.go) preserves M07 commit/application algorithms. A ticket lock separates permanent pre-record exclusion from possible disk effects. Once recording may begin, cancellation abandons only the caller. Local Sync alone never yields completed: wait for the exact indexed/termed applied result, then send a fence through the owner. It rejects failure, shutdown, nonleader, changed term or insufficient commit/apply. Higher-term observation before that event prevents success even when the command is committed/applied. Result expiry or supersession yields uncertainty. No session table or new persistent format.
+
+## M09 restart evidence
+
+[M09](milestone-m09.md) leaves core transitions unchanged. A controlled three-node image has term 5, committed index 1 and an uncommitted index 2 on every node. Each startup publishes follower/term 5 with LastApplied=ScheduledApplyIndex=CommitIndex=1 and LastIndex=2. Only the later current-term quorum noop can commit/apply index 2. Real process kills additionally test leader/follower recovery, catch-up and acknowledged-prefix preservation. No term, vote or commit is inferred from previous leadership or raw log length.

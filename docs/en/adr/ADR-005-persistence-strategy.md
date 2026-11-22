@@ -77,3 +77,7 @@ C-02 is CONDITIONALLY RESOLVED for documented choices and OPEN for implementatio
 ## M07 implementation evidence
 
 [M07](../milestone-m07.md) retains this decision for current-term quorum proof, synchronized commit_index, fresh volatile-state replay through unchanged M02 and explicit completion cursors. Independent committed/result oracles, gated backlog, checkpoint cuts and complementary loopback tests pass. No extra checkpoint, new persistence bytes or per-entry goroutine. C-03 M07 evidence does not close later snapshots/sessions/read/checker gates or physical-fault guarantees.
+
+## M09 conditional process durability — 22 November 2026
+
+[M09](../milestone-m09.md) supplies actual single/all-process kill/restart evidence for the internal MVP, with acknowledged-history bytes and fresh applied-state inspection. Retain the existing synchronous WAL/checkpoint protocol; no new applied cursor or storage format. Tests require intact directories and a recoverable majority. This accepts only the roadmap's process-crash subset: HTTP GET evidence remains after M10 and general snapshots at M13. No OS/power-loss acceptance or complete fault proof.

@@ -77,3 +77,7 @@ C-02 è CONDITIONALLY RESOLVED per scelte documentate e OPEN per validazione imp
 ## Evidenze implementazione M07
 
 [M07](../milestone-m07.md) conserva decisione per prova quorum termine corrente, commit_index sincronizzato, replay stato volatile nuovo tramite M02 invariato e cursori completamento espliciti. Superati oracoli committed/risultati indipendenti, backlog bloccato, tagli checkpoint e test loopback complementari. Nessun checkpoint aggiuntivo, byte persistente nuovo o goroutine per entry. Evidenze C-03 M07 non chiudono gate successivi snapshot/sessioni/read/checker o garanzie guasti fisici.
+
+## Durabilità condizionata processi M09 — 22 novembre 2026
+
+[M09](../milestone-m09.md) fornisce evidenza reale kill/restart singolo/tutti processi per MVP interno, con byte storia confermata e ispezione stato applicato nuovo. Conservare protocollo WAL/checkpoint sincrono esistente; nessun nuovo cursore applied o formato storage. Test richiedono directory integre e maggioranza recuperabile. Accetta solo sottoinsieme roadmap crash processi: evidenza GET HTTP resta dopo M10 e snapshot generali M13. Nessuna accettazione OS/perdita alimentazione o prova completa guasti.

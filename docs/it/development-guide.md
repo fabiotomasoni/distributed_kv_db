@@ -1,8 +1,8 @@
-# Guida al futuro sviluppo
+# Guida sviluppo e MVP locale
 
 [Indice](README.md) · [English](../en/development-guide.md)
 
-**Aggiornamento: 20 novembre 2026 — componenti locali/elezioni M01–M07 implementati e verificati; commit/applicazione interni implementati; API client resta progettuale.**
+**Aggiornamento: 22 novembre 2026 — M01–M09 implementate nei perimetri di fase; MVP processi PUT/DELETE disponibile.**
 
 ## Prerequisiti gratuiti
 
@@ -14,24 +14,37 @@ Ogni nuova dipendenza richiede ADR: necessità concreta, alternativa standard li
 
 ## Schema configurazione validato
 
-Nessun binario nodo è incluso. Questo esempio n1 rispetta lo schema implementato; per n2/n3 cambiano node_id, data_dir e bind secondo [rete](network-protocol.md). I campi comuni sono identici. config_hash è derivato da cluster_id, lista membri ordinata per ID e quote replicate; esclude data_dir e bind locali. M04 fissa la codifica canonica esatta nella fixture condivisa: [contratto](configuration.md).
+Il binario nodo M09 è ora disponibile. Questo esempio n1 rispetta lo schema implementato; per n2/n3 cambiano node_id, data_dir e bind secondo [rete](network-protocol.md). I campi comuni sono identici. config_hash è derivato da cluster_id, lista membri ordinata per ID e quote replicate; esclude data_dir e bind locali. M04 fissa la codifica canonica esatta nella fixture condivisa: [contratto](configuration.md).
 
 ```json
 {"config_version":1,"cluster_id":"11111111111111111111111111111111","node_id":"n1","client_addr":"127.0.0.1:7401","peer_addr":"127.0.0.1:7501","data_dir":".local/n1","members":[{"id":"n1","client":"127.0.0.1:7401","peer":"127.0.0.1:7501"},{"id":"n2","client":"127.0.0.1:7402","peer":"127.0.0.1:7502"},{"id":"n3","client":"127.0.0.1:7403","peer":"127.0.0.1:7503"}],"max_logical_bytes":4194304,"max_keys":10000,"max_sessions":1024,"heartbeat_ms":100,"election_min_ms":600,"election_max_ms":1000}
 ```
 
-Porte distinte e libere, ID immutabili, stessa versione protocollo. Il primo avvio futuro richiederà `--bootstrap` esplicito su directory vuota e manifest comune; avvio ordinario non reinizializza directory vuote accidentalmente. Bootstrap non elegge un leader speciale: tutti partono follower e seguono Raft.
+Porte distinte e libere, ID immutabili, stessa versione protocollo. Il primo avvio richiede `--bootstrap` esplicito su directory vuota e manifest comune; avvio ordinario non reinizializza directory vuote accidentalmente. Bootstrap non elegge un leader speciale: tutti partono follower e seguono Raft.
 
-## Interfaccia CLI prevista, non eseguibile oggi
+## Eseguibile nodo M09 e operazioni locali
 
-```text
-quorumkv node --config examples/n1.json --bootstrap
-quorumkv node --config examples/n2.json --bootstrap
-quorumkv node --config examples/n3.json --bootstrap
-quorumkvctl --endpoints 127.0.0.1:7401,127.0.0.1:7402,127.0.0.1:7403 put config/theme dark
+Dalla radice repository, compilare una volta e creare directory private vuote per cluster nuovo. Le tre [configurazioni esempio](../../examples/n1.json) già condividono membership. Eseguire un comando per terminale; massimo tre processi nodo. node_started significa inizializzato/listener prenotati, non prova leader o quorum.
+
+```sh
+GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2 go build -p 1 -o /tmp/quorumkv ./cmd/quorumkv
+install -d -m 0700 .local .local/n1 .local/n2 .local/n3
+/tmp/quorumkv node --config examples/n1.json --bootstrap
+/tmp/quorumkv node --config examples/n2.json --bootstrap
+/tmp/quorumkv node --config examples/n3.json --bootstrap
 ```
 
-Questi nomi e percorsi sono esempi progettuali, non file o comandi già disponibili. Ai restart omettere bootstrap. CLI deve salvare sessione e payload pendente in file privato prima della richiesta; non rigenerare ID ad ogni retry. Per chiudere inviare SIGTERM al PID del proprio run; deadline 5 s, poi harness registra terminazione forzata e conserva dati per recovery.
+Bootstrap solo per primo avvio directory vuota. Al restart eseguire stessi tre comandi SENZA --bootstrap; conservare identità nodo, porte e directory dati integre. Non eliminare dati per risolvere errore. SIGINT (Ctrl-C) o SIGTERM avvia shutdown; processo concede 5 s e restituisce fallimento su timeout, preservando file per recovery. Codici exit: 0 normale/help, 2 argomenti/config invalidi, 1 errore avvio/runtime/shutdown. Percorsi config/dati relativi alla directory lavoro salvo assoluti. `.local/` e binario build radice ignorati da Git.
+
+Client M08 è test client Go a singolo tentativo, non quorumkvctl o CLI con sessione persistente. Ispezione locale opzionale con curl esistente: interrogare /v1/status sulle tre porte configurate, scegliere quella che riporta leader, poi inviare una PUT/DELETE a tale porta. Queste richieste assumono n1 attualmente leader; adattare solo ad altro membro configurato se necessario.
+
+```sh
+curl --max-time 3 http://127.0.0.1:7401/v1/status
+curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","value_b64":"","client_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sequence":1}' http://127.0.0.1:7401/v1/kv/put
+curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","client_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sequence":2}' http://127.0.0.1:7401/v1/kv/delete
+```
+
+Follower restituisce not_admitted; mai seguire hint arbitrari. Timeout/risposta persa è unknown e può avere avuto effetto. Nessun retry automatico: deduplicazione/recupero risultato originale è M11. GET KV/CAS HTTP, snapshot/compaction e deployment produzione assenti. Fermare ogni nodo alla fine. [Test/relazione M09](milestone-m09.md) distingue evidenza crash processi da perdita OS/alimentazione non verificata. Note storiche libreria M01–M07 sotto descrivono confini consegne originali.
 
 ## Ciclo di lavoro futuro
 
@@ -47,10 +60,10 @@ Tenere `.local/` fuori dal futuro controllo versione; usare solo dati sintetici.
 |---|---|
 | Porta occupata | Individuare PID proprietario; scegliere porte coerenti nei tre config o fermare soltanto il proprio processo. |
 | Nessun leader | Verificare peer/config_hash e log elezione; attendere majority stabile, non assegnare manualmente il ruolo. |
-| Timeout | Consultare outcome e retry stesso ID; controllare Sync e peer, non presumere rollback. |
+| Timeout | Conservare unknown; niente retry automatico fino a M11. Verificare peer/storage, mai assumere rollback. |
 | Lock occupato | Verificare processo attivo; mai bypassare esclusione. |
 | CRC/manifest invalido | Quarantena e diagnosi; niente reset automatico. |
-| Cap storage | Esaminare compaction e temporanei non attivi; non rimuovere WAL attivo. |
+| Cap storage | Fermare nuove scritture; compaction non implementata prima di M13. Preservare WAL attivo e diagnosticare. |
 | Mac sotto pressione | Fermare test e processi del run; ridurre dataset/concorrenza, conservare misure. |
 
 ## Verifiche ora disponibili per M01/M02

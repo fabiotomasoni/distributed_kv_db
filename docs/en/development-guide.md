@@ -1,8 +1,8 @@
-# Future development guide
+# Development and local MVP guide
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 20 November 2026 — M01–M07 local components/elections implemented and checked; internal commit/application implemented; client API remains design work.**
+**Updated: 22 November 2026 — M01–M09 implemented within their phase scopes; PUT/DELETE process MVP available.**
 
 ## Free prerequisites
 
@@ -14,24 +14,37 @@ Every new dependency requires an ADR: concrete need, standard-library alternativ
 
 ## Validated configuration schema
 
-No node binary is included. This n1 example conforms to the implemented schema; n2/n3 change node_id, data_dir and bind addresses according to [networking](network-protocol.md). Shared fields remain identical. config_hash derives from cluster_id, the member list sorted by ID and replicated quotas; it excludes local data_dir and binds. M04 fixes the exact canonical encoding in the shared fixture: [contract](configuration.md).
+The M09 node binary is now available. This n1 example conforms to the implemented schema; n2/n3 change node_id, data_dir and bind addresses according to [networking](network-protocol.md). Shared fields remain identical. config_hash derives from cluster_id, the member list sorted by ID and replicated quotas; it excludes local data_dir and binds. M04 fixes the exact canonical encoding in the shared fixture: [contract](configuration.md).
 
 ```json
 {"config_version":1,"cluster_id":"11111111111111111111111111111111","node_id":"n1","client_addr":"127.0.0.1:7401","peer_addr":"127.0.0.1:7501","data_dir":".local/n1","members":[{"id":"n1","client":"127.0.0.1:7401","peer":"127.0.0.1:7501"},{"id":"n2","client":"127.0.0.1:7402","peer":"127.0.0.1:7502"},{"id":"n3","client":"127.0.0.1:7403","peer":"127.0.0.1:7503"}],"max_logical_bytes":4194304,"max_keys":10000,"max_sessions":1024,"heartbeat_ms":100,"election_min_ms":600,"election_max_ms":1000}
 ```
 
-Distinct free ports, immutable IDs, same protocol version. Future first startup requires explicit `--bootstrap` on an empty directory and a common manifest; ordinary startup never accidentally reinitializes empty directories. Bootstrap does not appoint a special leader: everyone starts as follower and follows Raft.
+Distinct free ports, immutable IDs, same protocol version. First startup requires explicit `--bootstrap` on an empty directory and a common manifest; ordinary startup never accidentally reinitializes empty directories. Bootstrap does not appoint a special leader: everyone starts as follower and follows Raft.
 
-## Planned CLI interface, not executable today
+## M09 node executable and local operation
 
-```text
-quorumkv node --config examples/n1.json --bootstrap
-quorumkv node --config examples/n2.json --bootstrap
-quorumkv node --config examples/n3.json --bootstrap
-quorumkvctl --endpoints 127.0.0.1:7401,127.0.0.1:7402,127.0.0.1:7403 put config/theme dark
+From the repository root, build once and create private empty directories for a new cluster. The three [example configurations](../../examples/n1.json) already agree on membership. Run one command per terminal; keep at most three node processes. node_started means initialized/listeners reserved, not leader or quorum proof.
+
+```sh
+GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2 go build -p 1 -o /tmp/quorumkv ./cmd/quorumkv
+install -d -m 0700 .local .local/n1 .local/n2 .local/n3
+/tmp/quorumkv node --config examples/n1.json --bootstrap
+/tmp/quorumkv node --config examples/n2.json --bootstrap
+/tmp/quorumkv node --config examples/n3.json --bootstrap
 ```
 
-These names and paths are design examples, not existing files or commands. Omit bootstrap on restart. The CLI must persist its session and pending payload privately before requesting; never regenerate IDs on retry. To stop, send SIGTERM to the run-owned PID; deadline 5 s, after which the harness records forced termination and retains data for recovery.
+Bootstrap is only for the first empty-directory start. On restart run the same three commands WITHOUT --bootstrap; preserve node identities, ports and intact data directories. Do not delete data to resolve an error. SIGINT (Ctrl-C) or SIGTERM initiates shutdown; the process allows 5 s and returns failure on timeout, preserving files for recovery. Exit codes: 0 normal/help, 2 invalid arguments/config, 1 startup/runtime/shutdown failure. Config/data paths are relative to the working directory unless absolute. `.local/` and the root build binary are ignored by Git.
+
+The M08 client is a single-attempt Go test client, not quorumkvctl or a persistent session CLI. Optional local inspection with an existing curl: query /v1/status on the three configured ports, choose the one currently reporting leader, then issue a single PUT/DELETE to that port. These requests assume n1 currently leads; adjust only to another configured member when necessary.
+
+```sh
+curl --max-time 3 http://127.0.0.1:7401/v1/status
+curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","value_b64":"","client_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sequence":1}' http://127.0.0.1:7401/v1/kv/put
+curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","client_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sequence":2}' http://127.0.0.1:7401/v1/kv/delete
+```
+
+A follower returns not_admitted; never follow arbitrary hints. Timeout/lost response is unknown and may have taken effect. Do not automatically retry: deduplication/original-result recovery is M11. GET KV/CAS HTTP, snapshots/compaction and production deployment are absent. Stop every node when finished. [M09 test/report](milestone-m09.md) distinguishes process-crash evidence from unverified OS/power loss. Historical M01–M07 library notes below describe their original delivery boundaries.
 
 ## Future workflow
 
@@ -47,10 +60,10 @@ Keep `.local/` out of future version control; use synthetic data only. Manual ba
 |---|---|
 | Port occupied | Identify owning PID; choose coherent ports across all configs or stop only your own process. |
 | No leader | Check peer/config_hash and election logs; await a stable majority, never assign the role manually. |
-| Timeout | Inspect outcome and retry the same ID; check Sync and peers, never assume rollback. |
+| Timeout | Preserve unknown; no automatic retry until M11. Check peers and storage, never assume rollback. |
 | Lock occupied | Check for an active process; never bypass exclusion. |
 | Invalid CRC/manifest | Quarantine and diagnose; no automatic reset. |
-| Storage cap | Inspect compaction and inactive temporaries; never remove active WAL. |
+| Storage cap | Stop new writes; compaction is not implemented before M13. Preserve active WAL and diagnose. |
 | Mac under pressure | Stop run-owned tests/processes; reduce dataset/concurrency and retain measurements. |
 
 ## Checks now available for M01/M02

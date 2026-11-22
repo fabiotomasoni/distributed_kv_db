@@ -105,3 +105,7 @@ I [formati canonici](canonical-formats.md) fissano kind log, comandi tipizzati, 
 ## Autorizzazione completamento M08
 
 [Service.Write](../../internal/raft/write.go) preserva algoritmi commit/applicazione M07. Lock ticket separa esclusione permanente prima di registrazione da possibili effetti disco. Quando registrazione può iniziare, cancellazione abbandona solo chiamante. Solo Sync locale mai completed: attendere risultato applicato esatto indice/termine, poi inviare controllo finale attraverso owner. Rifiuta errore, shutdown, non leader, termine cambiato o commit/apply insufficienti. Termine maggiore osservato prima dell’evento impedisce successo anche con comando committed/applicato. Scadenza conservazione risultato o supersessione produce incertezza. Nessuna tabella sessioni o nuovo formato persistente.
+
+## Evidenze restart M09
+
+[M09](milestone-m09.md) lascia transizioni core invariate. Immagine controllata a tre nodi ha termine 5, indice committed 1 e indice non committed 2 su ogni nodo. Ogni startup pubblica follower/termine 5 con LastApplied=ScheduledApplyIndex=CommitIndex=1 e LastIndex=2. Solo noop quorum successivo del termine corrente può committare/applicare indice 2. Kill reali dei processi testano inoltre recovery leader/follower, catch-up e conservazione prefisso confermato. Nessun termine, voto o commit dedotto da leadership precedente o lunghezza log grezza.

@@ -52,3 +52,7 @@ A node may believe it is leader during a partition but cannot acknowledge new op
 ## M08 HTTP uncertainty
 
 [M08](milestone-m08.md) distinguishes proven pre-record exclusion from possible append. Timeout/disconnect after that boundary cannot cancel replication or committed apply, nor prove failure. Observed leadership loss before completion authorization is unknown. Isolated leaders cannot confirm new writes without quorum. A response can be lost after apply; the single-attempt test client reports unknown and does not retry. Repeated DELETE is a new effect/result until M11; later sessions remain required. HTTP shutdown cancels bounded waiters before the existing committed drain and lock release. No new process-crash, OS-crash or power-loss guarantee.
+
+## M09 process-crash boundary
+
+[M09](milestone-m09.md) exercises abrupt follower kill, continued majority writes, follower restart/catch-up, abrupt leader kill/new election, then killing all three and restarting intact directories. A separate SIGTERM interrupts a pending write after WAL growth without quorum: its response is unknown, safe committed state replays and the speculative key is absent before a later legal commit. Startup rejects duplicate ownership, repeated bootstrap and complete corruption without reset or fallback. These are non-Byzantine process crashes with the OS/filesystem alive, not independent machines, OS crash or power loss. Missing a durable majority or losing the shared SSD invalidates preservation assumptions. No unknown request is automatically retried.

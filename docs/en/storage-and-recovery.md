@@ -114,3 +114,7 @@ Recovery does not apply KV commands; callers must later coordinate commit proof,
 ## M07 checkpoint and fresh replay
 
 [M07](milestone-m07.md) emits existing commit_index frames only after covered durable entries and legal leader/follower proof. Sync failure stops progress/application; complete surviving checkpoint recovery remains conditional on M03 validation. No applied-index file is added. StartCommitted reconstructs a fresh base-zero in-memory machine through M02 over exactly 1..recovered commit, ignoring speculative suffix. Replay rebuilds both application cursors before listening. Full process recovery/MVP, sessions and general snapshots remain M09/M11/M13; OS/power loss remains unverified.
+
+## M09 process recovery evidence
+
+[M09](milestone-m09.md) completes the internal-MVP T-014/T-018/T-023 subset with real process termination and fresh replay. Acknowledged entry bytes/checkpoints are recovered from intact directories; actual M07 reconstruction through M02 is compared with an external expected map only after stopping its owner. Graceful shutdown joins work before releasing ports/LOCK, and signaled pending writes remain uncertain. Missing initialization, duplicate locks, repeated bootstrap and complete corruption fail closed before serving. Existing M03 repair rules, reserves, canonical bytes and base-zero limitation are unchanged. Full AC-023 end-to-end GET remains after M10, snapshot publication/recovery M13. OS crash/reboot and power-loss durability are still unverified.

@@ -51,3 +51,7 @@ M04/M14: configurazioni e failover locale verificati. Se i gate falliscono, aggi
 ## Evidenze implementazione M04 — 20 novembre 2026
 
 [M04](../milestone-m04.md) implementa la decisione tramite [configurazione/hash](../configuration.md) immutabili, fixture protocollo rigorose e HTTP loopback limitato con libreria standard. Identità storage/LOCK precedono bind di produzione; shutdown drena prima del rilascio. Nessun DNS/proxy/redirect/compressione o dipendenza esterna. Una RPC in uscita per peer, socket/deadline limitati. Decisioni callback e futuri timing/replica Raft restano fuori M04. Motivazioni originali e limiti loopback fidato invariati.
+
+## MVP eseguibile M09 a tre processi
+
+[M09](../milestone-m09.md) esegue configurazioni statiche n1/n2/n3 esistenti come processi locali separati, usando quorum 2 invariato e porte/directory private distinte. Test kill/restart/failover conservano stato confermato sotto assunzioni storage dichiarate. Nessun cambio membership, leader bootstrap speciale, indipendenza fisica o disponibilità a guasto host condiviso aggiunti.

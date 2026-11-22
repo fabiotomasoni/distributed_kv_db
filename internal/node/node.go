@@ -210,3 +210,7 @@ func (n *Node) Shutdown(ctx context.Context) error {
 		return ctx.Err()
 	}
 }
+
+// Done closes only after listener/worker drain, storage close and LOCK release.
+// It also exposes automatic fatal shutdown to the owning server process.
+func (n *Node) Done() <-chan struct{} { return n.done }

@@ -114,3 +114,7 @@ Recovery non applica comandi KV; chiamanti dovranno coordinare prova commit, ses
 ## Checkpoint e replay nuovo M07
 
 [M07](milestone-m07.md) emette frame commit_index esistenti solo dopo entry coperte durevoli e prova leader/follower legale. Errore Sync ferma progresso/applicazione; recovery checkpoint completo sopravvissuto resta condizionato a validazione M03. Nessun file applied-index aggiunto. StartCommitted ricostruisce macchina memoria nuova con base zero tramite M02 su esattamente 1..commit recuperato, ignorando suffisso speculativo. Replay ricostruisce entrambi i cursori prima del listener. Recovery completo processi/MVP, sessioni e snapshot generali restano M09/M11/M13; perdita OS/alimentazione non verificata.
+
+## Evidenze recovery processi M09
+
+[M09](milestone-m09.md) completa sottoinsieme MVP interno T-014/T-018/T-023 con terminazione processi reale e replay su macchina nuova. Byte entry/checkpoint confermati recuperati da directory integre; ricostruzione M07 effettiva tramite M02 confrontata con mappa attesa esterna solo dopo stop owner. Shutdown ordinato attende lavoro prima di rilasciare porte/LOCK e scritture pendenti interrotte da segnale restano incerte. Inizializzazione mancante, lock duplicati, bootstrap ripetuto e corruzione completa falliscono chiusi prima di servire. Regole riparazione M03, riserve, byte canonici e limite base-zero invariati. AC-023 end-to-end GET completa resta dopo M10, pubblicazione/recovery snapshot M13. Durabilità crash/reboot OS e perdita alimentazione ancora non verificate.
