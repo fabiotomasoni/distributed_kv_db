@@ -82,6 +82,7 @@ type Core struct {
 	active                 map[string]peerprotocol.Message
 	stepped                bool
 	commitEnabled          bool
+	readsEnabled           bool
 }
 
 // New recovers log metadata, never application state. The supplied WAL view must

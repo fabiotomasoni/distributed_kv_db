@@ -1,0 +1,120 @@
+[
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "get-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "exists": true,
+      "value_b64": ""
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "get-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "exists": true,
+      "value_b64": "AP8="
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 404,
+    "response": {
+      "code": "KEY_NOT_FOUND",
+      "request_id": "get-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "exists": false
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 504,
+    "response": {
+      "code": "TIMEOUT",
+      "request_id": "get-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "NO_LEADER",
+      "request_id": "get-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "NOT_LEADER",
+      "request_id": "get-attempt",
+      "outcome": "not_admitted",
+      "leader_id": "n2",
+      "leader_url": "http://127.0.0.1:7402"
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 503,
+    "response": {
+      "code": "UNAVAILABLE",
+      "request_id": "get-attempt",
+      "outcome": "unknown"
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 429,
+    "response": {
+      "code": "OVERLOADED",
+      "request_id": "get-attempt",
+      "outcome": "not_admitted"
+    }
+  },
+  {
+    "request": {
+      "key": "x",
+      "timeout_ms": 50
+    },
+    "status": 507,
+    "response": {
+      "code": "STORAGE_UNAVAILABLE",
+      "request_id": "get-attempt",
+      "outcome": "unknown"
+    }
+  }
+]

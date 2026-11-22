@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/consistency-model.md)
 
-**Stato: progetto pre-implementativo, revisione 0.2 — 18 novembre 2026. Nessuna funzionalità o misura è verificata.**
+**22 novembre 2026 — baseline GET nel log e PUT/DELETE implementata; contratto futuro completo sessioni/CAS/checker ancora ai gate.**
 
 ## Contratto osservabile
 
@@ -77,3 +77,9 @@ L’[applier locale](milestone-m02.md) serializza comandi indicizzati dal chiama
 ## Replay e suffisso incerto M09
 
 [M09](milestone-m09.md) verifica ricostruzione nuova del prefisso committed prima di servire. Nessun suffisso speculativo esposto solo perché byte sopravvissuti. Dopo elezione, noop termine corrente può committare legalmente suffisso incerto ereditato; precedente risposta unknown non prova rollback. Entry confermate completed sopravvivono ai crash processo testati con directory integre e maggioranza recuperabile. Test confrontano byte entry originali e macchina realmente ricostruita con piccolo oracolo esterno di storia confermata. Non aggiunge GET HTTP, retry sicuri, collasso identità sessioni o checker linearizzabilità completo.
+
+## Ordinamento implementato ed evidenze M10
+
+[M10](milestone-m10.md) implementa protocollo scelto letture nel log. Entry fresca del termine corrente creata dopo invocazione, quindi acknowledgment maggioranza durevole riuscito deve coprire tale entry o successivo confine legale termine corrente. Heartbeat precedenti invocazione non stabiliscono quel nuovo prefisso. Output M02 esatto indice/termine conservato e copiato prima di mutazioni successive; mai sola attesa LastApplied seguita da campionamento mappa attiva. Osservazioni chiave assente e valore vuoto distinte.
+
+Controllo completamento owner rifiuta perdita ruolo/termine osservata o commit/apply insufficienti; snapshot HTTP finale è solo rivalidazione conservativa, non prova quorum. Read committed prima di isolamento può completare dopo isolamento, nuova read isolata non può. Storie a tre nodi con seed scartano esplicitamente traffico in volo prima di invocazione vecchio leader, conservano ghost committed permanente e confrontano slot lettura con modello indipendente lista/stringhe. Storia HTTP reale di cinque operazioni cerca ordini legali delle sovrapposizioni e checker rifiuta controesempio stale noto. Queste verifiche finite soddisfano gate letture M10; checker generale storie sessioni/CAS/snapshot resta M14. GET ripetuta è nuova lettura logica senza collasso sessioni.

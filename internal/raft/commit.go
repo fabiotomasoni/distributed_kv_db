@@ -7,15 +7,15 @@ import (
 	"github.com/fabiotomasoni/distributed_kv_db/internal/strictjson"
 )
 
-// EnableCommit opts into M07 before events. General snapshots and logged reads
-// remain later milestones; recovered base-zero mutation/noop logs are supported.
+// EnableCommit opts into ordered application before events. Its M07 default
+// rejects reads; M10 explicitly enables them first. Snapshots remain unsupported.
 func (x *Core) EnableCommit() error {
 	if x.stepped || x.batchSize == 0 || x.commitEnabled || x.baseIndex != 0 || x.state.Closed {
 		return ErrInput
 	}
 	for _, e := range x.entries {
 		v, err := strictjson.Decode(e.Raw, 48*1024)
-		if err != nil || v["kind"] == "read" {
+		if err != nil || (v["kind"] == "read" && !x.readsEnabled) {
 			return ErrUnsupported
 		}
 	}
@@ -71,5 +71,15 @@ func (x *Core) Applied(epoch, index uint64, err error) error {
 		return failure
 	}
 	x.state.LastApplied = index
+	return nil
+}
+
+// EnableLoggedReads selects M10 at startup, before EnableCommit/events.
+// Old commit-only modes retain their explicit read rejection.
+func (x *Core) EnableLoggedReads() error {
+	if x.stepped || x.batchSize == 0 || x.commitEnabled || x.readsEnabled || x.state.Closed || x.state.Failure != nil {
+		return ErrInput
+	}
+	x.readsEnabled = true
 	return nil
 }

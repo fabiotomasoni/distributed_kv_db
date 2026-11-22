@@ -36,6 +36,17 @@ func NewClient(c config.Config) (*Client, error) {
 }
 func (c *Client) Close() { c.pool.CloseIdleConnections() }
 func (c *Client) Write(ctx context.Context, member, kind string, raw []byte) (Response, int, error) {
+	if kind != "put" && kind != "delete" {
+		return Response{Outcome: raft.NotAdmitted}, 0, raft.ErrInput
+	}
+	return c.call(ctx, member, kind, raw)
+}
+
+// Get sends one logged-read attempt. It does not retry or sample status locally.
+func (c *Client) Get(ctx context.Context, member string, raw []byte) (Response, int, error) {
+	return c.call(ctx, member, "get", raw)
+}
+func (c *Client) call(ctx context.Context, member, kind string, raw []byte) (Response, int, error) {
 	no := Response{Outcome: raft.NotAdmitted}
 	if ctx == nil {
 		return no, 0, raft.ErrInput
@@ -91,11 +102,16 @@ func (c *Client) decodeResponse(kind string, status int, raw []byte) (Response, 
 	if err != nil {
 		return bad()
 	}
-	if _, err = strictjson.Fields(o, "code request_id outcome", "index applied deleted leader_id leader_url"); err != nil {
+	if _, err = strictjson.Fields(o, "code request_id outcome", "index applied deleted leader_id leader_url exists value_b64"); err != nil {
 		return bad()
 	}
 	var out Response
 	if json.Unmarshal(raw, &out) != nil || out.RequestID == "" || len(out.RequestID) > 128 {
+		return bad()
+	}
+	_, hasExists := o["exists"]
+	_, hasValue := o["value_b64"]
+	if kind != "get" && (hasExists || hasValue) {
 		return bad()
 	}
 	_, hasApplied := o["applied"]
@@ -121,6 +137,21 @@ func (c *Client) decodeResponse(kind string, status int, raw []byte) (Response, 
 		if err != nil || index == 0 || out.LeaderID != "" {
 			return bad()
 		}
+		if kind == "get" {
+			if hasApplied || hasDeleted || out.Exists == nil {
+				return bad()
+			}
+			if status == 404 && out.Code == "KEY_NOT_FOUND" && !*out.Exists && !hasValue {
+				return out, nil
+			}
+			if status != 200 || out.Code != "OK" || !*out.Exists || out.ValueB64 == nil {
+				return bad()
+			}
+			if _, err := strictjson.Base64(*out.ValueB64, 16384); err != nil {
+				return bad()
+			}
+			return out, nil
+		}
 		if out.Code == "RESOURCE_LIMIT" && status == 409 {
 			if hasApplied || hasDeleted {
 				return bad()
@@ -138,6 +169,9 @@ func (c *Client) decodeResponse(kind string, status int, raw []byte) (Response, 
 			return bad()
 		}
 	case raft.Unknown, raft.NotAdmitted:
+		if hasExists || hasValue {
+			return bad()
+		}
 		if _, ok := o["index"]; ok {
 			return bad()
 		}

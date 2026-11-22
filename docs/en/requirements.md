@@ -54,3 +54,7 @@ The [matrix](traceability.md) maps every requirement to a module, ADR, milestone
 ## M05 requirement evidence
 
 FR-004/FR-005 have implemented election/heartbeat evidence in [M05](milestone-m05.md): AC-004/T-004 over 20 reproducible split-vote/crash-after-Sync seeds, AC-005/T-005 over 100 healthy heartbeat rounds. NFR-001 and NFR-008 gain finite election oracles/injected clocks/storage/network, not closure of all Raft safety or future replay requirements. NFR-009 native ARM64 checks pass again. No requirement is removed or weakened; no distributed API/durability claim follows from election alone.
+
+## M10 read-gate evidence
+
+[M10](milestone-m10.md): FR-019/AC-019/T-019 and the FR-009/AC-009/T-009 GET portion pass. T-019 runs seeds 42/117/203 twice with explicit event ordering, isolation after dropping in-flight messages, a committed ghost and an independent per-slot read oracle. Gated disk/apply/checkpoint tests, strict HTTP/OpenAPI GET fixtures, a five-operation HTTP history with independent ordering search/counterexample and real follower/failover/minority checks pass. Three-process crash/restart additionally verifies GET-based acknowledged-data recovery, complementing AC-023/T-023 without snapshots. Full M01–M09 regression and targeted race are recorded in the report. M11 CAS/dedup/AC-012 and M13 snapshots remain open; the general AC-022/T-022 checker remains M14. C-03 gains the M10 stale-reader/slot evidence only, not closure of every condition.

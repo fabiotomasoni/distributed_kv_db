@@ -84,3 +84,9 @@ Implemented [interfaces and ownership](milestone-m04.md): node → config/transp
 ## M09 process owner and recovery MVP
 
 [M09](milestone-m09.md) adds only cmd/quorumkv → internal/server → node.StartAPI. Signals cancel a bounded process wait; Node.Done reports completed automatic teardown. The unchanged WAL validates authoritative CURRENT, identity, frames and commit; the unchanged service reconstructs a fresh M01 machine through M02 over exactly the checkpoint prefix before listeners. No persisted applied cursor, alternate application path, second recovery engine or new RPC/API. A suffix remains speculative until legal new-term quorum commit. The process layer reports fatal/timeout exits instead of claiming a healthy running node. Test-only inspection accesses a replayed map only after its worker has terminated.
+
+## M10 logged-read capability
+
+[M10](milestone-m10.md) extends the existing client adapter and shared bounded service admission/completion path. Service.Read creates read entries; committed.ProjectWithReads maps them to M01 Get inside the unchanged M02 worker. The exact captured value is copied into the existing 64-result ring and copied on delivery. At most 64 retained values of at most 16 KiB add a bounded payload budget of 1 MiB, excluding ordinary object/queue overhead. No unbounded waiter table or per-read worker.
+
+Options.Reads requires Commit and enables Core.EnableLoggedReads before EnableCommit/replay/events. Production StartAPI/CLI enables it; legacy StartCommitted/commit-only tests retain read rejection. It is a homogeneous startup capability, not rolling feature negotiation. All members must run the same M10 runtime; older modes fail closed on read-bearing recovery. Read acceptance in leader/follower and fresh replay uses the existing v1 schema; no WAL/RPC format change. Status, write endpoints and shutdown resource ownership are unchanged.

@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/consistency-model.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**22 November 2026 — logged GET and PUT/DELETE baseline implemented; full future session/CAS/checker contract remains gated.**
 
 ## Observable contract
 
@@ -77,3 +77,9 @@ The [local applier](milestone-m02.md) serializes caller-indexed commands and ret
 ## M09 replay and uncertain suffix
 
 [M09](milestone-m09.md) verifies fresh committed-prefix reconstruction before serving. No speculative suffix is exposed merely because its bytes survived. After election, a current-term noop may legally commit an inherited uncertain suffix; its previous unknown response is not evidence of rollback. Completed acknowledged entries survive tested process crashes with intact directories and a recoverable majority. Tests compare original entry bytes and the actual reconstructed machine against a small external acknowledged-history oracle. This does not add HTTP GET, safe retries, session identity collapse or a full linearizability checker.
+
+## M10 implemented ordering and evidence
+
+[M10](milestone-m10.md) implements the selected logged-read protocol. The fresh current-term entry is created after invocation, so a successful durable majority acknowledgment must cover that entry or a later legal current-term boundary. Pre-invocation heartbeats cannot establish that new prefix. Exact indexed/termed M02 output is retained and copied before later mutations; merely waiting for LastApplied and sampling a live map is never used. Missing-key and empty-value observations are distinguished.
+
+The owner completion fence rejects observed role/term loss or insufficient commit/apply; a final HTTP snapshot is only conservative revalidation, not quorum proof. A pre-isolation committed read can complete after isolation, but a new isolated read cannot. Seeded three-node histories explicitly discard in-flight traffic before the old-leader invocation, retain a permanent committed ghost and compare read slots with an independent list/string model. A five-operation real HTTP history is searched over legal overlap orders and its checker rejects a known stale counterexample. These finite checks satisfy the M10 read gate; the general session/CAS/snapshot history checker remains M14. Repeated GET is a new logical read, without session collapse.

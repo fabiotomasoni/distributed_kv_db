@@ -109,3 +109,7 @@ The system favors safety over availability. It uses no time leases, requires no 
 ## M09 restart evidence
 
 [M09](milestone-m09.md) leaves core transitions unchanged. A controlled three-node image has term 5, committed index 1 and an uncommitted index 2 on every node. Each startup publishes follower/term 5 with LastApplied=ScheduledApplyIndex=CommitIndex=1 and LastIndex=2. Only the later current-term quorum noop can commit/apply index 2. Real process kills additionally test leader/follower recovery, catch-up and acknowledged-prefix preservation. No term, vote or commit is inferred from previous leadership or raw log length.
+
+## M10 current-term read entries
+
+[M10](milestone-m10.md) enables approved read(key) proposals, follower replication and replay under explicit startup capability. Every request assigns a fresh current-term index. Existing local Sync, exact-correlated follower match, current-term majority boundary and synchronized commit checkpoint are unchanged. The read entry itself can satisfy the current-term commit condition; no separate heartbeat lease/ReadIndex round is substituted. ScheduledApplyIndex advances only on actual M02 admission, LastApplied on completion, and the read result belongs to that index/term. The existing owner fence rejects an observed higher term before response authorization. Old responses cannot commit the new read prefix; legacy stale-ack tests remain unchanged.

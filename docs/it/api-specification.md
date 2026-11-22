@@ -2,11 +2,11 @@
 
 [Indice](README.md) · [English](../en/api-specification.md)
 
-**21 novembre 2026 — sottoinsieme PUT/DELETE M08 implementato; GET, CAS e retry sicuri restano contratti futuri.**
+**22 novembre 2026 — PUT/GET/DELETE implementate; CAS e retry mutazioni sicuri restano M11.**
 
 ## Contratto HTTP proposto
 
-Il contratto generale e gli esempi sotto descrivono l’interfaccia v1 finale. È disponibile solo il sottoinsieme M08 descritto in fondo. HTTP/1.1 su loopback, `Content-Type: application/json`, niente compressione. Tutte le operazioni KV usano POST per evitare ambiguità di chiavi nei path e cache intermedie. Corpo massimo 48 KiB; rifiuto prima di ammissione con HTTP 413. Validazione rigorosa secondo [modello dati](data-model.md).
+Il contratto generale e gli esempi sotto descrivono l’interfaccia v1 finale. Il sottoinsieme implementato M10 e la precedenza sono descritti in fondo. HTTP/1.1 su loopback, `Content-Type: application/json`, niente compressione. Tutte le operazioni KV usano POST per evitare ambiguità di chiavi nei path e cache intermedie. Corpo massimo 48 KiB; rifiuto prima di ammissione con HTTP 413. Validazione rigorosa secondo [modello dati](data-model.md).
 
 | Endpoint | Campi obbligatori specifici | Risultato normale |
 |---|---|---|
@@ -162,3 +162,15 @@ Limiti: 32 connessioni client accettate incluse idle, 64 slot handler scrittura,
 ## Compatibilità e restart M09
 
 [M09](milestone-m09.md) espone gli stessi endpoint M08 tramite eseguibile nodo; OpenAPI/fixture HTTP ed errori byte-invariati. Restart ricostruisce stato committed prima di ascoltare e parte follower, con correlazione nuova per tentativo. Operazione unknown può sparire o diventare committed successivamente tramite noop nuovo termine; restart non recupera risultato client originale né aggiunge deduplicazione. GET/CAS HTTP restano indisponibili. SIGTERM può perdere risposta preservando obblighi Raft già esistenti del comando.
+
+## Contratto GET M10 implementato e precedenza
+
+[M10](milestone-m10.md) aggiunge ora POST /v1/kv/get con key obbligatoria e timeout_ms intero canonico opzionale 50..5000, default 2000. Richiesta non accetta client_id, sequence, value o request_id. HTTP GET su questo path KV è 405; GET /v1/status resta diagnostica locale obsoleta. CAS HTTP e semantiche sessioni/deduplicazione restano future M11. Questa sezione estende e prevale sulle dichiarazioni storiche disponibilità M08/M09; comportamento PUT/DELETE invariato.
+
+Eseguibile nodo/StartAPI abilita letture nel log su tutti e tre membri. Ogni tentativo appende nuova read(key) canonica del termine corrente, la sincronizza/replica, committa tramite regola maggioranza durevole/checkpoint esistenti e acquisisce risultato mentre M02 applica quell’esatto indice. Handler non legge mappa locale. Completed richiede indice/termine applicato corrispondente, controllo leadership serializzato owner e controlli finali conservativi HTTP stato/deadline. Mutazioni precedentemente completate precedono letture successive riuscite; chiamate sovrapposte senza promessa ordine arrivo HTTP.
+
+200 OK/completed include index stringa canonica, exists=true e value_b64 canonico, inclusa stringa vuota per valore presente vuoto. 404 KEY_NOT_FOUND/completed include index ed exists=false, con value_b64 assente. Risposte unknown/not_admitted omettono campi risultato lettura. Limiti body/chiave/valore/connessioni/code, request_id generato, hint leader configurati e deadline conservano semantica M08. Follower/candidate non serve lettura locale; vecchio leader isolato non completa nuova lettura iniziata dopo isolamento completo. Read già legalmente committed prima di isolamento può restituire risultato acquisito se controlli completamento ancora validi. Nessun quorum passato revocato.
+
+Esclusione provata prima di registrazione è not_admitted. Dopo possibile registrazione read, timeout è TIMEOUT/unknown, step-down osservato/cancellazione/errore infrastruttura UNAVAILABLE/unknown, errore storage STORAGE_UNAVAILABLE/unknown. Cancellazione/disconnessione abbandona attesa, non applicazione committed. Retry letture sono letture successive indipendenti e possono vedere valori più nuovi; Client.Get esegue singolo tentativo senza retry automatico. Nessuna identità client persistente o garanzia exactly-once.
+
+[OpenAPI M10](../openapi/m10.json) e [fixture GET](../fixtures/http-m10.json) estendono [artefatto M08](../openapi/m08.json)/[fixture](../fixtures/http-m08.json) immutabili. Test confrontano esattamente tutti schemi path originali e verificano schemi, decoder runtime rigoroso, stato/body HTTP emessi e decoder test client. Regole lessicali canoniche superano normali annotazioni JSON Schema e sono controllate in Go; evidenza contrattuale finita offline, non certificazione OpenAPI esterna. Letture nel log consumano scritture WAL/commit e riserva/quota fisica esistenti. Nessun ReadIndex, lease o compressione.

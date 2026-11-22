@@ -54,3 +54,7 @@ La [revisione](pre-m03-review.md) fissa [schema storage canonico](canonical-form
 ## Evidenze requisiti M05
 
 FR-004/FR-005 dispongono di evidenze elezioni/heartbeat implementate in [M05](milestone-m05.md): AC-004/T-004 su 20 seed riproducibili split-vote/crash-dopo-Sync, AC-005/T-005 su 100 round heartbeat sani. NFR-001 e NFR-008 acquisiscono oracoli elettorali finiti/clock-storage-rete iniettati, senza chiudere tutta la safety Raft o requisiti replay futuri. NFR-009 build ARM64 nativa nuovamente superata. Nessun requisito eliminato o indebolito; elezione da sola non implica API/durabilità distribuita.
+
+## Evidenze gate letture M10
+
+[M10](milestone-m10.md): superati FR-019/AC-019/T-019 e porzione GET FR-009/AC-009/T-009. T-019 esegue seed 42/117/203 due volte con ordinamento eventi esplicito, isolamento dopo scarto messaggi in volo, ghost committed e oracolo read per slot indipendente. Superati test disco/apply/checkpoint bloccati, fixture GET HTTP/OpenAPI rigorose, storia HTTP cinque operazioni con ricerca ordini/controesempio indipendente e verifiche reali follower/failover/minoranza. Crash/restart tre processi verifica inoltre recovery dati confermati tramite GET, complementando AC-023/T-023 senza snapshot. Regressione completa M01–M09 e race mirato registrati nella relazione. M11 CAS/dedup/AC-012 e snapshot M13 restano aperti; checker generale AC-022/T-022 resta M14. C-03 acquisisce solo evidenze M10 lettore obsoleto/slot, non chiusura di ogni condizione.

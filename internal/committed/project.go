@@ -1,5 +1,5 @@
-// Package committed projects approved mutation/noop log entries into M02 work.
-// It owns no scheduling, consensus, sessions or client/read API.
+// Package committed projects approved entries into M02 work, with logged reads
+// behind an explicit M10 capability. It owns no scheduling, consensus or sessions.
 package committed
 
 import (
@@ -16,7 +16,14 @@ var ErrKind = errors.New("committed: unsupported application kind")
 
 const noop statemachine.Operation = "raft/noop"
 
-func Project(e storageformat.LogEntry) (statemachine.Command, error) {
+func Project(e storageformat.LogEntry) (statemachine.Command, error) { return project(e, false) }
+
+// ProjectWithReads adds the approved read(key) -> M01 Get projection. The M02
+// worker captures its exact-slot result; this function itself reads no map.
+func ProjectWithReads(e storageformat.LogEntry) (statemachine.Command, error) {
+	return project(e, true)
+}
+func project(e storageformat.LogEntry, reads bool) (statemachine.Command, error) {
 	if err := storageformat.ValidateEntry(e.Raw); err != nil {
 		return statemachine.Command{}, err
 	}
@@ -29,7 +36,10 @@ func Project(e storageformat.LogEntry) (statemachine.Command, error) {
 		return statemachine.Command{Operation: noop}, nil
 	}
 	if kind == "read" {
-		return statemachine.Command{}, ErrKind
+		if !reads {
+			return statemachine.Command{}, ErrKind
+		}
+		return statemachine.Command{Operation: statemachine.Get, Key: v["command"].(map[string]any)["key"].(string)}, nil
 	}
 	m := v["command"].(map[string]any)
 	key := m["key"].(string)

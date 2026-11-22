@@ -84,3 +84,9 @@ Le [interfacce M05](milestone-m05.md) aggiungono internal/raft: core eventi puro
 ## Owner processo e MVP recovery M09
 
 [M09](milestone-m09.md) aggiunge solo cmd/quorumkv → internal/server → node.StartAPI. Segnali cancellano attesa processo limitata; Node.Done segnala teardown automatico completato. WAL invariato valida CURRENT autorevole, identità, frame e commit; servizio invariato ricostruisce macchina M01 nuova tramite M02 esattamente sul prefisso checkpoint prima dei listener. Nessun cursore applied persistito, percorso applicativo alternativo, secondo motore recovery o nuova RPC/API. Suffisso resta speculativo fino a commit quorum legale nuovo termine. Livello processo segnala exit fatali/timeout anziché dichiarare nodo sano attivo. Ispezione solo test accede alla mappa ricostruita solo dopo terminazione worker.
+
+## Capacità letture nel log M10
+
+[M10](milestone-m10.md) estende adattatore client e percorso condiviso limitato ammissione/completamento servizio esistenti. Service.Read crea entry read; committed.ProjectWithReads le mappa a Get M01 nel worker M02 invariato. Valore esatto acquisito copiato nel ring 64 risultati esistente e copiato alla consegna. Massimo 64 valori conservati da massimo 16 KiB aggiungono budget payload limitato di 1 MiB, esclusi normali overhead oggetti/code. Nessuna tabella waiter illimitata o worker per lettura.
+
+Options.Reads richiede Commit e abilita Core.EnableLoggedReads prima di EnableCommit/replay/eventi. StartAPI/CLI produzione la abilita; StartCommitted/test commit-only legacy conservano rifiuto read. È capacità startup omogenea, non negoziazione feature rolling. Tutti membri devono eseguire stesso runtime M10; vecchie modalità falliscono chiuse su recovery contenente read. Accettazione read leader/follower e replay nuovo usano schema v1 esistente; nessuna modifica formato WAL/RPC. Status, endpoint scrittura e ownership risorse shutdown invariati.

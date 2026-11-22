@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 22 November 2026 — M01–M09 implemented within their phase scopes; PUT/DELETE process MVP available.**
+**Updated: 22 November 2026 — M01–M10 implemented within their phase scopes; PUT/DELETE process MVP available.**
 
 ## Free prerequisites
 
@@ -44,7 +44,7 @@ curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","value_b
 curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","client_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sequence":2}' http://127.0.0.1:7401/v1/kv/delete
 ```
 
-A follower returns not_admitted; never follow arbitrary hints. Timeout/lost response is unknown and may have taken effect. Do not automatically retry: deduplication/original-result recovery is M11. GET KV/CAS HTTP, snapshots/compaction and production deployment are absent. Stop every node when finished. [M09 test/report](milestone-m09.md) distinguishes process-crash evidence from unverified OS/power loss. Historical M01–M07 library notes below describe their original delivery boundaries.
+A follower returns not_admitted; never follow arbitrary hints. Timeout/lost response is unknown and may have taken effect. Do not automatically retry: deduplication/original-result recovery is M11. CAS HTTP, snapshots/compaction and production deployment are absent; logged GET is available below. Stop every node when finished. [M09 test/report](milestone-m09.md) distinguishes process-crash evidence from unverified OS/power loss. Historical M01–M07 library notes below describe their original delivery boundaries.
 
 ## Future workflow
 
@@ -85,3 +85,13 @@ Use node.StartReplication(config,bootstrap) for M06. Existing StartElection rema
 ## M07 library usage and limits
 
 node.StartCommitted(config,bootstrap) enables commit/application and fresh prefix replay. AppendLocal still returns only local durability; WaitApplied(ctx,receipt) returns an internal copied indexed/termed domain result, potentially ErrSuperseded/ErrResultExpired or a canceled/failed wait. No public server CLI/API yet. M05/M06 startup helpers retain legacy behavior. Service Options.ApplyCapacity is 1..64; MachineFactory is a trusted fresh exclusive dependency, production uses M01. [M07 commands/results](milestone-m07.md) record bounded offline checks and three replayed commit traces. Client/OpenAPI is M08, read/dedup/snapshot gates later.
+
+## M10 GET operation and limits
+
+The same executable/examples now enable logged GET on all three nodes. Use the same M10 binary everywhere; there is no rolling capability negotiation and older commit-only runtimes reject read-bearing logs. Choose a configured member currently reporting leader; the following single attempt assumes n1. Missing key is 404/completed with exists=false; a present empty value is 200 with exists=true/value_b64="".
+
+```sh
+curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","timeout_ms":2000}' http://127.0.0.1:7401/v1/kv/get
+```
+
+Use POST with key/optional timeout only, not client identity/sequence. Each call appends/replicates a new read entry and writes WAL/checkpoint; do not poll KV continuously. Status is only local diagnostics. Timeout/lost response is unknown; a manually repeated GET is a fresh later read and may observe another value. The Go test client now has Client.Get and never automatically retries. PUT/DELETE limits and uncertainty remain unchanged. CAS HTTP, sessions/dedup and compaction remain unavailable. Stop the three node processes when finished; [M10 report](milestone-m10.md).

@@ -1,10 +1,11 @@
-// Package clientapi implements the M08 PUT/DELETE subset, without read barriers
-// or replicated sessions. Every call is one independent attempt.
+// Package clientapi implements bounded PUT/DELETE and M10 logged GET.
+// There are no replicated sessions; every call is one independent attempt.
 package clientapi
 
 import (
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -32,15 +33,20 @@ type Backend interface {
 	Status() raft.Status
 	Write(context.Context, string, json.RawMessage) (raft.WriteOutcome, error)
 }
+type ReadBackend interface {
+	Read(context.Context, json.RawMessage) (raft.WriteOutcome, error)
+}
 type Response struct {
-	Code      string `json:"code"`
-	RequestID string `json:"request_id"`
-	Outcome   string `json:"outcome"`
-	Index     string `json:"index,omitempty"`
-	Applied   *bool  `json:"applied,omitempty"`
-	Deleted   *bool  `json:"deleted,omitempty"`
-	LeaderID  string `json:"leader_id,omitempty"`
-	LeaderURL string `json:"leader_url,omitempty"`
+	Code      string  `json:"code"`
+	RequestID string  `json:"request_id"`
+	Outcome   string  `json:"outcome"`
+	Index     string  `json:"index,omitempty"`
+	Applied   *bool   `json:"applied,omitempty"`
+	Deleted   *bool   `json:"deleted,omitempty"`
+	Exists    *bool   `json:"exists,omitempty"`
+	ValueB64  *string `json:"value_b64,omitempty"`
+	LeaderID  string  `json:"leader_id,omitempty"`
+	LeaderURL string  `json:"leader_url,omitempty"`
 }
 type Server struct {
 	cfg     config.Config
@@ -150,6 +156,12 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		kind = "put"
 	case "/v1/kv/delete":
 		kind = "delete"
+	case "/v1/kv/get":
+		if _, ok := x.backend.(ReadBackend); !ok {
+			send(404, "INVALID_ARGUMENT")
+			return
+		}
+		kind = "get"
 	default:
 		send(404, "INVALID_ARGUMENT")
 		return
@@ -200,7 +212,12 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Include explicit Shutdown cancellation even when invoked with a test handler.
 	stop := context.AfterFunc(x.ctx, cancel)
 	defer stop()
-	result, err := x.backend.Write(ctx, kind, command)
+	var result raft.WriteOutcome
+	if kind == "get" {
+		result, err = x.backend.(ReadBackend).Read(ctx, command)
+	} else {
+		result, err = x.backend.Write(ctx, kind, command)
+	}
 	out.Outcome = result.Outcome
 	if out.Outcome != raft.Completed {
 		if out.Outcome != raft.NotAdmitted {
@@ -251,7 +268,18 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	out.Index = fmt.Sprint(result.Applied.Index)
 	switch result.Applied.Result.Code {
 	case statemachine.OK:
-		if kind == "put" {
+		if kind == "get" {
+			if !result.Applied.Result.Exists || len(result.Applied.Result.Value) > statemachine.MaxValueBytes {
+				out.Outcome = raft.Unknown
+				out.Index = ""
+				send(503, "UNAVAILABLE")
+				return
+			}
+			exists := true
+			value := base64.StdEncoding.EncodeToString(result.Applied.Result.Value)
+			out.Exists = &exists
+			out.ValueB64 = &value
+		} else if kind == "put" {
 			v := result.Applied.Result.Applied
 			if !v {
 				out.Outcome = raft.Unknown
@@ -265,7 +293,23 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			out.Deleted = &v
 		}
 		send(200, "OK")
+	case statemachine.KeyNotFound:
+		if kind != "get" {
+			out.Outcome = raft.Unknown
+			out.Index = ""
+			send(503, "UNAVAILABLE")
+			return
+		}
+		exists := false
+		out.Exists = &exists
+		send(404, "KEY_NOT_FOUND")
 	case statemachine.ResourceLimit:
+		if kind == "get" {
+			out.Outcome = raft.Unknown
+			out.Index = ""
+			send(503, "UNAVAILABLE")
+			return
+		}
 		send(409, "RESOURCE_LIMIT")
 	default:
 		out.Outcome = raft.Unknown
@@ -282,17 +326,22 @@ func Decode(kind string, raw []byte) (json.RawMessage, time.Duration, string) {
 		return bad("INVALID_ARGUMENT")
 	}
 	fields := "key client_id sequence"
+	if kind == "get" {
+		fields = "key"
+	}
 	if kind == "put" {
 		fields += " value_b64"
-	} else if kind != "delete" {
+	} else if kind != "delete" && kind != "get" {
 		return bad("INVALID_ARGUMENT")
 	}
 	if _, err = strictjson.Fields(o, fields, "timeout_ms"); err != nil {
 		return bad("INVALID_ARGUMENT")
 	}
-	seq, err := strictjson.Integer(o["sequence"])
-	if err != nil || seq < 1 || seq > 9007199254740991 {
-		return bad("INVALID_SEQUENCE")
+	if kind != "get" {
+		seq, err := strictjson.Integer(o["sequence"])
+		if err != nil || seq < 1 || seq > 9007199254740991 {
+			return bad("INVALID_SEQUENCE")
+		}
 	}
 	timeout := uint64(2000)
 	if v, ok := o["timeout_ms"]; ok {
@@ -303,7 +352,11 @@ func Decode(kind string, raw []byte) (json.RawMessage, time.Duration, string) {
 	}
 	delete(o, "timeout_ms")
 	command, _ := json.Marshal(o)
-	entry, _ := json.Marshal(map[string]any{"index": "1", "term": "1", "kind": kind, "command": json.RawMessage(command)})
+	entryKind := kind
+	if kind == "get" {
+		entryKind = "read"
+	}
+	entry, _ := json.Marshal(map[string]any{"index": "1", "term": "1", "kind": entryKind, "command": json.RawMessage(command)})
 	if storageformat.ValidateEntry(entry) != nil {
 		return bad("INVALID_ARGUMENT")
 	}

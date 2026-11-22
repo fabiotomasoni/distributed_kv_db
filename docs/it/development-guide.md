@@ -2,7 +2,7 @@
 
 [Indice](README.md) · [English](../en/development-guide.md)
 
-**Aggiornamento: 22 novembre 2026 — M01–M09 implementate nei perimetri di fase; MVP processi PUT/DELETE disponibile.**
+**Aggiornamento: 22 novembre 2026 — M01–M10 implementate nei perimetri di fase; MVP processi PUT/DELETE disponibile.**
 
 ## Prerequisiti gratuiti
 
@@ -44,7 +44,7 @@ curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","value_b
 curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","client_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","sequence":2}' http://127.0.0.1:7401/v1/kv/delete
 ```
 
-Follower restituisce not_admitted; mai seguire hint arbitrari. Timeout/risposta persa è unknown e può avere avuto effetto. Nessun retry automatico: deduplicazione/recupero risultato originale è M11. GET KV/CAS HTTP, snapshot/compaction e deployment produzione assenti. Fermare ogni nodo alla fine. [Test/relazione M09](milestone-m09.md) distingue evidenza crash processi da perdita OS/alimentazione non verificata. Note storiche libreria M01–M07 sotto descrivono confini consegne originali.
+Follower restituisce not_admitted; mai seguire hint arbitrari. Timeout/risposta persa è unknown e può avere avuto effetto. Nessun retry automatico: deduplicazione/recupero risultato originale è M11. CAS HTTP, snapshot/compaction e deployment produzione assenti; GET nel log disponibile sotto. Fermare ogni nodo alla fine. [Test/relazione M09](milestone-m09.md) distingue evidenza crash processi da perdita OS/alimentazione non verificata. Note storiche libreria M01–M07 sotto descrivono confini consegne originali.
 
 ## Ciclo di lavoro futuro
 
@@ -85,3 +85,13 @@ Usare node.StartReplication(config,bootstrap) per M06. StartElection esistente r
 ## Uso libreria e limiti M07
 
 node.StartCommitted(config,bootstrap) abilita commit/applicazione e replay prefisso su macchina nuova. AppendLocal restituisce ancora sola durabilità locale; WaitApplied(ctx,receipt) restituisce risultato applicativo interno copiato indice/termine, potenzialmente ErrSuperseded/ErrResultExpired o attesa cancellata/fallita. Ancora nessuna CLI/API server pubblica. Helper startup M05/M06 conservano comportamento legacy. Service Options.ApplyCapacity è 1..64; MachineFactory dipendenza fidata nuova esclusiva, produzione usa M01. [Comandi/risultati M07](milestone-m07.md) registrano verifiche offline limitate e tre tracce commit riprodotte. Client/OpenAPI a M08, gate read/dedup/snapshot successivi.
+
+## Operazione GET M10 e limiti
+
+Stesso eseguibile/esempi ora abilitano GET nel log su tutti e tre nodi. Usare stesso binario M10 ovunque; nessuna negoziazione capacità rolling e vecchi runtime commit-only rifiutano log contenenti read. Scegliere membro configurato che riporta leader; singolo tentativo seguente assume n1. Chiave assente è 404/completed con exists=false; valore presente vuoto è 200 con exists=true/value_b64="".
+
+```sh
+curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","timeout_ms":2000}' http://127.0.0.1:7401/v1/kv/get
+```
+
+Usare POST con sola key/timeout opzionale, non identità/sequence client. Ogni chiamata appende/replica nuova read e scrive WAL/checkpoint; non interrogare KV continuamente. Status è solo diagnostica locale. Timeout/risposta persa è unknown; GET ripetuta manualmente è nuova lettura successiva e può osservare altro valore. Test client Go ora ha Client.Get e mai retry automatico. Limiti/incertezza PUT/DELETE invariati. CAS HTTP, sessioni/dedup e compaction restano indisponibili. Fermare tre processi nodo alla fine; [relazione M10](milestone-m10.md).

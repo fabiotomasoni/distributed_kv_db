@@ -109,3 +109,7 @@ I [formati canonici](canonical-formats.md) fissano kind log, comandi tipizzati, 
 ## Evidenze restart M09
 
 [M09](milestone-m09.md) lascia transizioni core invariate. Immagine controllata a tre nodi ha termine 5, indice committed 1 e indice non committed 2 su ogni nodo. Ogni startup pubblica follower/termine 5 con LastApplied=ScheduledApplyIndex=CommitIndex=1 e LastIndex=2. Solo noop quorum successivo del termine corrente può committare/applicare indice 2. Kill reali dei processi testano inoltre recovery leader/follower, catch-up e conservazione prefisso confermato. Nessun termine, voto o commit dedotto da leadership precedente o lunghezza log grezza.
+
+## Entry lettura termine corrente M10
+
+[M10](milestone-m10.md) abilita proposte read(key) approvate, replica follower e replay sotto capacità startup esplicita. Ogni richiesta assegna indice fresco del termine corrente. Sync locale, match follower esattamente correlato, confine maggioranza termine corrente e checkpoint commit sincronizzato esistenti invariati. Stessa entry read può soddisfare condizione commit termine corrente; nessun round lease heartbeat/ReadIndex sostitutivo. ScheduledApplyIndex avanza solo su ammissione M02 effettiva, LastApplied su completamento e risultato lettura appartiene a tale indice/termine. Controllo owner esistente rifiuta termine maggiore osservato prima di autorizzazione risposta. Vecchie risposte non committano nuovo prefisso read; test legacy ack obsoleti invariati.

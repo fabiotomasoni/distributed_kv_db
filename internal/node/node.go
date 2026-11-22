@@ -47,7 +47,7 @@ func StartCommitted(c config.Config, bootstrap bool) (*Node, error) {
 	return startRuntime(c, bootstrap, nil, net.Listen, true, 16, true)
 }
 
-// StartAPI enables only the M08 PUT/DELETE client surface.
+// StartAPI enables PUT/DELETE and M10 logged GET, including fresh read replay.
 func StartAPI(c config.Config, bootstrap bool) (*Node, error) {
 	return startNode(c, bootstrap, nil, net.Listen, true, 16, true, true)
 }
@@ -92,7 +92,7 @@ func startNode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 	}
 	var election *raft.Service
 	if elections {
-		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch, Commit: commit})
+		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch, Commit: commit, Reads: api})
 		if err != nil {
 			return nil, errors.Join(err, s.Close())
 		}

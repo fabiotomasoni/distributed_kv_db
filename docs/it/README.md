@@ -2,16 +2,17 @@
 
 [Indice](README.md) · [English](../en/README.md)
 
-**Aggiornamento: 22 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09 locali implementate e verificate; le specifiche distribuite restano progettuali.**
+**Aggiornamento: 22 novembre 2026 — M01/M02/M03/M04/M05/M06/M07/M08/M09/M10 locali implementate e verificate; le specifiche distribuite restano progettuali.**
 
 ## Come leggere il progetto
 
-M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 è completata: [evidenze RPC/configurazione](milestone-m04.md). M05 è completata: [evidenze leader election](milestone-m05.md). M06 è completata: [evidenze replica](milestone-m06.md). M07 è completata: [evidenze commit/applicazione](milestone-m07.md). M08 è completata: [API PUT/DELETE e test client](milestone-m08.md). M09 è completata: [recovery processi/MVP interno](milestone-m09.md). M10 e successive restano da implementare. Specifiche client distribuite complete restano proposte; avvio MVP eseguibile nella guida sviluppo; i rapporti datati 18 novembre documentano la fase precedente.
+M01 è implementata e verificata: [macchina a stati locale e risultati](milestone-m01.md). M02 è completata: [applier ordinato, lifecycle e test](milestone-m02.md). M03 è completata al confine WAL/recovery log locale: [risultati](milestone-m03.md). M04 è completata: [evidenze RPC/configurazione](milestone-m04.md). M05 è completata: [evidenze leader election](milestone-m05.md). M06 è completata: [evidenze replica](milestone-m06.md). M07 è completata: [evidenze commit/applicazione](milestone-m07.md). M08 è completata: [API PUT/DELETE e test client](milestone-m08.md). M09 è completata: [recovery processi/MVP interno](milestone-m09.md). M10 è completata: [evidenze GET nel log](milestone-m10.md). M11 e successive restano da implementare. Specifiche client distribuite complete restano proposte; avvio MVP eseguibile nella guida sviluppo; i rapporti datati 18 novembre documentano la fase precedente.
 
-Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02/M03/M04/M05/M06/M07/M08/M09 completate localmente; M10 richiede un nuovo incarico e i propri gate.
+Percorso rapido: panoramica → requisiti → architettura → API. Revisione safety: Raft → consistenza → storage → guasti → test. Pianificazione: roadmap → criteri → matrice. M01/M02/M03/M04/M05/M06/M07/M08/M09/M10 completate localmente; M11 richiede un nuovo incarico e i propri gate.
 
 ## Specifiche complete
 
+- [M10 completata: GET nel log ed evidenze vecchio leader](milestone-m10.md)
 - [M09 completata: recovery processi e MVP interno](milestone-m09.md)
 - [M08 completata: PUT/DELETE, incertezza e OpenAPI](milestone-m08.md)
 - [M07 completata: commit termine corrente, applicazione e replay](milestone-m07.md)

@@ -110,7 +110,7 @@ func (x *Core) AppendLocal(now uint64, kind string, command json.RawMessage) (Ef
 	if x.batchSize == 0 {
 		return Effects{}, ErrUnsupported
 	}
-	if x.commitEnabled && kind == "read" {
+	if x.commitEnabled && !x.readsEnabled && kind == "read" {
 		return Effects{}, ErrUnsupported
 	}
 	if x.state.Role != Leader {
@@ -255,7 +255,7 @@ func (x *Core) replicationResponse(req, res peerprotocol.Message) (Effects, erro
 	return Effects{}, nil
 }
 func (x *Core) receiveAppend(req peerprotocol.Message, body map[string]any, higher, obsolete bool) (Effects, error) {
-	if x.commitEnabled {
+	if x.commitEnabled && !x.readsEnabled {
 		for _, v := range body["entries"].([]any) {
 			if v.(map[string]any)["kind"] == "read" {
 				after := func() (Effects, error) { return Effects{Rejected: ErrUnsupported}, nil }

@@ -2,7 +2,7 @@
 
 [Index](../README.md) · [Italiano](../../it/adr/ADR-006-linearizable-reads.md)
 
-**Status: pre-implementation design, revision 0.2 — 18 November 2026. No functionality or measurement has been verified.**
+**22 November 2026 — M10 logged-read baseline implemented and checked; broader M14 verification remains open.**
 
 ## Identifier and status
 
@@ -51,3 +51,7 @@ M10/M14: isolated-leader and concurrent-history tests; M15 measures I/O cost. If
 ## Audit 0.2 reassessment
 
 Retained logged GET for v1 after explicit comparison of correctness, latency, entries, Sync and risk. Future ReadIndex requires current-term commit, a new round after request, term/generation context and apply>=R; update RPC schema and tests before enabling it. The minority cannot complete GETs started after total isolation; responses for already-committed operations may arrive after the fault. [Full comparison and migration path](../consistency-model.md).
+
+## M10 implementation decision — 22 November 2026
+
+[M10](../milestone-m10.md) adopts the selected logged GET for the implemented baseline. Each attempt persists a fresh current-term read, waits for legal durable majority commit/checkpoint and captures the result at exact M02 application before owner-serialized leadership authorization. Strict HTTP/fixtures, exact-slot gated apply, seeded old-leader isolation and small independent histories pass; post-crash HTTP reads also pass. This accepts the M10 mechanism within finite evidence, not a universal proof. ReadIndex/leases remain absent and require the previously stated future gates. Existing canonical read encoding is unchanged; homogeneous startup capability preserves legacy commit-only tests without rolling negotiation.

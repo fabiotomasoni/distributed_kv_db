@@ -44,6 +44,7 @@ type Options struct {
 	Clock          Clock
 	BatchSize      int // 0: M05 compatibility; 1..16: M06 replication.
 	Commit         bool
+	Reads          bool // M10 logged read capability; requires Commit.
 	ApplyCapacity  int
 	MachineFactory func() applier.Machine // optional fresh, exclusively owned dependency
 }
@@ -137,6 +138,9 @@ func randomDraw(min, max uint64) (uint64, error) {
 }
 
 func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
+	if opt.Reads && !opt.Commit {
+		return nil, ErrInput
+	}
 	if opt.Commit && opt.BatchSize == 0 {
 		opt.BatchSize = 16
 	}

@@ -39,8 +39,20 @@ type writeFence struct {
 // can exclude the ticket under its lock. After that boundary all failures are
 // uncertain (except WAL's explicit pre-write reserve rejection).
 func (x *Service) Write(ctx context.Context, kind string, command json.RawMessage) (WriteOutcome, error) {
+	return x.operate(ctx, kind, command, false)
+}
+
+// Read proposes one new current-term read entry. It shares bounded admission,
+// durable quorum, exact apply and the owner completion fence with mutations.
+func (x *Service) Read(ctx context.Context, command json.RawMessage) (WriteOutcome, error) {
+	if !x.core.readsEnabled {
+		return WriteOutcome{Outcome: NotAdmitted}, ErrUnsupported
+	}
+	return x.operate(ctx, "read", command, true)
+}
+func (x *Service) operate(ctx context.Context, kind string, command json.RawMessage, read bool) (WriteOutcome, error) {
 	no := WriteOutcome{Outcome: NotAdmitted}
-	if ctx == nil || (kind != "put" && kind != "delete") || len(command) > storageformat.MaxEntry {
+	if ctx == nil || (!read && kind != "put" && kind != "delete") || len(command) > storageformat.MaxEntry {
 		return no, ErrInput
 	}
 	if err := ctx.Err(); err != nil {

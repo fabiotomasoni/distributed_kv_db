@@ -9,6 +9,7 @@ import (
 	"github.com/fabiotomasoni/distributed_kv_db/internal/applier"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/committed"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/statemachine"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/storageformat"
 )
 
 var ErrResultExpired = errors.New("raft: applied result outside bounded retention")
@@ -46,11 +47,16 @@ func (x *Service) initApplication(opt Options) error {
 	if !opt.Commit {
 		return nil
 	}
+	if opt.Reads {
+		if err := x.core.EnableLoggedReads(); err != nil {
+			return err
+		}
+	}
 	if err := x.core.EnableCommit(); err != nil {
 		return err
 	}
 	for _, e := range x.core.entries {
-		if _, err := committed.Project(e); err != nil {
+		if _, err := x.project(e); err != nil {
 			return err
 		}
 	}
@@ -78,7 +84,7 @@ func (x *Service) initApplication(opt Options) error {
 	// uncommitted suffix or layer replay onto a previously mutated instance.
 	for index := uint64(1); index <= x.core.state.CommitIndex; index++ {
 		entry := x.core.entry(index)
-		command, err := committed.Project(entry)
+		command, err := x.project(entry)
 		if err != nil {
 			_ = a.Shutdown(context.Background())
 			return err
@@ -131,7 +137,7 @@ func (x *Service) scheduleApply() error {
 	for x.core.state.ScheduledApplyIndex < x.core.state.CommitIndex && a.inflight < 64 {
 		index := x.core.state.ScheduledApplyIndex + 1
 		entry := x.core.entry(index)
-		command, err := committed.Project(entry)
+		command, err := x.project(entry)
 		if err != nil {
 			_, err = x.core.fail(err)
 			return err
@@ -241,4 +247,11 @@ func (x *Service) WaitApplied(ctx context.Context, receipt LocalAppend) (Applied
 			return AppliedResult{}, ctx.Err()
 		}
 	}
+}
+
+func (x *Service) project(e storageformat.LogEntry) (statemachine.Command, error) {
+	if x.core.readsEnabled {
+		return committed.ProjectWithReads(e)
+	}
+	return committed.Project(e)
 }
