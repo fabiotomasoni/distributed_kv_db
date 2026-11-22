@@ -12,8 +12,9 @@ import (
 )
 
 type WriteOutcome struct {
-	Outcome string
-	Applied AppliedResult
+	Outcome     string
+	Applied     AppliedResult
+	ResultIndex uint64 // original cached index; Applied identifies the current attempt
 }
 
 const (
@@ -35,7 +36,8 @@ type writeFence struct {
 	reply   chan error
 }
 
-// Write is one attempt, without sessions or retries. Before recording, cancellation
+// Write is one attempt; M11 session decisions occur only in ordered apply.
+// Before recording, cancellation
 // can exclude the ticket under its lock. After that boundary all failures are
 // uncertain (except WAL's explicit pre-write reserve rejection).
 func (x *Service) Write(ctx context.Context, kind string, command json.RawMessage) (WriteOutcome, error) {
@@ -52,7 +54,7 @@ func (x *Service) Read(ctx context.Context, command json.RawMessage) (WriteOutco
 }
 func (x *Service) operate(ctx context.Context, kind string, command json.RawMessage, read bool) (WriteOutcome, error) {
 	no := WriteOutcome{Outcome: NotAdmitted}
-	if ctx == nil || (!read && kind != "put" && kind != "delete") || len(command) > storageformat.MaxEntry {
+	if ctx == nil || (!read && kind != "put" && kind != "delete" && !(kind == "cas" && x.sessions)) || len(command) > storageformat.MaxEntry {
 		return no, ErrInput
 	}
 	if err := ctx.Err(); err != nil {
@@ -129,7 +131,14 @@ func (x *Service) operate(ctx context.Context, kind string, command json.RawMess
 	if err = ctx.Err(); err != nil {
 		return WriteOutcome{Outcome: Unknown}, err
 	}
-	return WriteOutcome{Outcome: Completed, Applied: applied}, nil
+	original := applied.Index
+	if x.sessions {
+		original, err = x.resultIndex(r.local)
+		if err != nil {
+			return WriteOutcome{Outcome: Unknown}, err
+		}
+	}
+	return WriteOutcome{Outcome: Completed, Applied: applied, ResultIndex: original}, nil
 }
 func (x *Service) processWrite(t *writeTicket) {
 	t.mu.Lock()
@@ -175,3 +184,6 @@ func (x *Service) processFence(f writeFence) {
 	}
 	f.reply <- err
 }
+
+// SessionWrites is an immutable application capability, never a cache lookup.
+func (x *Service) SessionWrites() bool { return x.sessions }

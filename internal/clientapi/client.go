@@ -36,7 +36,10 @@ func NewClient(c config.Config) (*Client, error) {
 }
 func (c *Client) Close() { c.pool.CloseIdleConnections() }
 func (c *Client) Write(ctx context.Context, member, kind string, raw []byte) (Response, int, error) {
-	if kind != "put" && kind != "delete" {
+	if kind == "cas" && !c.cfg.Sessions() {
+		return Response{Outcome: raft.NotAdmitted}, 0, raft.ErrUnsupported
+	}
+	if kind != "put" && kind != "delete" && kind != "cas" {
 		return Response{Outcome: raft.NotAdmitted}, 0, raft.ErrInput
 	}
 	return c.call(ctx, member, kind, raw)
@@ -77,11 +80,20 @@ func (c *Client) call(ctx context.Context, member, kind string, raw []byte) (Res
 	}
 	req.ContentLength = int64(len(raw))
 	req.Header.Set("Content-Type", "application/json")
+	if c.cfg.Sessions() && kind != "get" {
+		req.Header.Set(ApplicationHeader, "2")
+	}
 	res, err := c.http.Do(req)
 	if err != nil {
 		return Response{Outcome: raft.Unknown}, 0, err
 	}
 	defer res.Body.Close()
+	if c.cfg.Sessions() && kind != "get" {
+		versions := res.Header.Values(ApplicationHeader)
+		if len(versions) != 1 || versions[0] != "2" {
+			return Response{Outcome: raft.Unknown}, res.StatusCode, ErrResponse
+		}
+	}
 	body, err := io.ReadAll(io.LimitReader(res.Body, MaxBody+1))
 	if err != nil {
 		return Response{Outcome: raft.Unknown}, res.StatusCode, err
@@ -152,8 +164,20 @@ func (c *Client) decodeResponse(kind string, status int, raw []byte) (Response, 
 			}
 			return out, nil
 		}
-		if out.Code == "RESOURCE_LIMIT" && status == 409 {
+		if status == 409 && (out.Code == "SESSION_LIMIT" || out.Code == "REQUEST_CONFLICT" || out.Code == "STALE_SEQUENCE" || out.Code == "SEQUENCE_GAP") {
 			if hasApplied || hasDeleted {
+				return bad()
+			}
+			return out, nil
+		}
+		if status == 409 && out.Code == "COMPARE_FAILED" {
+			if kind != "cas" || out.Applied == nil || *out.Applied || hasDeleted {
+				return bad()
+			}
+			return out, nil
+		}
+		if out.Code == "RESOURCE_LIMIT" && status == 409 {
+			if hasDeleted || (hasApplied && (out.Applied == nil || *out.Applied)) {
 				return bad()
 			}
 			return out, nil
@@ -161,7 +185,7 @@ func (c *Client) decodeResponse(kind string, status int, raw []byte) (Response, 
 		if status != 200 || out.Code != "OK" {
 			return bad()
 		}
-		if kind == "put" {
+		if kind == "put" || kind == "cas" {
 			if out.Applied == nil || !*out.Applied || hasDeleted {
 				return bad()
 			}
@@ -199,4 +223,10 @@ func (c *Client) decodeResponse(kind string, status int, raw []byte) (Response, 
 		return bad()
 	}
 	return out, nil
+}
+
+// CAS sends one mutation attempt. Callers keep client_id, sequence and payload
+// unchanged for a manual retry, and advance sequence only for a new operation.
+func (c *Client) CAS(ctx context.Context, member string, raw []byte) (Response, int, error) {
+	return c.Write(ctx, member, "cas", raw)
 }

@@ -1,0 +1,366 @@
+[
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "value_b64": ""
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "2",
+      "applied": true
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "SESSION_LIMIT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "REQUEST_CONFLICT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "STALE_SEQUENCE",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "SEQUENCE_GAP",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "put",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "RESOURCE_LIMIT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "applied": false
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "2",
+      "deleted": true
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1
+    },
+    "status": 409,
+    "response": {
+      "code": "SESSION_LIMIT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1
+    },
+    "status": 409,
+    "response": {
+      "code": "REQUEST_CONFLICT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1
+    },
+    "status": 409,
+    "response": {
+      "code": "STALE_SEQUENCE",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "delete",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1
+    },
+    "status": 409,
+    "response": {
+      "code": "SEQUENCE_GAP",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 200,
+    "response": {
+      "code": "OK",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "2",
+      "applied": true
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "SESSION_LIMIT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "REQUEST_CONFLICT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "STALE_SEQUENCE",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "SEQUENCE_GAP",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8"
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "RESOURCE_LIMIT",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "8",
+      "applied": false
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  },
+  {
+    "kind": "cas",
+    "request": {
+      "key": "x",
+      "client_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sequence": 1,
+      "expected": {
+        "exists": false
+      },
+      "new_value_b64": ""
+    },
+    "status": 409,
+    "response": {
+      "code": "COMPARE_FAILED",
+      "request_id": "session-attempt",
+      "outcome": "completed",
+      "index": "2",
+      "applied": false
+    },
+    "headers": {
+      "X-QuorumKV-Application-Version": "2"
+    }
+  }
+]

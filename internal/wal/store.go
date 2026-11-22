@@ -31,6 +31,7 @@ type Token struct {
 // here: there is no consensus integration. Do not copy Store; inputs must remain
 // immutable throughout Append. Invalid admission does not poison the writer.
 type Store struct {
+	applicationVersion  int
 	mu                  sync.Mutex
 	root, generation    string
 	owner               *storagefs.Lock
@@ -141,4 +142,12 @@ func directoryBytes(root string) (int64, error) {
 		return nil
 	})
 	return total, err
+}
+
+// ApplicationVersion is immutable after successful open/bootstrap.
+func (s *Store) ApplicationVersion() int {
+	if s.applicationVersion == 0 {
+		return 1
+	}
+	return s.applicationVersion
 }

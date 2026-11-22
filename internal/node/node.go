@@ -47,7 +47,8 @@ func StartCommitted(c config.Config, bootstrap bool) (*Node, error) {
 	return startRuntime(c, bootstrap, nil, net.Listen, true, 16, true)
 }
 
-// StartAPI enables PUT/DELETE and M10 logged GET, including fresh read replay.
+// StartAPI enables PUT/DELETE and logged GET with fresh replay; v2 also enables
+// atomic CAS and ordered session deduplication.
 func StartAPI(c config.Config, bootstrap bool) (*Node, error) {
 	return startNode(c, bootstrap, nil, net.Listen, true, 16, true, true)
 }
@@ -79,20 +80,31 @@ func startNode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 	if !c.Valid() {
 		return nil, config.ErrConfig
 	}
+	if c.Sessions() && (!api || !commit || !elections) {
+		return nil, raft.ErrUnsupported
+	}
 	id := wal.Identity{ClusterID: c.ClusterID(), NodeID: c.NodeID(), ConfigHash: c.Hash()}
 	var s *wal.Store
 	var err error
 	if bootstrap {
-		s, err = wal.Bootstrap(c.DataDir(), id)
+		if c.Sessions() {
+			s, err = wal.BootstrapSessions(c.DataDir(), id)
+		} else {
+			s, err = wal.Bootstrap(c.DataDir(), id)
+		}
 	} else {
-		s, err = wal.Open(c.DataDir(), id)
+		if c.Sessions() {
+			s, err = wal.OpenSessions(c.DataDir(), id)
+		} else {
+			s, err = wal.Open(c.DataDir(), id)
+		}
 	}
 	if err != nil {
 		return nil, err
 	}
 	var election *raft.Service
 	if elections {
-		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch, Commit: commit, Reads: api})
+		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch, Commit: commit, Reads: api, Sessions: c.Sessions()})
 		if err != nil {
 			return nil, errors.Join(err, s.Close())
 		}

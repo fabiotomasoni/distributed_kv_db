@@ -2,16 +2,17 @@
 
 [Index](README.md) · [Italiano](../it/README.md)
 
-**Updated: 22 November 2026 — local M01/M02/M03/M04/M05/M06/M07/M08/M09/M10 implemented and checked; distributed specifications remain design work.**
+**Updated: 22 November 2026 — local M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11 implemented and checked; distributed specifications remain design work.**
 
 ## How to read the design
 
-M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 is completed at the local WAL/log-recovery boundary: [results](milestone-m03.md). M04 is completed: [RPC/configuration evidence](milestone-m04.md). M05 is completed: [leader election evidence](milestone-m05.md). M06 is completed: [replication evidence](milestone-m06.md). M07 is completed: [commit/application evidence](milestone-m07.md). M08 is completed: [PUT/DELETE API and test client](milestone-m08.md). M09 is completed: [process recovery/internal MVP](milestone-m09.md). M10 is completed: [logged GET evidence](milestone-m10.md). M11 and later remain unimplemented. Full distributed client specifications remain proposals; executable MVP startup is in the development guide; reports dated 18 November document the previous phase.
+M01 is implemented and checked: [local state machine and results](milestone-m01.md). M02 is completed: [ordered applier, lifecycle and tests](milestone-m02.md). M03 is completed at the local WAL/log-recovery boundary: [results](milestone-m03.md). M04 is completed: [RPC/configuration evidence](milestone-m04.md). M05 is completed: [leader election evidence](milestone-m05.md). M06 is completed: [replication evidence](milestone-m06.md). M07 is completed: [commit/application evidence](milestone-m07.md). M08 is completed: [PUT/DELETE API and test client](milestone-m08.md). M09 is completed: [process recovery/internal MVP](milestone-m09.md). M10 is completed: [logged GET evidence](milestone-m10.md). M11 is completed in the explicit v2 profile: [CAS/dedup evidence](milestone-m11.md). M12 and later remain unimplemented. Full distributed client specifications remain proposals; executable MVP startup is in the development guide; reports dated 18 November document the previous phase.
 
-Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02/M03/M04/M05/M06/M07/M08/M09/M10 are completed locally; M11 needs a new assignment and its own gates.
+Quick path: overview → requirements → architecture → API. Safety review: Raft → consistency → storage → failures → testing. Planning: roadmap → criteria → matrix. M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11 are completed locally; M12 needs a new assignment and its own gates.
 
 ## Complete specifications
 
+- [M11 completed: CAS HTTP and bounded replicated sessions](milestone-m11.md)
 - [M10 completed: logged GET and stale-leader evidence](milestone-m10.md)
 - [M09 completed: process recovery and internal MVP](milestone-m09.md)
 - [M08 completed: PUT/DELETE, uncertainty and OpenAPI](milestone-m08.md)
@@ -61,7 +62,7 @@ Quick path: overview → requirements → architecture → API. Safety review: R
 - [Primary references and verification status](references.md)
 - [Design review and open questions](design-review.md)
 - [Delivery report and inventory](delivery-report.md)
-- [Architecture decisions: nine ADRs](adr/README.md)
+- [Architecture decisions: ten ADRs](adr/README.md)
 - [Nine Mermaid diagrams](diagrams/README.md)
 
 ## Maintenance

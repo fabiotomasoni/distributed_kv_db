@@ -1,0 +1,37 @@
+{
+  "configuration": {
+    "config_version": 2,
+    "cluster_id": "22222222222222222222222222222222",
+    "node_id": "n1",
+    "client_addr": "127.0.0.1:7601",
+    "peer_addr": "127.0.0.1:7701",
+    "data_dir": ".local/m11/n1",
+    "members": [
+      {
+        "id": "n1",
+        "client": "127.0.0.1:7601",
+        "peer": "127.0.0.1:7701"
+      },
+      {
+        "id": "n2",
+        "client": "127.0.0.1:7602",
+        "peer": "127.0.0.1:7702"
+      },
+      {
+        "id": "n3",
+        "client": "127.0.0.1:7603",
+        "peer": "127.0.0.1:7703"
+      }
+    ],
+    "max_logical_bytes": 4194304,
+    "max_keys": 10000,
+    "max_sessions": 1024,
+    "heartbeat_ms": 100,
+    "election_min_ms": 600,
+    "election_max_ms": 1000,
+    "application_version": 2
+  },
+  "shared_preimage": "{\"application_version\":2,\"cluster_id\":\"22222222222222222222222222222222\",\"max_keys\":10000,\"max_logical_bytes\":4194304,\"max_sessions\":1024,\"members\":[{\"client\":\"127.0.0.1:7601\",\"id\":\"n1\",\"peer\":\"127.0.0.1:7701\"},{\"client\":\"127.0.0.1:7602\",\"id\":\"n2\",\"peer\":\"127.0.0.1:7702\"},{\"client\":\"127.0.0.1:7603\",\"id\":\"n3\",\"peer\":\"127.0.0.1:7703\"}]}",
+  "config_hash": "83acfb6d882deca3a74e631296002bcd2195b8ec7efb62d821ee995b169fcffd",
+  "identity_json": "{\"checksum\":\"c3648453083396060d120aaf33206df0b83e3d1eaf3bf69e2e356065c4ebf41d\",\"cluster_id\":\"22222222222222222222222222222222\",\"config_hash\":\"83acfb6d882deca3a74e631296002bcd2195b8ec7efb62d821ee995b169fcffd\",\"format_version\":2,\"node_id\":\"n1\"}"
+}

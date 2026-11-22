@@ -29,18 +29,19 @@ type applyCompletion struct {
 	err         error
 }
 type applicationRuntime struct {
-	applier     *applier.Applier
-	tickets     chan applyTicket
-	completions chan applyCompletion
-	done        chan struct{}
-	collecting  bool
-	inflight    int // service owner only
-	mu          sync.Mutex
-	results     [64]AppliedResult
-	last        uint64
-	failure     error
-	closed      bool
-	changed     chan struct{}
+	applier       *applier.Applier
+	tickets       chan applyTicket
+	completions   chan applyCompletion
+	done          chan struct{}
+	collecting    bool
+	inflight      int // service owner only
+	mu            sync.Mutex
+	results       [64]AppliedResult
+	resultIndices [64]uint64
+	last          uint64
+	failure       error
+	closed        bool
+	changed       chan struct{}
 }
 
 func (x *Service) initApplication(opt Options) error {
@@ -74,6 +75,9 @@ func (x *Service) initApplication(opt Options) error {
 			return ErrInput
 		}
 	}
+	if opt.Sessions {
+		machine = committed.NewSessions(machine)
+	}
 	a, err := applier.New(committed.Wrap(machine), applier.Config{Capacity: capacity})
 	if err != nil {
 		return err
@@ -99,11 +103,15 @@ func (x *Service) initApplication(opt Options) error {
 			return err
 		}
 		outcome, err := f.Wait(context.Background())
+		result, original, decodeErr := committed.DecodeSessionResult(outcome.Result, index)
+		if err == nil {
+			err = decodeErr
+		}
 		if err = x.core.Applied(1, index, err); err != nil {
 			_ = a.Shutdown(context.Background())
 			return err
 		}
-		app.record(AppliedResult{index, entry.Term, outcome.Result})
+		app.recordIndex(AppliedResult{index, entry.Term, result}, original)
 	}
 	return nil
 }
@@ -114,10 +122,12 @@ func (a *applicationRuntime) collect() {
 		a.completions <- applyCompletion{outcome, ticket.epoch, ticket.term, err}
 	}
 }
-func (a *applicationRuntime) record(r AppliedResult) {
+func (a *applicationRuntime) record(r AppliedResult) { a.recordIndex(r, r.Index) }
+func (a *applicationRuntime) recordIndex(r AppliedResult, original uint64) {
 	r.Result.Value = bytes.Clone(r.Result.Value)
 	a.mu.Lock()
 	a.results[r.Index%64] = r
+	a.resultIndices[r.Index%64] = original
 	a.last = r.Index
 	close(a.changed)
 	a.changed = make(chan struct{})
@@ -166,8 +176,12 @@ func (x *Service) applyCompleted(c applyCompletion) {
 		return
 	}
 	if x.core.state.Failure == nil {
+		result, original, decodeErr := committed.DecodeSessionResult(c.outcome.Result, c.outcome.Index)
+		if c.err == nil {
+			c.err = decodeErr
+		}
 		if err := x.core.Applied(c.epoch, c.outcome.Index, c.err); err == nil {
-			a.record(AppliedResult{c.outcome.Index, c.term, c.outcome.Result})
+			a.recordIndex(AppliedResult{c.outcome.Index, c.term, result}, original)
 		}
 	}
 	x.published.Store(x.core.Status())
@@ -250,8 +264,25 @@ func (x *Service) WaitApplied(ctx context.Context, receipt LocalAppend) (Applied
 }
 
 func (x *Service) project(e storageformat.LogEntry) (statemachine.Command, error) {
+	if x.sessions {
+		return committed.ProjectWithSessions(e)
+	}
 	if x.core.readsEnabled {
 		return committed.ProjectWithReads(e)
 	}
 	return committed.Project(e)
+}
+
+func (x *Service) resultIndex(r LocalAppend) (uint64, error) {
+	a := x.application
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	stored := a.results[r.Index%64]
+	if stored.Index != r.Index {
+		return 0, ErrResultExpired
+	}
+	if stored.Term != r.Term {
+		return 0, ErrSuperseded
+	}
+	return a.resultIndices[r.Index%64], nil
 }

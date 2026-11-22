@@ -2,7 +2,7 @@
 
 [Index](README.md) · [Italiano](../it/development-guide.md)
 
-**Updated: 22 November 2026 — M01–M10 implemented within their phase scopes; PUT/DELETE process MVP available.**
+**Updated: 22 November 2026 — M01–M11 implemented within their phase scopes; PUT/DELETE process MVP available.**
 
 ## Free prerequisites
 
@@ -95,3 +95,22 @@ curl --max-time 3 -H 'Content-Type: application/json' -d '{"key":"demo","timeout
 ```
 
 Use POST with key/optional timeout only, not client identity/sequence. Each call appends/replicates a new read entry and writes WAL/checkpoint; do not poll KV continuously. Status is only local diagnostics. Timeout/lost response is unknown; a manually repeated GET is a fresh later read and may observe another value. The Go test client now has Client.Get and never automatically retries. PUT/DELETE limits and uncertainty remain unchanged. CAS HTTP, sessions/dedup and compaction remain unavailable. Stop the three node processes when finished; [M10 report](milestone-m10.md).
+
+## M11 fresh session-profile cluster
+
+Use the explicit [M11 examples](../../examples/m11/n1.json) with new empty private paths and ports 7601–7603/7701–7703. Preserve existing .local/n1–n3 v1 data; these commands do not migrate it. Build the same current executable and run one node command per terminal, at most three nodes. Restart the SAME v2 directories with the same configuration, omitting --bootstrap.
+
+```sh
+install -d -m 0700 .local .local/m11 .local/m11/n1 .local/m11/n2 .local/m11/n3
+/tmp/quorumkv node --config examples/m11/n1.json --bootstrap
+/tmp/quorumkv node --config examples/m11/n2.json --bootstrap
+/tmp/quorumkv node --config examples/m11/n3.json --bootstrap
+```
+
+Choose the configured member currently reporting leader; the following assumes n1. Keep client_id/sequence and payload unchanged for an uncertain retry. Only advance sequence for a new mutation after resolving the pending operation. request_id is generated per transport attempt and is not the logical identity. A latest successful CAS retry returns its original applied=true/index even if another client later changed the value. GET remains a fresh logged read.
+
+```sh
+curl --max-time 3 -H 'Content-Type: application/json' -H 'X-QuorumKV-Application-Version: 2' -d '{"key":"demo","expected":{"exists":false},"new_value_b64":"","client_id":"0123456789abcdef0123456789abcdef","sequence":1}' http://127.0.0.1:7601/v1/kv/cas
+```
+
+PUT/DELETE in this profile also require the version header; Client.Write/CAS sets it from a parsed v2 config and validates the response acknowledgment. The library performs one attempt, not automatic backoff or disk persistence of pending identities. Callers must retain pending identity/payload across their own restarts. No TTL/eviction: only the latest result is recoverable; older sequences are rejected, and a full session table blocks new IDs. Cached retries still require quorum and WAL space. [M11 report](milestone-m11.md) details tested guarantees; no in-place upgrade, snapshots/compaction, exactly-once delivery or M12 metrics. Stop every node after use.

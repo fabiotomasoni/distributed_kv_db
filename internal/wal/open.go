@@ -17,8 +17,15 @@ import (
 
 type Identity struct{ ClusterID, NodeID, ConfigHash string }
 
-func identityBytes(id Identity) ([]byte, error) {
-	b, _ := json.Marshal(map[string]any{"format_version": 1, "cluster_id": id.ClusterID, "node_id": id.NodeID, "config_hash": id.ConfigHash})
+func identityBytes(id Identity) ([]byte, error) { return identityBytesVersion(id, 1) }
+func identityBytesVersion(id Identity, version int) ([]byte, error) {
+	b, _ := json.Marshal(map[string]any{"format_version": version, "cluster_id": id.ClusterID, "node_id": id.NodeID, "config_hash": id.ConfigHash})
+	if version == 2 {
+		return storageformat.SealSessionIdentity(b)
+	}
+	if version != 1 {
+		return nil, ErrCorrupt
+	}
 	return storageformat.SealManifest("IDENTITY", b)
 }
 
@@ -43,13 +50,17 @@ func walkFiles(root string, visit func(os.FileInfo) error) error {
 
 // Open validates identity, CURRENT and the selected generation under the lock.
 // It never creates a cluster, selects an old generation or applies an entry.
-func Open(root string, id Identity) (*Store, error) {
+func Open(root string, id Identity) (*Store, error) { return openVersion(root, id, 1) }
+
+// OpenSessions requires an IDENTITY v2 empty-origin session profile (ADR-010).
+func OpenSessions(root string, id Identity) (*Store, error) { return openVersion(root, id, 2) }
+func openVersion(root string, id Identity, version int) (*Store, error) {
 	abs, err := filepath.Abs(root)
 	if err != nil {
 		return nil, err
 	}
 	root = abs
-	if _, err := identityBytes(id); err != nil {
+	if _, err := identityBytesVersion(id, version); err != nil {
 		return nil, err
 	}
 	if _, err := os.Lstat(filepath.Join(root, "CURRENT")); err != nil {
@@ -59,7 +70,7 @@ func Open(root string, id Identity) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	s, err := openOwned(root, id, owner)
+	s, err := openOwnedVersion(root, id, owner, version)
 	if err != nil {
 		return nil, errors.Join(err, owner.Close())
 	}
@@ -67,7 +78,10 @@ func Open(root string, id Identity) (*Store, error) {
 }
 
 func openOwned(root string, id Identity, owner *storagefs.Lock) (*Store, error) {
-	expect, err := identityBytes(id)
+	return openOwnedVersion(root, id, owner, 1)
+}
+func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version int) (*Store, error) {
+	expect, err := identityBytesVersion(id, version)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +89,12 @@ func openOwned(root string, id Identity, owner *storagefs.Lock) (*Store, error) 
 	if err != nil {
 		return nil, err
 	}
-	if err = storageformat.ValidateManifest("IDENTITY", identity); err != nil {
+	if version == 2 {
+		err = storageformat.ValidateSessionIdentity(identity)
+	} else {
+		err = storageformat.ValidateManifest("IDENTITY", identity)
+	}
+	if err != nil {
 		return nil, errors.Join(ErrCorrupt, err)
 	}
 	if !bytes.Equal(identity, expect) {
@@ -154,7 +173,7 @@ func openOwned(root string, id Identity, owner *storagefs.Lock) (*Store, error) 
 	if _, err = f.Seek(r.ValidBytes, io.SeekStart); err != nil {
 		return failed(err)
 	}
-	return &Store{root: root, generation: c.Generation, owner: owner, file: f, usage: directoryBytes, state: r.State, bytes: r.ValidBytes, repairedTail: r.TailBytes}, nil
+	return &Store{applicationVersion: version, root: root, generation: c.Generation, owner: owner, file: f, usage: directoryBytes, state: r.State, bytes: r.ValidBytes, repairedTail: r.TailBytes}, nil
 }
 
 func repairTail(f walFile, valid int64) error {

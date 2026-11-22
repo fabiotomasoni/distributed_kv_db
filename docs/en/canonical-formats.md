@@ -108,3 +108,9 @@ C-01 storage design is RESOLVED when: all byte/type/union/version rules above ar
 ## M03 conformance now implemented
 
 [Final M03 evidence](milestone-m03.md): all 13 byte-image recovery cases and five namespace expectations are exercised. Typed decoded transactions reuse the exact canonical validator; no schema or approved fixture bytes changed. EmptySnapshot supports only the required bootstrap (0,0) image. FrameSize permits bounded streaming allocation and rejects contradicted partial magic/version/kind/length before treating a final tail as incomplete. WAL validates first transaction, physical continuity, persistent vote/term, suffix and commit atomically; only valid final EOF incompleteness can be truncated and synchronized. General snapshot/result/session application remains at later gates.
+
+## M11 scoped versioning and compact results
+
+[ADR-010](adr/ADR-010-session-profile.md) versions the application profile through configuration v2 and IDENTITY format_version=2, keeping the same exact identity field set/checksum algorithm. [V2 golden vector](../fixtures/configuration-v2-sessions.json) fixes shared hash and sealed identity bytes. Legacy SealManifest/ValidateManifest IDENTITY v1 APIs continue rejecting v2; separate session-identity APIs validate v2. Cross-profile opens fail before tail repair. No existing v1 fixture is modified.
+
+WAL frames, canonical transactions/commands/digests, CURRENT and empty snapshot remain v1. The previously specified compact mutation result union is now emitted by the M02-owned session wrapper: original index on recognized retry, applied=false on comparison/quota failure, no extra operation fields on session errors. The wrapper's command/result envelopes are private Go adapter representations, not additional serialized WAL formats. Maximum canonical CAS plus private opcode fits M02's unchanged 48 KiB cap; cached result <=512 bytes. General snapshot/session serialization remains M13.

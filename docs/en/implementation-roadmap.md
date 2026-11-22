@@ -2,13 +2,13 @@
 
 [Index](README.md) · [Italiano](../it/implementation-roadmap.md)
 
-**Updated: 22 November 2026 — local M01/M02/M03/M04/M05/M06/M07/M08/M09/M10 implemented and checked; distributed specifications remain design work.**
+**Updated: 22 November 2026 — local M01/M02/M03/M04/M05/M06/M07/M08/M09/M10/M11 implemented and checked; distributed specifications remain design work.**
 
 ## Capacity and dependencies
 
 Indicative 24-week (~6-month) plan, 6–8 hours/week for one part-time student, providing 144–192 available hours, which is not a validated estimate of required effort; this is an uncertain estimate, not a commitment. Four months requires more hours or cutting optional goals, never removing correctness gates. Recover delays by dropping optimizations first, then extending the calendar. No completion date is guaranteed.
 
-M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07 is **COMPLETED**: [commit/application report](milestone-m07.md). M08 is **COMPLETED**: [API subset and evidence](milestone-m08.md). M09 is **COMPLETED**: [process recovery/MVP evidence](milestone-m09.md). M10 is **COMPLETED**: [logged GET and evidence](milestone-m10.md). M11–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
+M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [report and evidence](milestone-m01.md). M02 is **COMPLETED**: [report and evidence](milestone-m02.md). M03 is **COMPLETED** within the local storage scope: [WAL/recovery report](milestone-m03.md). M04 is **COMPLETED**: [RPC/configuration report](milestone-m04.md). M05 is **COMPLETED**: [leader election report](milestone-m05.md). M06 is **COMPLETED**: [replication report](milestone-m06.md). M07 is **COMPLETED**: [commit/application report](milestone-m07.md). M08 is **COMPLETED**: [API subset and evidence](milestone-m08.md). M09 is **COMPLETED**: [process recovery/MVP evidence](milestone-m09.md). M10 is **COMPLETED**: [logged GET and evidence](milestone-m10.md). M11 is **COMPLETED** in the explicit v2 session profile: [CAS/dedup evidence](milestone-m11.md). M12–M16 are **Not started**. Design activities in the table mean reviewing the corresponding contract before writing its module; deliverable means a future artifact.
 
 | ID / objective | Prerequisites | Weeks | Design, implementation and deliverable | Tests / completion | Risk | Complexity |
 |---|---|---|---|---|---|---|
@@ -22,7 +22,7 @@ M01 is **COMPLETED** as of 19 November 2026 after explicit authorization: [repor
 | M08 — API and test client (**COMPLETED**) | M07 | 11 | PUT/DELETE, deadlines, derive OpenAPI; HTTP fixtures. | T-009/T-012 within the phase subset defined below; evidence saved. | unstable contract | Medium |
 | M09 — Crash recovery / internal MVP (**COMPLETED**) | M08,M03 | 12–13 | Committed replay and restart; limited MVP report. | T-014/T-018/T-023 within the phase subset defined below; evidence saved. | speculative replay | High |
 | M10 — Linearizable GET (**COMPLETED**) | M09 | 14 | Logged read barrier; stale-leader history. | T-019 within the phase subset defined below; evidence saved. | reading outside its slot | High |
-| M11 — CAS and deduplication | M10 | 15–16 | CAS and persisted sessions; retry matrix. | T-010/T-011/T-012 within the phase subset defined below; evidence saved. | ABA and sessions | High |
+| M11 — CAS and deduplication (**COMPLETED**) | M10 | 15–16 | CAS and persisted sessions; retry matrix. | T-010/T-011/T-012 within the phase subset defined below; evidence saved. | ABA and sessions | High |
 | M12 — Fault injection and observability | M11 | 17–18 | Scenarios and replay, logs/metrics; reproducible manifest. | T-017/T-020/T-028 within the phase subset defined below; evidence saved. | nondeterminism | High |
 | M13 — Snapshots and compaction | M12 | 19–20 | Atomic generations and install; snapshot crash fixtures. | T-015/T-016/T-026 within the phase subset defined below; evidence saved. | peak space and lost dedup | High |
 | M14 — Property verification | M13 | 21–22 | Independent checker and safety suite; AC report. | T-021/T-022/T-024/T-030/T-031 within the phase subset defined below; evidence saved. | incomplete checker | High |
@@ -95,3 +95,7 @@ M12 completes fault injection rather than starting its foundations: introduce fa
 ## M10 final outcome — 22 November 2026
 
 [M10 COMPLETED](milestone-m10.md): current-term logged GET, exact-slot result capture through unchanged M02, existing durable quorum/checkpoint and owner completion fence, strict HTTP/Client.Get and extended OpenAPI/GET fixtures. FR-019/AC-019/T-019 and GET FR-009/AC-009/T-009 pass with seeded stale-leader/committed-ghost histories, gated application, independent small-history counterexample checking and real failover/minority/process-restart GETs. M09 review found no blocker; original formats/fixtures preserved. M11 NOT STARTED: CAS HTTP and replicated sessions/dedup remain there. General checker/snapshot/measurement gates unchanged.
+
+## M11 final outcome — 22 November 2026
+
+[M11 COMPLETED](milestone-m11.md): atomic CAS HTTP and M02-owned bounded sessions, deterministic committed-prefix replay, original-result retry through a fresh quorum/fence, tested lost response/failover/concurrency/all-process recovery. FR-010/AC-010/T-010, FR-011/AC-011/T-011 and FR-012/AC-012/T-012 pass. Explicit v2 configuration/identity/application header preserves historical v1 meaning; new directories required, no migration. Original fixtures and M10 GET remain valid. M10 review found no blocker. C-03 later snapshot/checker gates remain open. M12 NOT STARTED; only its preliminary input readiness was reviewed.

@@ -18,6 +18,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/fabiotomasoni/distributed_kv_db/internal/committed"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/config"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/raft"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/statemachine"
@@ -28,11 +29,13 @@ import (
 )
 
 const MaxBody = 48 * 1024
+const ApplicationHeader = "X-QuorumKV-Application-Version"
 
 type Backend interface {
 	Status() raft.Status
 	Write(context.Context, string, json.RawMessage) (raft.WriteOutcome, error)
 }
+type SessionBackend interface{ SessionWrites() bool }
 type ReadBackend interface {
 	Read(context.Context, json.RawMessage) (raft.WriteOutcome, error)
 }
@@ -66,7 +69,9 @@ type Server struct {
 }
 
 func New(c config.Config, b Backend) (*Server, error) {
-	if !c.Valid() || b == nil {
+	profile, hasProfile := b.(SessionBackend)
+	sessions := hasProfile && profile.SessionWrites()
+	if !c.Valid() || b == nil || sessions != c.Sessions() {
 		return nil, raft.ErrInput
 	}
 	var seed [16]byte
@@ -120,6 +125,9 @@ func (x *Server) Shutdown(ctx context.Context) error {
 }
 func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
+	if x.sessionWrites() {
+		w.Header().Set(ApplicationHeader, "2")
+	}
 	out := Response{RequestID: fmt.Sprintf("%s-%d", x.prefix, x.counter.Add(1)), Outcome: raft.NotAdmitted}
 	send := func(status int, code string) {
 		out.Code = code
@@ -156,6 +164,12 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		kind = "put"
 	case "/v1/kv/delete":
 		kind = "delete"
+	case "/v1/kv/cas":
+		if !x.sessionWrites() {
+			send(404, "INVALID_ARGUMENT")
+			return
+		}
+		kind = "cas"
 	case "/v1/kv/get":
 		if _, ok := x.backend.(ReadBackend); !ok {
 			send(404, "INVALID_ARGUMENT")
@@ -165,6 +179,13 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		send(404, "INVALID_ARGUMENT")
 		return
+	}
+	if kind != "get" {
+		versions := r.Header.Values(ApplicationHeader)
+		if (x.sessionWrites() && (len(versions) != 1 || versions[0] != "2")) || (!x.sessionWrites() && len(versions) != 0) {
+			send(400, "INVALID_ARGUMENT")
+			return
+		}
 	}
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
@@ -265,7 +286,16 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	out.Index = fmt.Sprint(result.Applied.Index)
+	original := result.ResultIndex
+	if original == 0 {
+		original = result.Applied.Index
+	}
+	if original > result.Applied.Index {
+		out.Outcome = raft.Unknown
+		send(503, "UNAVAILABLE")
+		return
+	}
+	out.Index = fmt.Sprint(original)
 	switch result.Applied.Result.Code {
 	case statemachine.OK:
 		if kind == "get" {
@@ -279,7 +309,7 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			value := base64.StdEncoding.EncodeToString(result.Applied.Result.Value)
 			out.Exists = &exists
 			out.ValueB64 = &value
-		} else if kind == "put" {
+		} else if kind == "put" || kind == "cas" {
 			v := result.Applied.Result.Applied
 			if !v {
 				out.Outcome = raft.Unknown
@@ -303,12 +333,34 @@ func (x *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		exists := false
 		out.Exists = &exists
 		send(404, "KEY_NOT_FOUND")
+	case committed.SessionLimit, committed.RequestConflict, committed.StaleSequence, committed.SequenceGap:
+		if kind == "get" || !x.sessionWrites() {
+			out.Outcome = raft.Unknown
+			out.Index = ""
+			send(503, "UNAVAILABLE")
+			return
+		}
+		send(409, string(result.Applied.Result.Code))
+	case statemachine.CompareFailed:
+		if kind != "cas" {
+			out.Outcome = raft.Unknown
+			out.Index = ""
+			send(503, "UNAVAILABLE")
+			return
+		}
+		applied := false
+		out.Applied = &applied
+		send(409, "COMPARE_FAILED")
 	case statemachine.ResourceLimit:
 		if kind == "get" {
 			out.Outcome = raft.Unknown
 			out.Index = ""
 			send(503, "UNAVAILABLE")
 			return
+		}
+		if x.sessionWrites() {
+			applied := false
+			out.Applied = &applied
 		}
 		send(409, "RESOURCE_LIMIT")
 	default:
@@ -331,6 +383,8 @@ func Decode(kind string, raw []byte) (json.RawMessage, time.Duration, string) {
 	}
 	if kind == "put" {
 		fields += " value_b64"
+	} else if kind == "cas" {
+		fields += " expected new_value_b64"
 	} else if kind != "delete" && kind != "get" {
 		return bad("INVALID_ARGUMENT")
 	}
@@ -361,4 +415,9 @@ func Decode(kind string, raw []byte) (json.RawMessage, time.Duration, string) {
 		return bad("INVALID_ARGUMENT")
 	}
 	return command, time.Duration(timeout) * time.Millisecond, ""
+}
+
+func (x *Server) sessionWrites() bool {
+	b, ok := x.backend.(SessionBackend)
+	return ok && b.SessionWrites()
 }

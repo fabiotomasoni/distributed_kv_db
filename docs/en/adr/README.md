@@ -19,3 +19,5 @@ All decisions are Proposed: a concrete baseline without pretending implementatio
 | ADR-007 | [Client sequences and bounded deduplication](ADR-007-client-retry-semantics.md) | Proposed |
 | ADR-008 | [Local deterministic fault injection](ADR-008-fault-injection.md) | Proposed |
 | ADR-009 | [Offline development and zero additional cost](ADR-009-offline-first-development.md) | Proposed |
+
+- [ADR-010: versioned session application profile](ADR-010-session-profile.md)

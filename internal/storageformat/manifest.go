@@ -4,17 +4,20 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"strings"
 )
 
 // SealManifest builds a canonical IDENTITY or CURRENT from canonical data fields
 // without checksum. Unknown fields and nulls are rejected, never omitted silently.
-func SealManifest(kind string, data []byte) ([]byte, error) {
+func SealManifest(kind string, data []byte) ([]byte, error) { return sealManifest(kind, data, 1) }
+func SealSessionIdentity(data []byte) ([]byte, error)       { return sealManifest("IDENTITY", data, 2) }
+func sealManifest(kind string, data []byte, version int) ([]byte, error) {
 	o, err := object(data, MaxManifest)
 	if err != nil {
 		return nil, err
 	}
-	if !manifest(kind, o, false) {
+	if !manifestVersion(kind, o, false, version) {
 		return nil, ErrMalformed
 	}
 	h := sha256.Sum256(data)
@@ -27,6 +30,9 @@ func SealManifest(kind string, data []byte) ([]byte, error) {
 }
 
 func manifest(kind string, o map[string]any, sealed bool) bool {
+	return manifestVersion(kind, o, sealed, 1)
+}
+func manifestVersion(kind string, o map[string]any, sealed bool, version int) bool {
 	required := "format_version cluster_id node_id config_hash"
 	if kind == "CURRENT" {
 		required = "format_version generation snapshot_sha256 base_index base_term"
@@ -39,7 +45,7 @@ func manifest(kind string, o map[string]any, sealed bool) bool {
 	if _, ok := fields(o, required, ""); !ok {
 		return false
 	}
-	if o["format_version"] != json.Number("1") {
+	if (version != 1 && (version != 2 || kind != "IDENTITY")) || o["format_version"] != json.Number(fmt.Sprint(version)) {
 		return false
 	}
 	if sealed && !hexString(o["checksum"], 64) {
@@ -66,12 +72,14 @@ func manifest(kind string, o map[string]any, sealed bool) bool {
 
 // ValidateManifest checks bytes/schema/checksum, not referenced generation files
 // or equality with configuration. Those are future storage-owner obligations.
-func ValidateManifest(kind string, raw []byte) error {
+func ValidateManifest(kind string, raw []byte) error { return validateManifest(kind, raw, 1) }
+func ValidateSessionIdentity(raw []byte) error       { return validateManifest("IDENTITY", raw, 2) }
+func validateManifest(kind string, raw []byte, version int) error {
 	o, err := object(raw, MaxManifest)
 	if err != nil {
 		return err
 	}
-	if !manifest(kind, o, true) {
+	if !manifestVersion(kind, o, true, version) {
 		return ErrMalformed
 	}
 	digest := o["checksum"].(string)

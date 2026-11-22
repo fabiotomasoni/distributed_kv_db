@@ -44,6 +44,7 @@ type Options struct {
 	Clock          Clock
 	BatchSize      int // 0: M05 compatibility; 1..16: M06 replication.
 	Commit         bool
+	Sessions       bool // M11 requires the versioned session application profile.
 	Reads          bool // M10 logged read capability; requires Commit.
 	ApplyCapacity  int
 	MachineFactory func() applier.Machine // optional fresh, exclusively owned dependency
@@ -103,6 +104,7 @@ func (p *peerState) complete(now uint64, err error) {
 
 type Service struct {
 	core            *Core
+	sessions        bool
 	storage         Storage
 	clock           Clock
 	cfg             config.Config
@@ -138,6 +140,17 @@ func randomDraw(min, max uint64) (uint64, error) {
 }
 
 func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
+	if s == nil || c.Sessions() != opt.Sessions {
+		return nil, ErrInput
+	}
+	if opt.Sessions {
+		profile, ok := s.(interface{ ApplicationVersion() int })
+		if !opt.Commit || !opt.Reads || !c.Sessions() || !ok || profile.ApplicationVersion() != 2 {
+			return nil, ErrInput
+		}
+	} else if profile, ok := s.(interface{ ApplicationVersion() int }); ok && profile.ApplicationVersion() == 2 {
+		return nil, ErrInput
+	}
 	if opt.Reads && !opt.Commit {
 		return nil, ErrInput
 	}
@@ -180,7 +193,7 @@ func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
 		}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	x := &Service{writes: make(chan *writeTicket, 64), fences: make(chan writeFence, 64), writeSlots: make(chan struct{}, 64), cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
+	x := &Service{sessions: opt.Sessions, writes: make(chan *writeTicket, 64), fences: make(chan writeFence, 64), writeSlots: make(chan struct{}, 64), cfg: c, core: core, storage: s, clock: opt.Clock, ctx: ctx, cancel: cancel, events: make(chan requestEvent, 256), results: make(chan result, 2), peers: map[string]*peerState{}, done: make(chan struct{})}
 	for _, m := range c.Members() {
 		if m.ID != c.NodeID() {
 			x.peers[m.ID] = &peerState{jobs: make(chan peerprotocol.Message, 1)}

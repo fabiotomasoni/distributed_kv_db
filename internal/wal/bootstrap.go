@@ -18,13 +18,19 @@ const initialTransaction = `{"commit_index":"0","hard_state":{"current_term":"0"
 // Any failure retains files for diagnosis; ordinary Open never resumes bootstrap.
 func Bootstrap(root string, id Identity) (*Store, error) { return bootstrap(root, id, nil) }
 
+func BootstrapSessions(root string, id Identity) (*Store, error) {
+	return bootstrapVersion(root, id, nil, 2)
+}
 func bootstrap(root string, id Identity, cut func(string) error) (*Store, error) {
+	return bootstrapVersion(root, id, cut, 1)
+}
+func bootstrapVersion(root string, id Identity, cut func(string) error, version int) (*Store, error) {
 	abs, err := filepath.Abs(root)
 	if err != nil {
 		return nil, err
 	}
 	root = abs
-	identity, err := identityBytes(id)
+	identity, err := identityBytesVersion(id, version)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +122,7 @@ func bootstrap(root string, id Identity, cut func(string) error) (*Store, error)
 	if err = hook("current.published"); err != nil {
 		return fail(err)
 	}
-	s, err := openOwned(root, id, owner)
+	s, err := openOwnedVersion(root, id, owner, version)
 	if err != nil {
 		return fail(err)
 	}

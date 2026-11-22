@@ -30,8 +30,10 @@ type Config struct {
 	cluster, node, dir, hash            string
 	members                             [3]Member
 	heartbeat, minElection, maxElection uint64
+	sessions                            bool
 }
 
+func (c Config) Sessions() bool     { return c.sessions }
 func (c Config) Valid() bool        { return c.hash != "" }
 func (c Config) ClusterID() string  { return c.cluster }
 func (c Config) NodeID() string     { return c.node }
@@ -70,15 +72,28 @@ func Parse(raw []byte) (Config, error) {
 	if err != nil {
 		return bad()
 	}
-	o, err = strictjson.Fields(o, "config_version cluster_id node_id client_addr peer_addr data_dir members max_logical_bytes max_keys max_sessions heartbeat_ms election_min_ms election_max_ms", "")
+	ver, err := strictjson.Integer(o["config_version"])
+	if err != nil || (ver != 1 && ver != 2) {
+		return bad()
+	}
+	extra := ""
+	if ver == 2 {
+		extra = " application_version"
+	}
+	o, err = strictjson.Fields(o, "config_version cluster_id node_id client_addr peer_addr data_dir members max_logical_bytes max_keys max_sessions heartbeat_ms election_min_ms election_max_ms"+extra, "")
 	if err != nil {
 		return bad()
 	}
-	ver, err := strictjson.Integer(o["config_version"])
-	if err != nil || ver != 1 || !strictjson.Hex(o["cluster_id"], 32) {
+	if !strictjson.Hex(o["cluster_id"], 32) {
 		return bad()
 	}
-	c := Config{}
+	c := Config{sessions: ver == 2}
+	if c.sessions {
+		a, e := strictjson.Integer(o["application_version"])
+		if e != nil || a != 2 {
+			return bad()
+		}
+	}
 	c.cluster = o["cluster_id"].(string)
 	c.node, _ = o["node_id"].(string)
 	c.dir, _ = o["data_dir"].(string)
@@ -159,7 +174,7 @@ func Parse(raw []byte) (Config, error) {
 	if c.heartbeat == 0 || c.minElection <= c.heartbeat || c.maxElection < c.minElection || c.maxElection > 2147483647 {
 		return bad()
 	}
-	shared, _ := json.Marshal(map[string]any{"cluster_id": c.cluster, "members": members, "max_logical_bytes": 4194304, "max_keys": 10000, "max_sessions": 1024})
+	shared := c.sharedBytes()
 	h := sha256.Sum256(shared)
 	c.hash = hex.EncodeToString(h[:])
 	return c, nil
@@ -171,6 +186,13 @@ func (c Config) SharedBytes() []byte {
 	if !c.Valid() {
 		return nil
 	}
-	b, _ := json.Marshal(map[string]any{"cluster_id": c.cluster, "members": c.members, "max_logical_bytes": 4194304, "max_keys": 10000, "max_sessions": 1024})
+	return c.sharedBytes()
+}
+func (c Config) sharedBytes() []byte {
+	o := map[string]any{"cluster_id": c.cluster, "members": c.members, "max_logical_bytes": 4194304, "max_keys": 10000, "max_sessions": 1024}
+	if c.sessions {
+		o["application_version"] = 2
+	}
+	b, _ := json.Marshal(o)
 	return b
 }
