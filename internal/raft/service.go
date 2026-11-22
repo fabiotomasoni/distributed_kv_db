@@ -109,6 +109,7 @@ type Service struct {
 	observed        Status
 	electionStart   time.Time
 	walBytes        atomic.Int64
+	storageFailed   atomic.Bool
 	sessions        bool
 	storage         Storage
 	clock           Clock
@@ -376,6 +377,7 @@ func (x *Service) effects(e Effects, err error) (Effects, error) {
 		if writeErr != nil {
 			x.diagnostic.Inc("storage_errors")
 			if !errors.Is(writeErr, wal.ErrLimit) || errors.Is(writeErr, wal.ErrFailed) {
+				x.storageFailed.Store(true)
 				x.diagnostic.Log(diagnostics.Record{Event: diagnostics.StorageError, Code: "STORAGE_UNAVAILABLE", Term: x.core.Status().Term})
 			}
 		}

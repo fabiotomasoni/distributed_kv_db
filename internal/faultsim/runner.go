@@ -102,6 +102,11 @@ func execute(ctx context.Context, s Scenario, replay *Manifest) (out Manifest, e
 				out.Outcome = "inconclusive"
 			}
 		}
+		if replay != nil && ctx.Err() == nil && !errors.Is(err, ErrDivergence) && (out.Outcome != replay.Outcome || out.Failure != replay.Failure) {
+			err = fmt.Errorf("%w: final outcome", ErrDivergence)
+			out.Outcome = "failed"
+			out.Failure = err.Error()
+		}
 		out.SHA = ""
 		out.SHA = digest(out)
 	}()

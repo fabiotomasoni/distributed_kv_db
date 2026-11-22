@@ -33,6 +33,7 @@ Tre processi locali; maggioranza 2/3. I ruoli cambiano con le elezioni. Tutti co
 
 | Italiano | English |
 |---|---|
+| [Pre-M13: revisione e readiness condizionata](docs/it/pre-m13-review.md) | [Pre-M13: review and conditional readiness](docs/en/pre-m13-review.md) |
 | [M12 completata: fault, replay e osservabilità](docs/it/milestone-m12.md) | [M12 completed: faults, replay and observability](docs/en/milestone-m12.md) |
 | [M11 completata: CAS HTTP e deduplicazione](docs/it/milestone-m11.md) | [M11 completed: CAS HTTP and deduplication](docs/en/milestone-m11.md) |
 | [M10 completata: GET nel log](docs/it/milestone-m10.md) | [M10 completed: logged GET](docs/en/milestone-m10.md) |

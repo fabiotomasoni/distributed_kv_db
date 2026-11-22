@@ -206,6 +206,9 @@ func ReadManifest(raw []byte) (Manifest, error) {
 	if e := decode(raw, &m); e != nil {
 		return m, e
 	}
+	if (m.Outcome != "passed" && m.Outcome != "failed" && m.Outcome != "inconclusive") || (m.Outcome == "passed" && m.Failure != "") || (m.Outcome != "passed" && m.Failure == "") {
+		return m, ErrInput
+	}
 	want := m.SHA
 	m.SHA = ""
 	if want != digest(m) || m.Version != 1 || m.Harness != Version || m.CoreVersion != "raft-m11" || m.PRNG != PRNG || m.Runtime != runtime.Version() || m.Platform != runtime.GOOS+"/"+runtime.GOARCH || len(m.Trace) > 10000 || len(m.Draws) > 20000 || len(m.History) > 128 || validate(m.Scenario) != nil {

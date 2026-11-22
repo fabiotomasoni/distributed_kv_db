@@ -35,5 +35,5 @@ func (x *Service) Metrics() map[string]any {
 	s := x.Status()
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	return map[string]any{"metrics_version": 1, "node_id": x.cfg.NodeID(), "cluster_id": x.cfg.ClusterID(), "local_only": true, "role": s.Role, "term": s.Term, "leader_id": s.Leader, "commit_index": s.CommitIndex, "applied_index": s.LastApplied, "last_log_index": s.LastIndex, "snapshot_index": 0, "storage_error": s.Failure != nil, "pending_proposals": len(x.writeSlots), "apply_lag": s.CommitIndex - s.LastApplied, "match_index": s.Progress, "goroutines": runtime.NumGoroutine(), "heap_bytes": m.HeapAlloc, "wal_bytes": x.walBytes.Load(), "observations": x.diagnostic.Snapshot()}
+	return map[string]any{"metrics_version": 1, "node_id": x.cfg.NodeID(), "cluster_id": x.cfg.ClusterID(), "local_only": true, "role": s.Role, "term": s.Term, "leader_id": s.Leader, "commit_index": s.CommitIndex, "applied_index": s.LastApplied, "last_log_index": s.LastIndex, "snapshot_index": 0, "storage_error": x.storageFailed.Load(), "node_error": s.Failure != nil, "pending_proposals": len(x.writeSlots), "apply_lag": s.CommitIndex - s.LastApplied, "match_index": s.Progress, "goroutines": runtime.NumGoroutine(), "heap_bytes": m.HeapAlloc, "wal_bytes": x.walBytes.Load(), "observations": x.diagnostic.Snapshot()}
 }
