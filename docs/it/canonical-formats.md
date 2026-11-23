@@ -128,3 +128,7 @@ Encode valida quote/somme/unioni e ordina copie private degli array senza mutare
 ## M13 Fase B — 23 novembre 2026
 
 Il [percorso isolato Fase B](milestone-m13-persistence.md) riusa QSN1/payload v1, IDENTITY v2 e CURRENT v1: CURRENT è il manifest autorevole, gen-N contiene soltanto snapshot e wal. Nessun terzo manifest, campo o codec. Nuovo N oltre ogni nome riconosciuto anche staging, senza riuso/overflow; scan non seleziona recovery. WAL sequence 1 con hard state corrente/commit=S, suffisso completo e checkpoint C. Validazione persistita byte per byte, hash whole-file/base/config/profilo verificati. Fixture precedenti immutate; T-015/T-016 completi aperti.
+
+## M13 Fase D — 23 novembre 2026
+
+La [Fase D](milestone-m13-compaction-preliminary.md) è ISOLATED COMPACTION PHASE COMPLETED: rappresentazione base-S approvata, candidata da apply reale isolato e prova campo per campo contro replay completo. Pubblicazione/recovery riusano B/C in directory dei test; sorgenti e generazioni precedenti conservate, nessuna riparazione del WAL nella prova D. PrepareCompaction è solo in memoria; orchestrazione privata senza chiamanti runtime. StartAPIWithSnapshotRecovery invariato. C-01/OQ-05 confermato, evidenze isolate C-02/OQ-01 aggiunte; C-02/C-03 complessivi CONDITIONALLY READY. T-015/AC-015/FR-015, T-016/AC-016/FR-016, T-026/AC-026/NFR-006 completi aperti. InstallSnapshot, compaction live, GC e cancellazione prefissi non implementati; M13 PARTIALLY COMPLETED, M14 non iniziata.

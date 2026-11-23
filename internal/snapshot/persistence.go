@@ -166,7 +166,11 @@ func privateGen(path string) error {
 	}
 	return nil
 }
-func (p *Persistence) recover() (DiskRecovery, error) {
+func (p *Persistence) recover() (DiskRecovery, error) { return p.recoverWithRepair(true) }
+
+// Compaction proofs use the same reader without permission to alter a source
+// tail. Ordinary Phase B/C recovery retains its existing M03 repair policy.
+func (p *Persistence) recoverWithRepair(repair bool) (DiskRecovery, error) {
 	bad := func(err error) (DiskRecovery, error) { return DiskRecovery{}, err }
 	if err := p.identity(); err != nil {
 		return bad(err)
@@ -225,7 +229,11 @@ func (p *Persistence) recover() (DiskRecovery, error) {
 		err = ErrBoundary
 	}
 	if err == nil && replay.TailBytes > 0 {
-		err = f.Truncate(replay.ValidBytes)
+		if repair {
+			err = f.Truncate(replay.ValidBytes)
+		} else {
+			err = errors.Join(ErrGeneration, storageformat.ErrIncomplete)
+		}
 	}
 	// Surviving complete frames are synchronized, just as in M03 recovery.
 	if err == nil {
@@ -407,6 +415,11 @@ func (p *Persistence) write(path, name string, data []byte) error {
 func (p *Persistence) Publish(ctx context.Context, s storageformat.Snapshot) (string, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+	return p.publishOwned(ctx, s)
+}
+
+// publishOwned runs the unchanged Phase B protocol with the owner mutex held.
+func (p *Persistence) publishOwned(ctx context.Context, s storageformat.Snapshot) (string, error) {
 	if err := p.admitted(ctx); err != nil {
 		return "", err
 	}

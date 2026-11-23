@@ -97,3 +97,7 @@ La [Fase B](../milestone-m13-persistence.md) verifica build/pubblicazione/recove
 ## Recovery runtime M13 Fase C — 23 novembre 2026
 
 La [Fase C](../milestone-m13-runtime-recovery.md) adotta il recovery base-S e il replay del solo suffisso committed su KV/sessioni nuovi prima dei listener, tramite capability esplicita v2 e LOCK continuo. Termine/voto da WAL finale, cursori A=L=C, nuova epoca iniziale, nessun result ring storico. Percorso predefinito base zero invariato; nessun nuovo formato/configurazione o migrazione. C-02 recovery runtime verificato soltanto nel sottoinsieme; C-02/C-03 restano CONDITIONALLY READY per ciclo live, compaction/installazione ed epoche. T-015/T-016/T-026 completi aperti, nessuna garanzia OS/alimentazione.
+
+## Compaction isolata M13 Fase D — 23 novembre 2026
+
+La [Fase D](../milestone-m13-compaction-preliminary.md) adotta la rappresentazione già approvata senza nuovi campi: snapshot QSN1 e WAL base-S, hard state finale, suffisso completo e CURRENT v1 con identità v2. Il nuovo incarico consente la verifica isolata non distruttiva; nessuna ulteriore decisione di formato necessaria. Cattura derivata da apply effettivo, confronto KV/sessioni/indici/suffisso prima e dopo pubblicazione B/C. Reader senza repair soltanto nella prova D; comportamento ordinario invariato. C-02/C-03 complessivi CONDITIONALLY READY e T-015/T-016/T-026 aperti. Nessuna attivazione live, GC, cancellazione o InstallSnapshot autorizzata dalla sola equivalenza.

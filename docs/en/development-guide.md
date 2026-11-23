@@ -192,3 +192,24 @@ python3 docs/fixtures/verify_canonical_v1.py
 go list -m all
 git diff --check
 ```
+
+## M13 Phase D isolated proofs
+
+PrepareCompaction receives validated/immutable image and State, reconstructing a memory-only candidate; it is not a cluster-management operation. Compact publication is package-private, used only by tests on temporary synthetic copies: no startup flag, trigger or GC. Never delete old WALs/real directories or use isolated writers on active nodes. D proof rejects incomplete tails without modifying them; ordinary recovery retains M03 policy. Prefix-missing followers need future InstallSnapshot and are not made recoverable by this phase. [Report and remaining conditions](milestone-m13-compaction-preliminary.md).
+
+Phase D commands executed with existing Go 1.27.4 tools/caches under `/tmp`, no downloads:
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+go test -p 1 -count=1 -timeout=40s ./internal/snapshot -run 'Test(IsolatedCompaction|PrepareCompaction|Compaction|Compacted)'
+go test -p 1 -count=1 -timeout=40s ./internal/raft -run TestCompacted
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13d.cover -timeout=75s ./...
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/snapshot ./internal/raft ./internal/wal ./internal/storagefs ./internal/applier ./internal/committed
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

@@ -39,3 +39,7 @@ The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete
 ## M13 Phase C runtime recovery — 23 November 2026
 
 [Phase C](../milestone-m13-runtime-recovery.md) adopts base-S recovery and committed-suffix-only replay on fresh KV/sessions before listeners, through explicit v2 capability and continuous LOCK. Final-WAL term/vote, A=L=C cursors, fresh initial epoch, no historical result ring. Default base-zero path unchanged; no new format/configuration or migration. C-02 runtime recovery verified only within its subset; C-02/C-03 remain CONDITIONALLY READY for live cycle, compaction/installation and epochs. Full T-015/T-016/T-026 open, no OS/power guarantee.
+
+## M13 Phase D isolated compaction — 23 November 2026
+
+[Phase D](../milestone-m13-compaction-preliminary.md) adopts the existing representation without new fields: QSN1 snapshot/base-S WAL, final hard state, complete suffix and CURRENT v1 with v2 identity. The new assignment permits non-destructive isolated verification; no further format decision needed. Capture derives from actual apply; KV/sessions/indexes/suffix compared before/after B/C publication. Non-repairing reader only for D proof; ordinary behavior unchanged. Overall C-02/C-03 CONDITIONALLY READY and T-015/T-016/T-026 open. Equivalence alone authorizes no live activation, GC, deletion or InstallSnapshot.
