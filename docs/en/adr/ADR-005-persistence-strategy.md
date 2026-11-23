@@ -93,3 +93,7 @@ The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete
 ## M13 Phase B isolated persistence — 23 November 2026
 
 [Phase B](../milestone-m13-persistence.md) verifies isolated QSN1/CURRENT build/publication/recovery, updated final vote and complete v2 sessions. Existing format/protocol retained without third manifest or migration. New isolated C-02 evidence VERIFIED; integration C-02/C-03 CONDITIONALLY READY. Cleanup, runtime switch, suffix replay, compaction and InstallSnapshot unimplemented; full T-015/T-016/T-026 open, no OS/power claim.
+
+## M13 Phase C runtime recovery — 23 November 2026
+
+[Phase C](../milestone-m13-runtime-recovery.md) adopts base-S recovery and committed-suffix-only replay on fresh KV/sessions before listeners, through explicit v2 capability and continuous LOCK. Final-WAL term/vote, A=L=C cursors, fresh initial epoch, no historical result ring. Default base-zero path unchanged; no new format/configuration or migration. C-02 runtime recovery verified only within its subset; C-02/C-03 remain CONDITIONALLY READY for live cycle, compaction/installation and epochs. Full T-015/T-016/T-026 open, no OS/power guarantee.

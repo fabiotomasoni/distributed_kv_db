@@ -80,3 +80,7 @@ La [matrice pre-M13](pre-m13-review.md) assegna a T-015/T-016/T-026 errori cattu
 ## M13 Fase B — 23 novembre 2026
 
 Le [prove Fase B](milestone-m13-persistence.md) distinguono write parziali/errori, gen-N pronta e selezione CURRENT, errori incerti dopo tentativo rename e uscita processo con OS vivo. Un errore non produce successo; owner failed, candidati e generazioni precedenti conservati; recovery non usa fallback. Solo coda WAL finale strutturalmente incompleta riparabile dopo validazione, corruzione completa fatale. Cleanup/switch/installazione e crash OS/alimentazione non verificati. T-015/T-016/T-026 restano aperti.
+
+## M13 Fase C — 23 novembre 2026
+
+La [Fase C](milestone-m13-runtime-recovery.md) è RUNTIME RECOVERY PHASE COMPLETED: RecoverCommitted ripristina S e applica soltanto S+1..C con M02, poi drena/chiude il worker isolato prima del nuovo applier a C. WAL e snapshot sono validati sotto LOCK continuo. L'avvio è esplicito via node.StartAPIWithSnapshotRecovery per v2; StartAPI/CLI ordinari mantengono il guard base zero. Nessun fallback con CURRENT/snapshot corrotti. KV/sessioni, hard state e A=L=C verificati con crash/restart follower/leader/tutti processi. C-01/OQ-05 confermato; sottoinsieme recovery C-02/OQ-01 verificato, C-02/C-03 complessivi CONDITIONALLY READY. T-015/AC-015/FR-015, T-016/AC-016/FR-016 e T-026/AC-026/NFR-006 completi aperti: compaction, cleanup e InstallSnapshot non implementati. M13 PARTIALLY COMPLETED, M14 non iniziata.

@@ -77,11 +77,24 @@ func startMode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 func startRuntime(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int, commit bool) (*Node, error) {
 	return startNode(c, bootstrap, p, listen, elections, batch, commit, false)
 }
+
+// StartAPIWithSnapshotRecovery is the explicit Phase C library entry point.
+// It never bootstraps, publishes, compacts or transfers snapshots. StartAPI and
+// the server CLI retain their ordinary WAL-only path by default.
+func StartAPIWithSnapshotRecovery(c config.Config) (*Node, error) {
+	return startNodeRecovery(c, false, nil, net.Listen, true, 16, true, true, true)
+}
 func startNode(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int, commit, api bool) (*Node, error) {
+	return startNodeRecovery(c, bootstrap, p, listen, elections, batch, commit, api, false)
+}
+func startNodeRecovery(c config.Config, bootstrap bool, p transport.Processor, listen func(string, string) (net.Listener, error), elections bool, batch int, commit, api, snapshots bool) (*Node, error) {
 	if !c.Valid() {
 		return nil, config.ErrConfig
 	}
 	if c.Sessions() && (!api || !commit || !elections) {
+		return nil, raft.ErrUnsupported
+	}
+	if snapshots && (!c.Sessions() || bootstrap || !api || !commit || !elections) {
 		return nil, raft.ErrUnsupported
 	}
 	id := wal.Identity{ClusterID: c.ClusterID(), NodeID: c.NodeID(), ConfigHash: c.Hash()}
@@ -94,7 +107,9 @@ func startNode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 			s, err = wal.Bootstrap(c.DataDir(), id)
 		}
 	} else {
-		if c.Sessions() {
+		if snapshots {
+			s, err = wal.OpenSnapshotSessions(c.DataDir(), id)
+		} else if c.Sessions() {
 			s, err = wal.OpenSessions(c.DataDir(), id)
 		} else {
 			s, err = wal.Open(c.DataDir(), id)
@@ -105,7 +120,7 @@ func startNode(c config.Config, bootstrap bool, p transport.Processor, listen fu
 	}
 	var election *raft.Service
 	if elections {
-		election, err = raft.NewService(c, s, raft.Options{BatchSize: batch, Commit: commit, Reads: api, Sessions: c.Sessions()})
+		election, err = raft.NewService(c, s, raft.Options{SnapshotRecovery: snapshots, BatchSize: batch, Commit: commit, Reads: api, Sessions: c.Sessions()})
 		if err != nil {
 			return nil, errors.Join(err, s.Close())
 		}

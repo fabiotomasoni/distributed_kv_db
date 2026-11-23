@@ -40,15 +40,16 @@ type Clock interface {
 	Stop()
 }
 type Options struct {
-	Epoch          string
-	Draw           Draw
-	Clock          Clock
-	BatchSize      int // 0: M05 compatibility; 1..16: M06 replication.
-	Commit         bool
-	Sessions       bool // M11 requires the versioned session application profile.
-	Reads          bool // M10 logged read capability; requires Commit.
-	ApplyCapacity  int
-	MachineFactory func() applier.Machine // optional fresh, exclusively owned dependency
+	SnapshotRecovery bool // explicit v2 startup only; disabled by default.
+	Epoch            string
+	Draw             Draw
+	Clock            Clock
+	BatchSize        int // 0: M05 compatibility; 1..16: M06 replication.
+	Commit           bool
+	Sessions         bool // M11 requires the versioned session application profile.
+	Reads            bool // M10 logged read capability; requires Commit.
+	ApplyCapacity    int
+	MachineFactory   func() applier.Machine // optional fresh, exclusively owned dependency
 }
 type requestEvent struct {
 	ctx   context.Context
@@ -146,7 +147,7 @@ func randomDraw(min, max uint64) (uint64, error) {
 }
 
 func NewService(c config.Config, s Storage, opt Options) (*Service, error) {
-	if s == nil || c.Sessions() != opt.Sessions {
+	if s == nil || c.Sessions() != opt.Sessions || opt.SnapshotRecovery && (!opt.Sessions || !opt.Commit || !opt.Reads || opt.MachineFactory != nil) {
 		return nil, ErrInput
 	}
 	if opt.Sessions {

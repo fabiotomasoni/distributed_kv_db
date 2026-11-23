@@ -171,3 +171,24 @@ python3 docs/fixtures/verify_canonical_v1.py
 go list -m all
 git diff --check
 ```
+
+## Avvio controllato M13 Fase C
+
+Solo per chiamanti Go espliciti con configurazione v2: node.StartAPIWithSnapshotRecovery(c), directory già inizializzata, generazione validamente pubblicata e nessun proprietario attivo. Nessun flag nuovo nel comando quorumkv; StartAPI ordinario conserva il precedente rifiuto di base nonzero. Il recovery legge solo CURRENT, applica S+1..C e avvia listener dopo stato completo; corruzione o assenza di CURRENT non autorizza fallback/rebootstrap. Non chiamare il writer Fase B su una directory attiva. Nessuna creazione automatica, compaction, GC o InstallSnapshot. Follower che richiede un prefisso non disponibile non può essere recuperato via trasferimento in questa fase. [Relazione, test e limiti](milestone-m13-runtime-recovery.md).
+
+Verifiche Fase C eseguite con toolchain Go 1.27.4 e cache già disponibili sotto `/tmp`; il primo comando è passato prima dell’integrazione bootstrap:
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+go test -p 1 -count=1 -timeout=40s ./internal/snapshot -run TestCombined
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13c.cover -timeout=75s ./...
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/snapshot ./internal/wal ./internal/applier ./internal/committed ./internal/storageformat
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=40s ./internal/raft ./internal/node -run 'Test(Snapshot|Combined)'
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

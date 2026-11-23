@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -54,7 +55,16 @@ func Open(root string, id Identity) (*Store, error) { return openVersion(root, i
 
 // OpenSessions requires an IDENTITY v2 empty-origin session profile (ADR-010).
 func OpenSessions(root string, id Identity) (*Store, error) { return openVersion(root, id, 2) }
+
+// OpenSnapshotSessions explicitly enables the approved v2 base-S generation
+// reader. Default Open/OpenSessions keep their base-zero compatibility guards.
+func OpenSnapshotSessions(root string, id Identity) (*Store, error) {
+	return openSnapshotVersion(root, id, 2, true)
+}
 func openVersion(root string, id Identity, version int) (*Store, error) {
+	return openSnapshotVersion(root, id, version, false)
+}
+func openSnapshotVersion(root string, id Identity, version int, snapshots bool) (*Store, error) {
 	abs, err := filepath.Abs(root)
 	if err != nil {
 		return nil, err
@@ -70,7 +80,7 @@ func openVersion(root string, id Identity, version int) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	s, err := openOwnedVersion(root, id, owner, version)
+	s, err := openOwnedSnapshotVersion(root, id, owner, version, snapshots)
 	if err != nil {
 		return nil, errors.Join(err, owner.Close())
 	}
@@ -81,6 +91,9 @@ func openOwned(root string, id Identity, owner *storagefs.Lock) (*Store, error) 
 	return openOwnedVersion(root, id, owner, 1)
 }
 func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version int) (*Store, error) {
+	return openOwnedSnapshotVersion(root, id, owner, version, false)
+}
+func openOwnedSnapshotVersion(root string, id Identity, owner *storagefs.Lock, version int, snapshots bool) (*Store, error) {
 	expect, err := identityBytesVersion(id, version)
 	if err != nil {
 		return nil, err
@@ -116,7 +129,7 @@ func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version i
 	if err = json.Unmarshal(current, &c); err != nil {
 		return nil, err
 	}
-	if c.BaseIndex != "0" || c.BaseTerm != "0" {
+	if !snapshots && (c.BaseIndex != "0" || c.BaseTerm != "0") {
 		return nil, ErrSnapshot
 	}
 	gen := filepath.Join(root, c.Generation)
@@ -127,7 +140,18 @@ func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version i
 	if !st.IsDir() || st.Mode().Perm()&0077 != 0 {
 		return nil, storagefs.ErrUnsafe
 	}
-	image, err := storagefs.ReadPrivate(filepath.Join(gen, "snapshot"), storageformat.MaxManifest)
+	limit := int64(storageformat.MaxManifest)
+	if snapshots {
+		limit = storageformat.MaxSnapshot
+		files, e := os.ReadDir(gen)
+		if e != nil {
+			return nil, e
+		}
+		if len(files) != 2 || files[0].Name() != "snapshot" || files[1].Name() != "wal" {
+			return nil, ErrCorrupt
+		}
+	}
+	image, err := storagefs.ReadPrivate(filepath.Join(gen, "snapshot"), limit)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +160,19 @@ func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version i
 		return nil, err
 	}
 	h := sha256.Sum256(image)
-	if !bytes.Equal(image, empty) || hex.EncodeToString(h[:]) != c.SHA {
+	var snapshot storageformat.Snapshot
+	if snapshots {
+		snapshot, err = storageformat.DecodeSnapshot(image)
+		if err != nil {
+			return nil, errors.Join(ErrCorrupt, err)
+		}
+		if snapshot.ClusterID != id.ClusterID || snapshot.ConfigHash != id.ConfigHash || c.BaseIndex != fmt.Sprint(snapshot.Index) || c.BaseTerm != fmt.Sprint(snapshot.Term) {
+			return nil, ErrCorrupt
+		}
+	} else if !bytes.Equal(image, empty) {
+		return nil, ErrCorrupt
+	}
+	if hex.EncodeToString(h[:]) != c.SHA {
 		return nil, ErrCorrupt
 	}
 	if _, err = directoryBytes(root); err != nil {
@@ -154,7 +190,7 @@ func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version i
 	if st.Size() > MaxWALBytes {
 		return failed(ErrLimit)
 	}
-	r, err := Replay(f, 0, 0)
+	r, err := Replay(f, snapshot.Index, snapshot.Term)
 	if err != nil {
 		return failed(err)
 	}
@@ -173,7 +209,11 @@ func openOwnedVersion(root string, id Identity, owner *storagefs.Lock, version i
 	if _, err = f.Seek(r.ValidBytes, io.SeekStart); err != nil {
 		return failed(err)
 	}
-	return &Store{applicationVersion: version, root: root, generation: c.Generation, owner: owner, file: f, usage: directoryBytes, state: r.State, bytes: r.ValidBytes, repairedTail: r.TailBytes}, nil
+	var retained []byte
+	if snapshots {
+		retained = bytes.Clone(image)
+	}
+	return &Store{snapshotImage: retained, applicationVersion: version, root: root, generation: c.Generation, owner: owner, file: f, usage: directoryBytes, state: r.State, bytes: r.ValidBytes, repairedTail: r.TailBytes}, nil
 }
 
 func repairTail(f walFile, valid int64) error {

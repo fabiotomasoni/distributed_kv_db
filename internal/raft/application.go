@@ -10,6 +10,7 @@ import (
 
 	"github.com/fabiotomasoni/distributed_kv_db/internal/applier"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/committed"
+	"github.com/fabiotomasoni/distributed_kv_db/internal/snapshot"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/statemachine"
 	"github.com/fabiotomasoni/distributed_kv_db/internal/storageformat"
 )
@@ -55,7 +56,7 @@ func (x *Service) initApplication(opt Options) error {
 			return err
 		}
 	}
-	if err := x.core.EnableCommit(); err != nil {
+	if err := x.core.enableCommit(opt.SnapshotRecovery); err != nil {
 		return err
 	}
 	for _, e := range x.core.entries {
@@ -69,6 +70,39 @@ func (x *Service) initApplication(opt Options) error {
 	}
 	if capacity < 1 || capacity > 64 {
 		return ErrInput
+	}
+	if opt.SnapshotRecovery {
+		source, ok := x.storage.(interface{ SnapshotImage() []byte })
+		if !ok {
+			return ErrInput
+		}
+		recovered, err := snapshot.RecoverCommitted(context.Background(), x.cfg, source.SnapshotImage(), x.storage.State(), capacity)
+		if err != nil {
+			return err
+		}
+		if recovered.Snapshot.Index != x.core.baseIndex || recovered.Snapshot.Term != x.core.baseTerm || recovered.LastApplied != x.core.state.CommitIndex {
+			return ErrInput
+		}
+		a, err := applier.New(diagnosticMachine{recovered.Machine, x.diagnostic}, applier.Config{Capacity: capacity, InitialIndex: recovered.LastApplied})
+		if err != nil {
+			return err
+		}
+		x.application = &applicationRuntime{applier: a, tickets: make(chan applyTicket, 64), completions: make(chan applyCompletion, 64), done: make(chan struct{}), changed: make(chan struct{}), last: recovered.LastApplied}
+		// Every index below C was actually completed by the isolated recovery
+		// worker. Reconstruct core cursors in order; leave old result ring empty.
+		for _, e := range x.core.entries {
+			if e.Index > recovered.LastApplied {
+				break
+			}
+			if err = x.core.Scheduled(e.Index); err == nil {
+				err = x.core.Applied(1, e.Index, nil)
+			}
+			if err != nil {
+				_ = a.Shutdown(context.Background())
+				return err
+			}
+		}
+		return nil
 	}
 	var machine applier.Machine = statemachine.New()
 	if opt.MachineFactory != nil {

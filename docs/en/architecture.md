@@ -114,3 +114,7 @@ The isolated snapshot package requires serial-owner Proof with A=L=B<=C, isolate
 ## M13 Phase B — 23 November 2026
 
 The [Phase B Persistence component](milestone-m13-persistence.md) is synchronous and isolated, with no node/service/server caller: one LOCK/mutex owner serializes build, publication, recovery and Close; no second application worker or concurrent append. It reads the final WAL view under lock after capture, preserving updated vote/commit/suffix, but does not implement the live coordinator storage fence or writer/token switch. DiskRecovery separates the machine at S from validated log; no listener or suffix replay. C-03 remains CONDITIONALLY READY.
+
+## M13 Phase C — 23 November 2026
+
+[Phase C](milestone-m13-runtime-recovery.md) is RUNTIME RECOVERY PHASE COMPLETED: RecoverCommitted restores S and applies only S+1..C through M02, then drains/closes the isolated worker before a fresh applier at C. WAL and snapshot validated under continuous LOCK. Startup is explicit through node.StartAPIWithSnapshotRecovery for v2; ordinary StartAPI/CLI retain the base-zero guard. No fallback on corrupt CURRENT/snapshot. KV/sessions, hard state and A=L=C verified with follower/leader/all-process crash/restarts. C-01/OQ-05 confirmed; recovery C-02/OQ-01 subset verified, overall C-02/C-03 CONDITIONALLY READY. Full T-015/AC-015/FR-015, T-016/AC-016/FR-016 and T-026/AC-026/NFR-006 open: compaction, cleanup and InstallSnapshot unimplemented. M13 PARTIALLY COMPLETED, M14 not started.

@@ -1,5 +1,5 @@
-// Package snapshot provides M13 Phase A ISOLATED memory operations. No node,
-// service, storage writer, RPC or automatic trigger imports/enables this package.
+// Package snapshot implements bounded M13 capture, generation persistence and
+// explicitly enabled recovery. It never triggers publication or peer transfer.
 package snapshot
 
 import (

@@ -31,6 +31,7 @@ type Token struct {
 // here: there is no consensus integration. Do not copy Store; inputs must remain
 // immutable throughout Append. Invalid admission does not poison the writer.
 type Store struct {
+	snapshotImage       []byte
 	applicationVersion  int
 	mu                  sync.Mutex
 	root, generation    string
@@ -151,3 +152,7 @@ func (s *Store) ApplicationVersion() int {
 	}
 	return s.applicationVersion
 }
+
+// SnapshotImage returns owned validated bytes only for explicit snapshot opens.
+// The file is immutable for this generation; appends cannot alter this image.
+func (s *Store) SnapshotImage() []byte { return append([]byte(nil), s.snapshotImage...) }

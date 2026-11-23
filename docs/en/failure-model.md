@@ -80,3 +80,7 @@ The [pre-M13 matrix](pre-m13-review.md) assigns capture errors, header/payload/S
 ## M13 Phase B — 23 November 2026
 
 The [Phase B checks](milestone-m13-persistence.md) distinguish partial writes/errors, ready gen-N and CURRENT selection, uncertainty after rename attempt and process exit with OS alive. Errors never return success; failed owner, candidates and previous generations retained; no recovery fallback. Only a structurally incomplete final WAL tail is repairable after validation; complete corruption is fatal. Cleanup/switch/installation and OS/power crashes unverified. T-015/T-016/T-026 remain open.
+
+## M13 Phase C — 23 November 2026
+
+[Phase C](milestone-m13-runtime-recovery.md) is RUNTIME RECOVERY PHASE COMPLETED: RecoverCommitted restores S and applies only S+1..C through M02, then drains/closes the isolated worker before a fresh applier at C. WAL and snapshot validated under continuous LOCK. Startup is explicit through node.StartAPIWithSnapshotRecovery for v2; ordinary StartAPI/CLI retain the base-zero guard. No fallback on corrupt CURRENT/snapshot. KV/sessions, hard state and A=L=C verified with follower/leader/all-process crash/restarts. C-01/OQ-05 confirmed; recovery C-02/OQ-01 subset verified, overall C-02/C-03 CONDITIONALLY READY. Full T-015/AC-015/FR-015, T-016/AC-016/FR-016 and T-026/AC-026/NFR-006 open: compaction, cleanup and InstallSnapshot unimplemented. M13 PARTIALLY COMPLETED, M14 not started.

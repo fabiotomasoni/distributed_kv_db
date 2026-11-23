@@ -8,9 +8,12 @@ import (
 )
 
 // EnableCommit opts into ordered application before events. Its M07 default
-// rejects reads; M10 explicitly enables them first. Snapshots remain unsupported.
-func (x *Core) EnableCommit() error {
-	if x.stepped || x.batchSize == 0 || x.commitEnabled || x.baseIndex != 0 || x.state.Closed {
+// rejects reads; M10 enables them first. This default rejects snapshot bases.
+func (x *Core) EnableCommit() error { return x.enableCommit(false) }
+
+// enableCommit is startup-only. Nonzero bases require explicit snapshot recovery.
+func (x *Core) enableCommit(snapshot bool) error {
+	if x.stepped || x.batchSize == 0 || x.commitEnabled || (!snapshot && x.baseIndex != 0) || x.state.Closed {
 		return ErrInput
 	}
 	for _, e := range x.entries {
@@ -21,6 +24,10 @@ func (x *Core) EnableCommit() error {
 	}
 	x.commitEnabled = true
 	x.state.ApplyEpoch = 1
+	if snapshot {
+		x.state.LastApplied = x.baseIndex
+		x.state.ScheduledApplyIndex = x.baseIndex
+	}
 	return nil
 }
 func (x *Core) persistCommit(index uint64, after func() (Effects, error)) (Effects, error) {
