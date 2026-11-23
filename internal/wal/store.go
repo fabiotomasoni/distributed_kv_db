@@ -31,6 +31,7 @@ type Token struct {
 // here: there is no consensus integration. Do not copy Store; inputs must remain
 // immutable throughout Append. Invalid admission does not poison the writer.
 type Store struct {
+	identity            Identity
 	snapshotImage       []byte
 	applicationVersion  int
 	mu                  sync.Mutex

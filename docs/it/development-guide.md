@@ -213,3 +213,24 @@ python3 docs/fixtures/verify_canonical_v1.py
 go list -m all
 git diff --check
 ```
+
+## M13 Fase E — 23 novembre 2026
+
+La [Fase E](milestone-m13-installsnapshot-preliminary.md) è **ISOLATED INSTALLSNAPSHOT PHASE COMPLETED**: ricevente/controller dormienti, chunk M04 esistenti, persistenza reale M05 di termine/voto, suffisso locale coerente, pubblicazione B sotto LOCK continuo, KV/sessioni nuovi e apply epoch, ACK finale correlato e catch-up deterministico del suffisso verificati in isolamento. Nessuna integrazione ordinaria node/service/server/transport. C-01/OQ-05 confermato; aggiunte evidenze isolate C-02/OQ-01 e C-03, entrambi complessivamente CONDITIONALLY READY. T-015/AC-015/FR-015, T-016/AC-016/FR-016 e T-026/AC-026/NFR-006 completi restano aperti. InstallSnapshot runtime, compaction live, GC ed eliminazione prefissi non attivati; M13 PARTIALLY COMPLETED, M14 non iniziata.
+
+Le API isolate Open/Handle/Transfer sono destinate solo a directory di test di proprietà esplicita, non alla configurazione di produzione. Nessuno switch CLI/server. Avvio ordinario e recovery esplicito Fase C invariati. Test senza cluster avviato, con tracce finite, snapshot piccoli e root temporanee. Seguono i comandi della Fase E.
+
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+go test -p 1 -count=1 -timeout=75s ./internal/snapshotinstall ./internal/snapshot ./internal/wal ./internal/raft
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13e.cover -timeout=75s ./...
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=75s ./internal/snapshotinstall ./internal/snapshot ./internal/wal ./internal/raft ./internal/applier ./internal/committed ./internal/storagefs
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

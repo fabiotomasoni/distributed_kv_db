@@ -1,6 +1,6 @@
 # QuorumKV — Documentation / Documentazione
 
-**M01–M12 COMPLETED — 22 November / novembre 2026. M13 not started / non iniziata.**
+**M01–M12 COMPLETED — 23 November / novembre 2026. M13 PARTIALLY COMPLETED: A–E verified within their scope / A–E verificate nel rispettivo perimetro. Runtime InstallSnapshot, compaction and GC remain unactivated / non attivati.**
 
 [Italiano: documentazione completa](it/README.md) · [English: complete documentation](en/README.md)
 
@@ -33,3 +33,5 @@ Two equivalent paths with specifications, requirements, ADRs, diagrams, planned 
 [M12 completata: fault/replay e diagnostica](it/milestone-m12.md) · [M12 completed: fault/replay and diagnostics](en/milestone-m12.md)
 
 [Revisione pre-M13: CONDITIONALLY READY](it/pre-m13-review.md) · [Pre-M13 review: CONDITIONALLY READY](en/pre-m13-review.md)
+
+[M13 Fase E: InstallSnapshot isolato](it/milestone-m13-installsnapshot-preliminary.md) · [M13 Phase E: isolated InstallSnapshot](en/milestone-m13-installsnapshot-preliminary.md)

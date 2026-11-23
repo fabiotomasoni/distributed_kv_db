@@ -213,3 +213,24 @@ python3 docs/fixtures/verify_canonical_v1.py
 go list -m all
 git diff --check
 ```
+
+## M13 Phase E — 23 November 2026
+
+[Phase E](milestone-m13-installsnapshot-preliminary.md) is **ISOLATED INSTALLSNAPSHOT PHASE COMPLETED**: dormant receiver/controller, existing M04 chunks, real M05 term/vote persistence, coherent local suffix, B publication under continuous LOCK, fresh KV/sessions and apply epoch, correlated final ACK and deterministic suffix catch-up verified in isolation. No ordinary node/service/server/transport integration. C-01/OQ-05 confirmed; isolated C-02/OQ-01 and C-03 evidence added, overall both CONDITIONALLY READY. Full T-015/AC-015/FR-015, T-016/AC-016/FR-016 and T-026/AC-026/NFR-006 remain open. Runtime InstallSnapshot, live compaction, GC and prefix deletion remain unactivated; M13 PARTIALLY COMPLETED, M14 not started.
+
+The isolated Open/Handle/Transfer APIs are intended only for explicitly owned test directories, not production configuration. They expose no CLI/server switch. Ordinary startup and Phase C explicit recovery remain unchanged. Tests require no running cluster and use finite traces, small snapshots and temporary roots. Commands used for Phase E are below.
+
+
+```sh
+export GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOMAXPROCS=2
+export CGO_ENABLED=0
+go test -p 1 -count=1 -timeout=75s ./internal/snapshotinstall ./internal/snapshot ./internal/wal ./internal/raft
+go test -p 1 -count=1 -coverpkg=./... -coverprofile=/tmp/quorumkv-m13e.cover -timeout=75s ./...
+CGO_ENABLED=1 go test -race -p 1 -count=1 -timeout=75s ./internal/snapshotinstall ./internal/snapshot ./internal/wal ./internal/raft ./internal/applier ./internal/committed ./internal/storagefs
+gofmt -l cmd internal
+go vet ./...
+GOOS=darwin GOARCH=arm64 go build ./...
+python3 docs/fixtures/verify_canonical_v1.py
+go list -m all
+git diff --check
+```

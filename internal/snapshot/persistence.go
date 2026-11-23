@@ -423,7 +423,7 @@ func (p *Persistence) publishOwned(ctx context.Context, s storageformat.Snapshot
 	if err := p.admitted(ctx); err != nil {
 		return "", err
 	}
-	image, err := storageformat.EncodeSnapshot(s)
+	_, err := storageformat.EncodeSnapshot(s)
 	if err != nil {
 		return "", err
 	}
@@ -435,7 +435,23 @@ func (p *Persistence) publishOwned(ctx context.Context, s storageformat.Snapshot
 		p.failure = err
 		return "", err
 	}
-	log, err := generationWAL(source.Log, s)
+	return p.publishViewOwned(ctx, s, source.Log)
+}
+
+// publishViewOwned is the sole generation publication protocol. The explicit
+// isolated installer supplies a revalidated follower-local retained-log view.
+func (p *Persistence) publishViewOwned(ctx context.Context, s storageformat.Snapshot, view wal.State) (string, error) {
+	if err := p.admitted(ctx); err != nil {
+		return "", err
+	}
+	image, err := storageformat.EncodeSnapshot(s)
+	if err != nil {
+		return "", err
+	}
+	if s.ClusterID != p.cfg.ClusterID() || s.ConfigHash != p.cfg.Hash() {
+		return "", ErrProfile
+	}
+	log, err := generationWAL(view, s)
 	if err != nil {
 		return "", err
 	}

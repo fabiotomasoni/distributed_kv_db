@@ -213,7 +213,7 @@ func openOwnedSnapshotVersion(root string, id Identity, owner *storagefs.Lock, v
 	if snapshots {
 		retained = bytes.Clone(image)
 	}
-	return &Store{snapshotImage: retained, applicationVersion: version, root: root, generation: c.Generation, owner: owner, file: f, usage: directoryBytes, state: r.State, bytes: r.ValidBytes, repairedTail: r.TailBytes}, nil
+	return &Store{identity: id, snapshotImage: retained, applicationVersion: version, root: root, generation: c.Generation, owner: owner, file: f, usage: directoryBytes, state: r.State, bytes: r.ValidBytes, repairedTail: r.TailBytes}, nil
 }
 
 func repairTail(f walFile, valid int64) error {

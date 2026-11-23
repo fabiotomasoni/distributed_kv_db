@@ -43,3 +43,9 @@ The [pre-M13 review](../pre-m13-review.md) retains QSN1/payload v1 with complete
 ## M13 Phase D isolated compaction — 23 November 2026
 
 [Phase D](../milestone-m13-compaction-preliminary.md) adopts the existing representation without new fields: QSN1 snapshot/base-S WAL, final hard state, complete suffix and CURRENT v1 with v2 identity. The new assignment permits non-destructive isolated verification; no further format decision needed. Capture derives from actual apply; KV/sessions/indexes/suffix compared before/after B/C publication. Non-repairing reader only for D proof; ordinary behavior unchanged. Overall C-02/C-03 CONDITIONALLY READY and T-015/T-016/T-026 open. Equivalence alone authorizes no live activation, GC, deletion or InstallSnapshot.
+
+## M13 Phase E isolated installation — 23 November 2026
+
+[Phase E](../milestone-m13-installsnapshot-preliminary.md) is **ISOLATED INSTALLSNAPSHOT PHASE COMPLETED**: dormant receiver/controller, existing M04 chunks, real M05 term/vote persistence, coherent local suffix, B publication under continuous LOCK, fresh KV/sessions and apply epoch, correlated final ACK and deterministic suffix catch-up verified in isolation. No ordinary node/service/server/transport integration. C-01/OQ-05 confirmed; isolated C-02/OQ-01 and C-03 evidence added, overall both CONDITIONALLY READY. Full T-015/AC-015/FR-015, T-016/AC-016/FR-016 and T-026/AC-026/NFR-006 remain open. Runtime InstallSnapshot, live compaction, GC and prefix deletion remain unactivated; M13 PARTIALLY COMPLETED, M14 not started.
+
+Existing decisions apply unchanged: one canonical publication protocol, updated **local** term/vote, matched-boundary suffix preservation, atomic KV/session restore after CURRENT, no partial ACK as replication proof. Stable LOCK is lent without release; old apply completes before replacement, fresh epoch rejects stale completions. No runtime compaction/GC authorization and no v1 migration.

@@ -90,3 +90,31 @@ func (x *Core) EnableLoggedReads() error {
 	x.readsEnabled = true
 	return nil
 }
+
+// EnableRecoveredCommit is a dormant startup capability for the isolated
+// snapshot harness. Its caller must first complete real application through
+// applied on a fresh machine. Existing runtime modes do not call this method.
+func (x *Core) EnableRecoveredCommit(applied, epoch uint64) error {
+	if epoch == 0 || applied < x.baseIndex || applied > x.state.CommitIndex {
+		return ErrInput
+	}
+	if err := x.EnableLoggedReads(); err != nil {
+		return err
+	}
+	if err := x.enableCommit(true); err != nil {
+		return err
+	}
+	for _, e := range x.entries {
+		if e.Index > applied {
+			break
+		}
+		if err := x.Scheduled(e.Index); err != nil {
+			return err
+		}
+		if err := x.Applied(1, e.Index, nil); err != nil {
+			return err
+		}
+	}
+	x.state.ApplyEpoch = epoch
+	return nil
+}
